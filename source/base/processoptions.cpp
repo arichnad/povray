@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/processoptions.cpp $
- * $Revision: #25 $
- * $Change: 5270 $
- * $DateTime: 2010/12/15 06:16:14 $
- * $Author: chrisc $
+ * $Revision: #28 $
+ * $Change: 5743 $
+ * $DateTime: 2013/01/20 06:41:04 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -417,7 +417,6 @@ int ProcessOptions::WriteFile(OTextStream *ini_file, POVMSObjectPtr obj)
 
 int ProcessOptions::WriteFile(const char *filename, POVMSObjectPtr obj)
 {
-	struct INI_Parser_Table *table = parse_ini_table;
 	OTextStream *ini_file;
 	int err = kNoErr;
 
@@ -565,7 +564,6 @@ size_t ProcessOptions::ConvertUTF8ToUCS2(const char *text_array, UCS2 *char_arra
 size_t ProcessOptions::ConvertUCS2ToUTF8(const UCS2 *char_array, char *text_array)
 {
 	int i, k, len;
-	char *retstr = NULL;
 	unsigned int chr;
 
 	for(len = 0, i = 0; char_array[i] != 0; i++)
@@ -670,7 +668,7 @@ void ProcessOptions::ParseErrorAt(ITextStream *file, const char *format, ...)
 	vsnprintf(error_buffer, 1023, format, marker);
 	va_end(marker);
 
-	fprintf(stderr, "%s\nFile '%s' at line '%d'", error_buffer, UCS2toASCIIString(file->name()).c_str(), (unsigned int) file->line());
+	fprintf(stderr, "%s\nFile '%s' at line '%u'", error_buffer, UCS2toASCIIString(file->name()).c_str(), (unsigned int) file->line());
 }
 
 void ProcessOptions::WriteError(const char *format, ...)
@@ -869,7 +867,7 @@ int ProcessOptions::Parse_INI_Option(ITextStream *file, POVMSObjectPtr obj)
 	struct INI_Parser_Table *table = parse_ini_table;
 	char *value = NULL;
 	char *key = NULL;
-	char chr = 0;
+	int chr = 0;
 	int err = kNoErr;
 
 	// read the key string
@@ -1025,7 +1023,7 @@ int ProcessOptions::Parse_INI_Switch(ITextStream *file, int token, POVMSObjectPt
 		chr = file->getchar();
 		if((chr == '\"') || (chr == '\''))
 		{
-			char *value = Parse_INI_String(file, chr);
+			value = Parse_INI_String(file, chr);
 			if(value == NULL)
 				ParseErrorAt(file, "Expected command-line switch in INI file to be followed by quoted parameter.");
 		}
@@ -1069,7 +1067,7 @@ int ProcessOptions::Parse_INI_Switch(ITextStream *file, int token, POVMSObjectPt
 		}
 
 		// if there was no sucessful match so far, see if it is a system specific switch
-		if(table == NULL)
+		if((table == NULL) || (table->command == NULL))
 		{
 			if(ProcessUnknownSwitch(key, value, obj) == false)
 			{
@@ -1167,7 +1165,7 @@ char *ProcessOptions::Parse_Raw_INI_String(ITextStream *file)
 	str[0] = 0;
 	for (int i = 0; i < 65536; i++, *pos = 0)
 	{
-		char ch = file->getchar();
+		int ch = file->getchar();
 		if (hadEscape && (ch == '"' || ch == '\'' || ch == '\\'))
 		{
 			hadEscape = false;
@@ -1369,7 +1367,7 @@ int ProcessOptions::Parse_CL_Switch(const char *&commandline, int token, POVMSOb
 		}
 
 		// if there was no successful match so far, see if it is a system specific switch
-		if(table == NULL)
+		if((table == NULL) || (table->command == NULL))
 		{
 			if(ProcessUnknownSwitch(key, value, obj) == false)
 			{
@@ -1496,7 +1494,6 @@ int ProcessOptions::Process_INI_Option(INI_Parser_Table *option, char *param, PO
 {
 	double floatval = 0.0;
 	int intval = 0;
-	int intval2 = 0;
 	int err = kNoErr;
 
 	switch(option->type)
@@ -1523,22 +1520,10 @@ int ProcessOptions::Process_INI_Option(INI_Parser_Table *option, char *param, PO
 			err = POVMSUtil_SetBool(obj, option->key, IsTrue(param));
 			break;
 		case kPOVMSType_CString:
-			if(err == kNoErr)
-				err = POVMSUtil_SetString(obj, option->key, param);
-			else
-			{
-				ParseError("String parameter expected for option '%s', found '%s'.", option->keyword, param);
-				err = kParseErr;
-			}
+			err = POVMSUtil_SetString(obj, option->key, param);
 			break;
 		case kPOVMSType_UCS2String:
-			if(err == kNoErr)
-				err = POVMSUtil_SetUTF8String(obj, option->key, param);
-			else
-			{
-				ParseError("File name or path parameter expected for option '%s', found '%s'.", option->keyword, param);
-				err = kParseErr;
-			}
+			err = POVMSUtil_SetUTF8String(obj, option->key, param);
 			break;
 		case kPOVMSType_WildCard:
 			err = ReadSpecialOptionHandler(option, param, obj);
@@ -1555,9 +1540,7 @@ int ProcessOptions::Process_Switch(Cmd_Parser_Table *option, char *param, POVMSO
 {
 	double floatval = 0.0;
 	int intval = 0;
-	int intval2 = 0;
 	int err = 0;
-	char chr = 0;
 
 	if(option->is_switch != kPOVMSType_Null)
 	{
@@ -1590,22 +1573,10 @@ int ProcessOptions::Process_Switch(Cmd_Parser_Table *option, char *param, POVMSO
 			err = POVMSUtil_SetBool(obj, option->key, IsTrue(param));
 			break;
 		case kPOVMSType_CString:
-			if(err == kNoErr)
-				err = POVMSUtil_SetString(obj, option->key, param);
-			else
-			{
-				ParseError("String parameter expected for switch '%s', found '%s'.", option->command, param);
-				err = kParseErr;
-			}
+			err = POVMSUtil_SetString(obj, option->key, param);
 			break;
 		case kPOVMSType_UCS2String:
-			if(err == kNoErr)
-				err = POVMSUtil_SetUTF8String(obj, option->key, param);
-			else
-			{
-				ParseError("File name or path parameter expected for switch '%s', found '%s'.", option->command, param);
-				err = kParseErr;
-			}
+			err = POVMSUtil_SetUTF8String(obj, option->key, param);
 			break;
 		case kPOVMSType_WildCard:
 			err = ReadSpecialSwitchHandler(option, param, obj, is_on);

@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/lighting/photonshootingstrategy.cpp $
- * $Revision: #10 $
- * $Change: 5088 $
- * $DateTime: 2010/08/05 17:08:44 $
+ * $Revision: #12 $
+ * $Change: 5784 $
+ * $DateTime: 2013/02/04 13:06:24 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -131,16 +131,16 @@ void PhotonShootingStrategy::start()
 PhotonShootingUnit* PhotonShootingStrategy::getNextUnit()
 {
 	boost::mutex::scoped_lock lock(nextUnitMutex);
-	if(iter == units.end()) return 0;
+	if(iter == units.end()) return NULL;
 	PhotonShootingUnit* unit = *iter;
 	iter++;
 	return unit;
 }
 
-void PhotonShootingStrategy::createUnitsForCombo(ObjectPtr obj, LightSource* light, ViewThreadData* renderDataPtr, shared_ptr<SceneData> sceneData)
+void PhotonShootingStrategy::createUnitsForCombo(ObjectPtr obj, LightSource* light, shared_ptr<SceneData> sceneData)
 {
 	PhotonShootingUnit* unit = new PhotonShootingUnit(light, obj);
-	unit->lightAndObject.computeAnglesAndDeltas(renderDataPtr, sceneData);
+	unit->lightAndObject.computeAnglesAndDeltas(sceneData);
 	units.push_back(unit);
 }
 

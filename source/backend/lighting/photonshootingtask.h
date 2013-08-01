@@ -20,10 +20,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/lighting/photonshootingtask.h $
- * $Revision: #8 $
- * $Change: 5009 $
- * $DateTime: 2010/06/05 10:39:30 $
- * $Author: chrisc $
+ * $Revision: #9 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -129,7 +129,7 @@ class PhotonShootingTask : public RenderTask
 		int load();
 
 		void ShootPhotonsAtObject(LightTargetCombo& combo);
-		DBL computeAttenuation(LightSource* Light, Ray& ray, DBL dist_of_initial_from_center);
+		DBL computeAttenuation(const LightSource* Light, const Ray& ray, DBL dist_of_initial_from_center);
 
 		PhotonMap* getMediaPhotonMap();
 		PhotonMap* getSurfacePhotonMap();

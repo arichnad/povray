@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/povmsgid.h $
- * $Revision: #58 $
- * $Change: 5387 $
- * $DateTime: 2011/01/17 15:14:56 $
- * $Author: chrisc $
+ * $Revision: #59 $
+ * $Change: 5788 $
+ * $DateTime: 2013/02/06 16:52:49 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -361,6 +361,7 @@ enum
 	kPOVAttrib_StatisticsFile        = 'SFNa',
 	kPOVAttrib_WarningFile           = 'WFNa',
 	kPOVAttrib_AllFile               = 'AFNa',
+	kPOVAttrib_AppendConsoleFiles    = 'ACFi',
 
 	kPOVAttrib_Display               = 'Disp',
 	kPOVAttrib_VideoMode             = 'VMod', // currently not supported by code

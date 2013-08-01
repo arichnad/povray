@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/scene/view.h $
- * $Revision: #61 $
- * $Change: 5176 $
- * $DateTime: 2010/11/01 03:03:25 $
- * $Author: chrisc $
+ * $Revision: #62 $
+ * $Change: 5739 $
+ * $DateTime: 2013/01/19 03:47:37 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -168,7 +168,8 @@ class ViewData
 		 */
 		class BlockInfo
 		{
-			virtual void dummy() {} // dummy virtual function, allowing to use dynamic_cast
+			public:
+				virtual ~BlockInfo() {} // need to have a virtual member so we can use dynamic_cast
 		};
 
 		/**

@@ -20,9 +20,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/render/trace.cpp $
- * $Revision: #197 $
- * $Change: 5614 $
- * $DateTime: 2012/02/23 20:13:13 $
+ * $Revision: #206 $
+ * $Change: 5783 $
+ * $DateTime: 2013/02/04 10:34:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -133,6 +133,7 @@ Trace::Trace(shared_ptr<SceneData> sd, TraceThreadData *td, unsigned int qf,
 	maxFoundTraceLevel(0),
 	qualityFlags(qf),
 	mailbox(0),
+	crandRandomNumberGenerator(0),
 	randomNumbers(0.0, 1.0, 32768),
 	randomNumberGenerator(&randomNumbers),
 	ssltUniformDirectionGenerator(),
@@ -290,8 +291,8 @@ bool Trace::FindIntersection(Intersection& bestisect, const Ray& ray)
 		{
 			if(sceneData->boundingSlabs != NULL)
 				return (Intersect_BBox_Tree(priorityQueue, sceneData->boundingSlabs, ray, &bestisect, threadData));
-			// drop through
 		}
+		// FALLTHROUGH
 		case 0:
 		{
 			bool found = false;
@@ -348,8 +349,8 @@ bool Trace::FindIntersection(Intersection& bestisect, const Ray& ray, const RayO
 		{
 			if(sceneData->boundingSlabs != NULL)
 				return (Intersect_BBox_Tree(priorityQueue, sceneData->boundingSlabs, ray, &bestisect, precondition, postcondition, threadData));
-			// drop through
 		}
+		// FALLTHROUGH
 		case 0:
 		{
 			bool found = false;
@@ -619,13 +620,13 @@ void Trace::ComputeTextureColour(Intersection& isect, Colour& colour, const Ray&
 	lightColorCacheIndex--;
 }
 
-void Trace::ComputeOneTextureColour(Colour& resultcolour, TEXTURE *texture, vector<TEXTURE *>& warps, const Vector3d& ipoint,
+void Trace::ComputeOneTextureColour(Colour& resultcolour, const TEXTURE *texture, vector<const TEXTURE *>& warps, const Vector3d& ipoint,
                                     const Vector3d& rawnormal, const Ray& ray, COLC weight, Intersection& isect, bool shadowflag, bool photonPass, TraceTicket& ticket)
 {
 	// NOTE: this method is used by the photon pass to deposit photons on the surface
 	// (and not, per se, to compute texture color)
-	BLEND_MAP *blendmap = texture->Blend_Map;
-	BLEND_MAP_ENTRY *prev, *cur;
+	const BLEND_MAP *blendmap = texture->Blend_Map;
+	const BLEND_MAP_ENTRY *prev, *cur;
 	double value1, value2; // TODO FIXME - choose better names!
 	Vector3d tpoint;
 	Vector2d uvcoords;
@@ -656,7 +657,7 @@ void Trace::ComputeOneTextureColour(Colour& resultcolour, TEXTURE *texture, vect
 				resultcolour = Colour(1.0, 1.0, 1.0, 1.0, 1.0);
 				break;
 			case AVERAGE_PATTERN:
-				Warp_EPoint(*tpoint, *ipoint, (TPATTERN *)(warps.back()));
+				Warp_EPoint(*tpoint, *ipoint, reinterpret_cast<const TPATTERN *>(warps.back()));
 				ComputeAverageTextureColours(resultcolour, texture, warps, tpoint, rawnormal, ray, weight, isect, shadowflag, photonPass, ticket);
 				break;
 			case UV_MAP_PATTERN:
@@ -667,7 +668,7 @@ void Trace::ComputeOneTextureColour(Colour& resultcolour, TEXTURE *texture, vect
 				ComputeOneTextureColour(resultcolour, cur->Vals.Texture, warps, tpoint, rawnormal, ray, weight, isect, shadowflag, photonPass, ticket);
 				break;
 			case BITMAP_PATTERN:
-				Warp_EPoint(*tpoint, *ipoint, (TPATTERN *)texture);
+				Warp_EPoint(*tpoint, *ipoint, reinterpret_cast<const TPATTERN *>(texture));
 				ComputeOneTextureColour(resultcolour, material_map(*tpoint, texture), warps, tpoint, rawnormal, ray, weight, isect, shadowflag, photonPass, ticket);
 				break;
 			case PLAIN_PATTERN:
@@ -683,8 +684,8 @@ void Trace::ComputeOneTextureColour(Colour& resultcolour, TEXTURE *texture, vect
 	else
 	{
 		// NK 19 Nov 1999 added Warp_EPoint
-		Warp_EPoint(*tpoint, *ipoint, (TPATTERN *)texture);
-		value1 = Evaluate_TPat((TPATTERN *)texture, *tpoint, &isect, &ray, threadData);
+		Warp_EPoint(*tpoint, *ipoint, reinterpret_cast<const TPATTERN *>(texture));
+		value1 = Evaluate_TPat(reinterpret_cast<const TPATTERN *>(texture), *tpoint, &isect, &ray, threadData);
 
 		Search_Blend_Map(value1, blendmap, &prev, &cur);
 
@@ -718,10 +719,10 @@ void Trace::ComputeOneTextureColour(Colour& resultcolour, TEXTURE *texture, vect
 	}
 }
 
-void Trace::ComputeAverageTextureColours(Colour& resultcolour, TEXTURE *texture, vector<TEXTURE *>& warps, const Vector3d& ipoint,
+void Trace::ComputeAverageTextureColours(Colour& resultcolour, const TEXTURE *texture, vector<const TEXTURE *>& warps, const Vector3d& ipoint,
                                          const Vector3d& rawnormal, const Ray& ray, COLC weight, Intersection& isect, bool shadowflag, bool photonPass, TraceTicket& ticket)
 {
-	BLEND_MAP *bmap = texture->Blend_Map;
+	const BLEND_MAP *bmap = texture->Blend_Map;
 	SNGL total = 0.0;
 	Colour lc;
 
@@ -756,11 +757,11 @@ void Trace::ComputeAverageTextureColours(Colour& resultcolour, TEXTURE *texture,
 	}
 }
 
-void Trace::ComputeLightedTexture(Colour& resultcolour, TEXTURE *texture, vector<TEXTURE *>& warps, const Vector3d& ipoint,
+void Trace::ComputeLightedTexture(Colour& resultcolour, const TEXTURE *texture, vector<const TEXTURE *>& warps, const Vector3d& ipoint,
                                   const Vector3d& rawnormal, const Ray& ray, COLC weight, Intersection& isect, TraceTicket& ticket)
 {
 	Interior *interior;
-	TEXTURE *layer;
+	const TEXTURE *layer;
 	int i;
 	bool radiosity_done, radiosity_back_done, radiosity_needed;
 	int layer_number;
@@ -820,23 +821,23 @@ void Trace::ComputeLightedTexture(Colour& resultcolour, TEXTURE *texture, vector
 	if(sceneData->photonSettings.photonsEnabled && sceneData->surfacePhotonMap.numPhotons > 0)
 		surfacePhotonGatherer.reset(new PhotonGatherer(&sceneData->surfacePhotonMap, sceneData->photonSettings));
 
-	for(layer_number = 0, layer = texture; (layer != NULL) && (trans > ticket.adcBailout); layer_number++, layer = (TEXTURE *)layer->Next)
+	for(layer_number = 0, layer = texture; (layer != NULL) && (trans > ticket.adcBailout); layer_number++, layer = reinterpret_cast<const TEXTURE *>(layer->Next))
 	{
 		// Get perturbed surface normal.
 		layNormal = rawnormal;
 
 		if((qualityFlags & Q_NORMAL) && (layer->Tnormal != NULL))
 		{
-			for(vector<TEXTURE *>::iterator i(warps.begin()); i != warps.end(); i++)
-				Warp_Normal(*layNormal, *layNormal, (TPATTERN *)(*i), Test_Flag((*i), DONT_SCALE_BUMPS_FLAG));
+			for(vector<const TEXTURE *>::iterator i(warps.begin()); i != warps.end(); i++)
+				Warp_Normal(*layNormal, *layNormal, reinterpret_cast<const TPATTERN *>(*i), Test_Flag((*i), DONT_SCALE_BUMPS_FLAG));
 
 			Perturb_Normal(*layNormal, layer->Tnormal, *ipoint, &isect, &ray, threadData);
 
 			if((Test_Flag(layer->Tnormal, DONT_SCALE_BUMPS_FLAG)))
 				layNormal.normalize();
 
-			for(vector<TEXTURE *>::reverse_iterator i(warps.rbegin()); i != warps.rend(); i++)
-				UnWarp_Normal(*layNormal, *layNormal, (TPATTERN *)(*i), Test_Flag((*i), DONT_SCALE_BUMPS_FLAG));
+			for(vector<const TEXTURE *>::reverse_iterator i(warps.rbegin()); i != warps.rend(); i++)
+				UnWarp_Normal(*layNormal, *layNormal, reinterpret_cast<const TPATTERN *>(*i), Test_Flag((*i), DONT_SCALE_BUMPS_FLAG));
 		}
 
 		// Store top layer normal.
@@ -931,9 +932,9 @@ void Trace::ComputeLightedTexture(Colour& resultcolour, TEXTURE *texture, vector
 					// TODO FIXME - other layers may see a higher weight!
 					// Maybe we should go along and compute *first* the total contribution radiosity will make,
 					// and at the *end* apply it.
-					max_Radiosity_Contribution = (filCol * RGBColour(layCol)).greyscale() * att * layer->Finish->Diffuse;
+					max_Radiosity_Contribution = (filCol * RGBColour(layCol)).greyscale() * att * layer->Finish->RawDiffuse;
 
-					if(max_Radiosity_Contribution > ticket.adcBailout * 3.0)
+					if(max_Radiosity_Contribution > ticket.adcBailout)
 					{
 						radiosity.ComputeAmbient(Vector3d(isect.IPoint), rawnormal, layNormal, ambCol, weight * max_Radiosity_Contribution, ticket);
 						radiosity_done = true;
@@ -941,7 +942,7 @@ void Trace::ComputeLightedTexture(Colour& resultcolour, TEXTURE *texture, vector
 				}
 
 				// [CLi] moved multiplication with filCol to further below
-				tmpCol += (RGBColour(layCol) * ambCol) * (att * layer->Finish->Diffuse);
+				tmpCol += (RGBColour(layCol) * ambCol) * (att * layer->Finish->RawDiffuse);
 
 				// if backside radiosity calculation needed, but not yet done, do it now
 				// TODO FIXME - [CLi] with "normal on", shouldn't we compute radiosity for each layer separately (if it has pertubed normals)?
@@ -953,9 +954,9 @@ void Trace::ComputeLightedTexture(Colour& resultcolour, TEXTURE *texture, vector
 						// TODO FIXME - other layers may see a higher weight!
 						// Maybe we should go along and compute *first* the total contribution radiosity will make,
 						// and at the *end* apply it.
-						max_Radiosity_Contribution = (filCol * RGBColour(layCol)).greyscale() * att * layer->Finish->DiffuseBack;
+						max_Radiosity_Contribution = (filCol * RGBColour(layCol)).greyscale() * att * layer->Finish->RawDiffuseBack;
 
-						if(max_Radiosity_Contribution > ticket.adcBailout * 3.0)
+						if(max_Radiosity_Contribution > ticket.adcBailout)
 						{
 							radiosity.ComputeAmbient(Vector3d(isect.IPoint), -rawnormal, -layNormal, ambBackCol, weight * max_Radiosity_Contribution, ticket);
 							radiosity_back_done = true;
@@ -963,7 +964,7 @@ void Trace::ComputeLightedTexture(Colour& resultcolour, TEXTURE *texture, vector
 					}
 
 					// [CLi] moved multiplication with filCol to further below
-					tmpCol += (RGBColour(layCol) * ambBackCol) * (att * layer->Finish->DiffuseBack);
+					tmpCol += (RGBColour(layCol) * ambBackCol) * (att * layer->Finish->RawDiffuseBack);
 				}
 			}
 
@@ -1136,7 +1137,7 @@ void Trace::ComputeLightedTexture(Colour& resultcolour, TEXTURE *texture, vector
 					}
 				}
 			}
-			layer = (TEXTURE *)layer->Next;
+			layer = reinterpret_cast<const TEXTURE *>(layer->Next);
 		}
 	}
 
@@ -1150,11 +1151,11 @@ void Trace::ComputeLightedTexture(Colour& resultcolour, TEXTURE *texture, vector
 #endif
 }
 
-void Trace::ComputeShadowTexture(Colour& filtercolour, TEXTURE *texture, vector<TEXTURE *>& warps, const Vector3d& ipoint,
+void Trace::ComputeShadowTexture(Colour& filtercolour, const TEXTURE *texture, vector<const TEXTURE *>& warps, const Vector3d& ipoint,
                                  const Vector3d& rawnormal, const Ray& ray, Intersection& isect, TraceTicket& ticket)
 {
 	Interior *interior = isect.Object->interior;
-	TEXTURE *layer;
+	const TEXTURE *layer;
 	double caustics, dotval, k;
 	Vector3d layer_Normal;
 	RGBColour refraction;
@@ -1166,7 +1167,7 @@ void Trace::ComputeShadowTexture(Colour& filtercolour, TEXTURE *texture, vector<
 	one_colour_found = false;
 
 	// [CLI] removed obsolete test for filtercolour.filter() and filtercolour.transm(), as they remain unchanged during loop
-	for(layer = texture; layer != NULL; layer = (TEXTURE *)layer->Next)
+	for(layer = texture; layer != NULL; layer = reinterpret_cast<TEXTURE *>(layer->Next))
 	{
 		colour_found = Compute_Pigment(layer_Pigment_Colour, layer->Pigment, *ipoint, &isect, &ray, threadData);
 
@@ -1184,16 +1185,16 @@ void Trace::ComputeShadowTexture(Colour& filtercolour, TEXTURE *texture, vector<
 
 			if((qualityFlags & Q_NORMAL) && (layer->Tnormal != NULL))
 			{
-				for(vector<TEXTURE *>::iterator i(warps.begin()); i != warps.end(); i++)
-					Warp_Normal(*layer_Normal, *layer_Normal, (TPATTERN *)(*i), Test_Flag((*i), DONT_SCALE_BUMPS_FLAG));
+				for(vector<const TEXTURE *>::iterator i(warps.begin()); i != warps.end(); i++)
+					Warp_Normal(*layer_Normal, *layer_Normal, reinterpret_cast<const TPATTERN *>(*i), Test_Flag((*i), DONT_SCALE_BUMPS_FLAG));
 
 				Perturb_Normal(*layer_Normal, layer->Tnormal, *ipoint, &isect, &ray, threadData);
 
 				if((Test_Flag(layer->Tnormal,DONT_SCALE_BUMPS_FLAG)))
 					layer_Normal.normalize();
 
-				for(vector<TEXTURE *>::reverse_iterator i(warps.rbegin()); i != warps.rend(); i++)
-					UnWarp_Normal(*layer_Normal, *layer_Normal, (TPATTERN *)(*i), Test_Flag((*i), DONT_SCALE_BUMPS_FLAG));
+				for(vector<const TEXTURE *>::reverse_iterator i(warps.rbegin()); i != warps.rend(); i++)
+					UnWarp_Normal(*layer_Normal, *layer_Normal, reinterpret_cast<const TPATTERN *>(*i), Test_Flag((*i), DONT_SCALE_BUMPS_FLAG));
 			}
 
 			// Get new filter/transmit values.
@@ -1284,12 +1285,18 @@ void Trace::ComputeReflection(const FINISH* finish, const Vector3d& ipoint, cons
 	// Trace reflected ray.
 	bool alphaBackground = ticket.alphaBackground;
 	ticket.alphaBackground = false;
-	Colour tmpCol;
-	TraceRay(nray, tmpCol, weight, ticket, false);
-	RGBColour tmpCol2(tmpCol);
-	if (finish->Irid > 0.0)
+	if (!ray.IsPhotonRay() && (finish->Irid > 0.0))
+	{
+		Colour tmpCol;
+		TraceRay(nray, tmpCol, weight, ticket, false);
+		RGBColour tmpCol2(tmpCol);
 		ComputeIridColour(finish, Vector3d(nray.Direction), Vector3d(ray.Direction), normal, ipoint, tmpCol2);
-	colour += Colour(tmpCol2);
+		colour += Colour(tmpCol2);
+	}
+	else
+	{
+		TraceRay(nray, colour, weight, ticket, false);
+	}
 	ticket.alphaBackground = alphaBackground;
 }
 
@@ -1479,7 +1486,8 @@ void Trace::ComputeDiffuseLight(const FINISH *finish, const Vector3d& ipoint, co
 	}
 }
 
-void Trace::ComputePhotonDiffuseLight(const FINISH *Finish, const Vector3d& IPoint, const Ray& Eye, const Vector3d& Layer_Normal, const Vector3d& Raw_Normal, const RGBColour& Layer_Pigment_Colour, RGBColour& colour, double Attenuation, ObjectPtr Object, PhotonGatherer& gatherer)
+void Trace::ComputePhotonDiffuseLight(const FINISH *Finish, const Vector3d& IPoint, const Ray& Eye, const Vector3d& Layer_Normal, const Vector3d& Raw_Normal,
+                                      const RGBColour& Layer_Pigment_Colour, RGBColour& colour, double Attenuation, ConstObjectPtr Object, PhotonGatherer& gatherer)
 {
 	double Cos_Shadow_Angle;
 	Ray Light_Source_Ray;
@@ -1615,7 +1623,7 @@ void Trace::ComputePhotonDiffuseLight(const FINISH *Finish, const Vector3d& IPoi
 
 // see Diffuse_One_Light in the 3.6 code (lighting.cpp)
 void Trace::ComputeOneDiffuseLight(const LightSource &lightsource, const Vector3d& reye, const FINISH *finish, const Vector3d& ipoint, const Ray& eye, const Vector3d& layer_normal,
-                                   const RGBColour& layer_pigment_colour, RGBColour& colour, double attenuation, ObjectPtr object, TraceTicket& ticket, int light_index)
+                                   const RGBColour& layer_pigment_colour, RGBColour& colour, double attenuation, ConstObjectPtr object, TraceTicket& ticket, int light_index)
 {
 	double lightsourcedepth, cos_shadow_angle;
 	Ray lightsourceray(eye);
@@ -1871,7 +1879,7 @@ void Trace::ComputeOneLightRay(const LightSource &lightsource, double& lightsour
 }
 
 // see block_light_source in the version 3.6 source
-void Trace::TraceShadowRay(const LightSource &lightsource, double depth, Ray& lightsourceray, const Vector3d& point, RGBColour& colour, TraceTicket& ticket)
+void Trace::TraceShadowRay(const LightSource &lightsource, double depth, const Ray& lightsourceray, const Vector3d& point, RGBColour& colour, TraceTicket& ticket)
 {
 	// test and set highest level traced. We do it differently than TraceRay() does,
 	// for compatibility with the way max_trace_level is tested and reported in v3.6
@@ -2438,8 +2446,8 @@ void Trace::ComputeDiffuseColour(const FINISH *finish, const Ray& lightsourceray
 
 	intensity *= diffuse * attenuation;
 
-// TODO FIXME thread issue	if(finish->Crand > 0.0)
-// TODO FIXME thread issue		intensity -= FRAND() * finish->Crand;
+	if(finish->Crand > 0.0)
+		intensity -= POV_rand(crandRandomNumberGenerator) * finish->Crand;
 
 	colour += intensity * layer_pigment_colour * light_colour;
 }
@@ -2618,7 +2626,7 @@ void Trace::ComputeRelativeIOR(const Ray& ray, const Interior* interior, double&
 }
 
 void Trace::ComputeReflectivity(double& weight, RGBColour& reflectivity, const RGBColour& reflection_max, const RGBColour& reflection_min,
-                                int reflection_type, double reflection_falloff, double cos_angle, const Ray& ray, Interior* interior)
+                                int reflection_type, double reflection_falloff, double cos_angle, const Ray& ray, const Interior* interior)
 {
 	double temp_Weight_Min, temp_Weight_Max;
 	double reflection_Frac;
@@ -2749,21 +2757,23 @@ void Trace::ComputeOneWhiteLightRay(const LightSource &lightsource, double& ligh
 
 void Trace::ComputeSky(const Ray& ray, Colour& colour, TraceTicket& ticket)
 {
-	if (ticket.alphaBackground)
-	{
-		colour = Colour(0.0, 0.0, 0.0, 0.0, 1.0);
-		return;
-	}
-
 	if (sceneData->EffectiveLanguageVersion() < 370)
 	{
-		// this gives the same results regarding filter as how v3.6 did it
+		// this gives the same results regarding sky sphere filter as how v3.6 did it
 
 		int i;
 		double att, trans;
 		RGBColour col;
 		Colour col_Temp, filterc;
 		Vector3d p;
+
+		if (ticket.alphaBackground)
+		{
+			// If rendering with alpha channel, just return full transparency.
+			// (As we're working with associated alpha internally, the respective color must be black here.)
+			colour = Colour(0.0, 0.0, 0.0, 0.0, 1.0);
+			return;
+		}
 
 		colour = sceneData->backgroundColour;
 
@@ -2806,7 +2816,7 @@ void Trace::ComputeSky(const Ray& ray, Colour& colour, TraceTicket& ticket)
 	}
 	else // i.e. sceneData->languageVersion >= 370
 	{
-		// this gives the same results as a layered-texture genuine sphere
+		// this gives the same results regarding sky sphere filter as a layered-texture genuine sphere
 
 		int i;
 		RGBColour filCol(1.0);
@@ -2815,41 +2825,51 @@ void Trace::ComputeSky(const Ray& ray, Colour& colour, TraceTicket& ticket)
 		Colour col_Temp;
 		Vector3d p;
 
-		colour = sceneData->backgroundColour;
-
-		if((sceneData->skysphere == NULL) || (sceneData->skysphere->Pigments == NULL))
-			return;
-
 		col.clear();
 
-		// Transform point on unit sphere.
-		if(sceneData->skysphere->Trans != NULL)
-			MInvTransPoint(*p, ray.Direction, sceneData->skysphere->Trans);
-		else
-			p = Vector3d(ray.Direction);
-
-		for(i = sceneData->skysphere->Count - 1; i >= 0; i--)
+		if((sceneData->skysphere != NULL) && (sceneData->skysphere->Pigments != NULL))
 		{
-			// Compute sky colour from colour map.
-			Compute_Pigment(col_Temp, sceneData->skysphere->Pigments[i], *p, NULL, NULL, threadData);
+			// Transform point on unit sphere.
+			if(sceneData->skysphere->Trans != NULL)
+				MInvTransPoint(*p, ray.Direction, sceneData->skysphere->Trans);
+			else
+				p = Vector3d(ray.Direction);
 
-			att = (1.0 - (col_Temp.filter() * max3(col_Temp.red(), col_Temp.green(), col_Temp.blue()) + col_Temp.transm()));
+			for(i = sceneData->skysphere->Count - 1; i >= 0; i--)
+			{
+				// Compute sky colour from colour map.
+				Compute_Pigment(col_Temp, sceneData->skysphere->Pigments[i], *p, NULL, NULL, threadData);
 
-			col += RGBColour(col_Temp) * att * filCol;
-			filCol *= col_Temp.rgbTransm();
+				att = (1.0 - (col_Temp.filter() * max3(col_Temp.red(), col_Temp.green(), col_Temp.blue()) + col_Temp.transm()));
+
+				col += RGBColour(col_Temp) * att * filCol * sceneData->skysphere->Emission;
+				filCol *= col_Temp.rgbTransm();
+			}
 		}
 
-		col *= sceneData->skysphere->Emission;
+		// apply background as if it was another sky sphere with uniform pigment
+		col_Temp = sceneData->backgroundColour;
+		if (!ticket.alphaBackground)
+		{
+			// if rendering without alpha channel, ignore filter and transmit of background color.
+			col_Temp.filter() = 0.0;
+			col_Temp.transm() = 0.0;
+		}
 
-		colour.red()    = col.red()   + colour.red()   * filCol.red();
-		colour.green()  = col.green() + colour.green() * filCol.green();
-		colour.blue()   = col.blue()  + colour.blue()  * filCol.blue();
+		att = (1.0 - (col_Temp.filter() * max3(col_Temp.red(), col_Temp.green(), col_Temp.blue()) + col_Temp.transm()));
+
+		col += RGBColour(col_Temp) * att * filCol;
+		filCol *= col_Temp.rgbTransm();
+
+		colour.red()    = col.red();
+		colour.green()  = col.green();
+		colour.blue()   = col.blue();
 		colour.filter() = 0.0;
-		colour.transm() = colour.transm() * min(1.0f, fabs(filCol.greyscale()));
+		colour.transm() = min(1.0f, fabs(filCol.greyscale()));
 	}
 }
 
-void Trace::ComputeFog(const Ray& ray, Intersection& isect, Colour& colour)
+void Trace::ComputeFog(const Ray& ray, const Intersection& isect, Colour& colour)
 {
 	double att, att_inv, width;
 	Colour col_fog;
@@ -2907,7 +2927,7 @@ void Trace::ComputeFog(const Ray& ray, Intersection& isect, Colour& colour)
 	colour.transm() *= sum_att.greyscale();
 }
 
-double Trace::ComputeConstantFogColour(const Ray &ray, double depth, double width, FOG *fog, Colour& colour)
+double Trace::ComputeConstantFogColour(const Ray &ray, double depth, double width, const FOG *fog, Colour& colour)
 {
 	Vector3d p;
 	double k;
@@ -2950,7 +2970,7 @@ double Trace::ComputeConstantFogColour(const Ray &ray, double depth, double widt
 *   The integral of the density is atan(Y) (for Y >= 0).
 ******************************************************************************/
 
-double Trace::ComputeGroundFogColour(const Ray& ray, double depth, double width, FOG *fog, Colour& colour)
+double Trace::ComputeGroundFogColour(const Ray& ray, double depth, double width, const FOG *fog, Colour& colour)
 {
 	double fog_density, delta;
 	double start, end;
@@ -3038,7 +3058,7 @@ void Trace::ComputeShadowMedia(Ray& light_source_ray, Intersection& isect, RGBCo
 
 
 
-void Trace::ComputeRainbow(const Ray& ray, Intersection& isect, Colour& colour)
+void Trace::ComputeRainbow(const Ray& ray, const Intersection& isect, Colour& colour)
 {
 	int n;
 	double dot1, k, ki, index, x, y, l, angle, fade, f;
@@ -3179,7 +3199,7 @@ bool Trace::IsObjectInCSG(const ObjectBase* object, const ObjectBase* parent)
 
 	if(parent->Type & IS_COMPOUND_OBJECT)
 	{
-		for(vector<ObjectPtr>::iterator Sib = ((CSG *)parent)->children.begin(); Sib != ((CSG *)parent)->children.end(); Sib++)
+		for(vector<ObjectPtr>::const_iterator Sib = (reinterpret_cast<const CSG *>(parent))->children.begin(); Sib != (reinterpret_cast<const CSG *>(parent))->children.end(); Sib++)
 		{
 			if(IsObjectInCSG(object, *Sib))
 				found = true;
@@ -3293,7 +3313,7 @@ void Trace::ComputeDiffuseSampleBase(Vector3d& basePoint, const Intersection& ou
 		basePoint = pOut + nOut * avgFreeDist;
 }
 
-void Trace::ComputeDiffuseSamplePoint(ObjectPtr obj, const Vector3d& basePoint, Intersection& in, double& sampleArea, TraceTicket& ticket)
+void Trace::ComputeDiffuseSamplePoint(const Vector3d& basePoint, Intersection& in, double& sampleArea, TraceTicket& ticket)
 {
 	// generate a vector in a random direction
 	// TODO FIXME - a suitably weighted distribution (oriented according to the surface normal) would possibly be better
@@ -3732,7 +3752,7 @@ void Trace::ComputeSubsurfaceScattering(const FINISH *Finish, const RGBColour& l
 	DblRGBColour   sigma_tr_sqr     = sigma_tr * sigma_tr;
 #else
 	// user setting specifies reduced scattering coefficient
-	DblRGBColour   alpha_prime      = out.Object->interior->subsurface->GetReducedAlbedo(layer_pigment_colour * Finish->Diffuse);
+	DblRGBColour   alpha_prime      = out.Object->interior->subsurface->GetReducedAlbedo(layer_pigment_colour * Finish->RawDiffuse);
 	DblRGBColour   sigma_prime_s    = DblRGBColour(1.0) / DblRGBColour(Finish->SubsurfaceTranslucency);
 
 	DblRGBColour   sigma_prime_t    = sigma_prime_s / alpha_prime;
@@ -3769,7 +3789,7 @@ void Trace::ComputeSubsurfaceScattering(const FINISH *Finish, const RGBColour& l
 	for (int i = 0; i < NumSamplesDiffuse; i++)
 	{
 		Intersection in;
-		ComputeDiffuseSamplePoint(out.Object, sampleBase, in, sampleArea, ticket);
+		ComputeDiffuseSamplePoint(sampleBase, in, sampleArea, ticket);
 
 		// avoid pathological cases
 		if (sampleArea != 0)

@@ -20,9 +20,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/image/colourspace.cpp $
- * $Revision: #5 $
- * $Change: 5303 $
- * $DateTime: 2010/12/27 14:22:56 $
+ * $Revision: #6 $
+ * $Change: 5784 $
+ * $DateTime: 2013/02/04 13:06:24 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -360,7 +360,7 @@ GammaCurvePtr ScaledGammaCurve::GetByEncoding(const GammaCurvePtr& gamma, float 
 	if (IsNeutral(factor))
 		return GammaCurvePtr(gamma);
 	return GetMatching(GammaCurvePtr(new ScaledGammaCurve(
-		GammaCurve::IsNeutral(gamma) ? NeutralGammaCurve::Get() : GammaCurvePtr(gamma),
+		GammaCurve::IsNeutral(gamma) ? GammaCurvePtr(NeutralGammaCurve::Get()) : gamma,
 		factor)));
 }
 GammaCurvePtr ScaledGammaCurve::GetByDecoding(float factor, const GammaCurvePtr& gamma)
@@ -413,7 +413,7 @@ GammaCurvePtr TranscodingGammaCurve::Get(const GammaCurvePtr& working, const Gam
 			return PowerLawGammaCurve::GetByEncodingGamma(powerLawWork->ApproximateDecodingGamma() / powerLawEnc->ApproximateDecodingGamma());
 	}
 	// we really need a combo of two gamma curves
-	return GetMatching(GammaCurvePtr(new TranscodingGammaCurve(working, encoding ? encoding : NeutralGammaCurve::Get())));
+	return GetMatching(GammaCurvePtr(new TranscodingGammaCurve(working, encoding ? encoding : GammaCurvePtr(NeutralGammaCurve::Get()))));
 }
 float TranscodingGammaCurve::Encode(float x) const
 {

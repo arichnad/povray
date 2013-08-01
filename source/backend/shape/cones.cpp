@@ -24,9 +24,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/cones.cpp $
- * $Revision: #34 $
- * $Change: 5103 $
- * $DateTime: 2010/08/22 06:58:49 $
+ * $Revision: #35 $
+ * $Change: 5741 $
+ * $DateTime: 2013/01/19 05:09:54 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -251,7 +251,7 @@ int Cone::Intersect(const Ray& ray, CONE_INT *Intersection, TraceThreadData *Thr
 
 				z = P[Z] + t2 * D[Z];
 
-				if ((t2 > Cone_Tolerance) && (t1 < MAX_DISTANCE) && (z >= 0.0) && (z <= 1.0))
+				if ((t2 > Cone_Tolerance) && (t2 < MAX_DISTANCE) && (z >= 0.0) && (z <= 1.0))
 				{
 					Intersection[i].d   = t2 / len;
 					Intersection[i++].t = SIDE_HIT;
@@ -309,7 +309,7 @@ int Cone::Intersect(const Ray& ray, CONE_INT *Intersection, TraceThreadData *Thr
 
 				z = P[Z] + t2 * D[Z];
 
-				if ((t2 > Cone_Tolerance) && (t1 < MAX_DISTANCE) && (z >= dist) && (z <= 1.0))
+				if ((t2 > Cone_Tolerance) && (t2 < MAX_DISTANCE) && (z >= dist) && (z <= 1.0))
 				{
 					Intersection[i].d   = t2 / len;
 					Intersection[i++].t = SIDE_HIT;

@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/parser/parse.cpp $
- * $Revision: #177 $
- * $Change: 5497 $
- * $DateTime: 2011/09/22 19:30:09 $
+ * $Revision: #182 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -243,12 +243,12 @@ void Parser::Run()
 				if(i->second[0] == '\"')
 				{
 					string tmp(i->second, 1, i->second.length() - 2);
-					Temp_Entry = Add_Symbol(1, const_cast<char *>(i->first.c_str()), STRING_ID_TOKEN);
-					Temp_Entry->Data = String_To_UCS2(const_cast<char *>(tmp.c_str()), false);
+					Temp_Entry = Add_Symbol(1, i->first.c_str(), STRING_ID_TOKEN);
+					Temp_Entry->Data = String_To_UCS2(tmp.c_str(), false);
 				}
 				else
 				{
-					Temp_Entry = Add_Symbol(1, const_cast<char *>(i->first.c_str()), FLOAT_ID_TOKEN);
+					Temp_Entry = Add_Symbol(1, i->first.c_str(), FLOAT_ID_TOKEN);
 					Temp_Entry->Data = Create_Float();
 					*((DBL *)(Temp_Entry->Data)) = atof(i->second.c_str());
 				}
@@ -671,7 +671,7 @@ void Parser::Destroy_Frame()
 
 void Parser::Parse_Begin ()
 {
-	char *front;
+	const char *front;
 
 	if(++Brace_Index >= MAX_BRACES)
 	{
@@ -713,7 +713,7 @@ void Parser::Parse_Begin ()
 
 void Parser::Parse_End ()
 {
-	char *front;
+	const char *front;
 
 	Get_Token();
 
@@ -2627,6 +2627,7 @@ ObjectPtr Parser::Parse_Isosurface()
 						OTHERWISE
 							UNGET
 							Exit_Flag2 = true;
+						END_CASE
 					}
 				}
 			}
@@ -3384,8 +3385,8 @@ ObjectPtr Parser::Parse_Light_Source ()
 		END_CASE
 
 		CASE (POINT_AT_TOKEN)
-			if ((Object->Light_Type == SPOT_SOURCE) || (Object->Light_Type == CYLINDER_SOURCE)
-					|| Object->Parallel)
+			if ((Object->Light_Type == SPOT_SOURCE) || (Object->Light_Type == CYLINDER_SOURCE) ||
+			    Object->Parallel)
 			{
 				Parse_Vector(Object->Points_At);
 			}
@@ -3846,7 +3847,7 @@ ObjectPtr Parser::Parse_Mesh()
 		END_CASE
 		/* NK ---- */
 
-	OTHERWISE
+		OTHERWISE
 			UNGET
 			EXIT
 		END_CASE
@@ -4675,7 +4676,7 @@ TEXTURE *Parser::Parse_Mesh_Texture (TEXTURE **t2, TEXTURE **t3)
 *
 * AUTHOR
 *
-*   Jérôme Grimbert
+*   Jerome Grimbert
 *   
 * DESCRIPTION
 *
@@ -4852,9 +4853,9 @@ ObjectPtr Parser::Parse_Parametric(void)
 			Object->accuracy= Parse_Float();
 		END_CASE
 
-	CASE(MAX_GRADIENT_TOKEN)
-		Object->max_gradient = Parse_Float();
-	END_CASE
+		CASE(MAX_GRADIENT_TOKEN)
+			Object->max_gradient = Parse_Float();
+		END_CASE
 
 		CASE(PRECOMPUTE_TOKEN)
 			PrecompDepth= Parse_Float();
@@ -4990,6 +4991,7 @@ ObjectPtr Parser::Parse_Parametric(void)
 						OTHERWISE
 							UNGET
 							Exit_Flag2 = true;
+						END_CASE
 					}
 				}
 			}
@@ -5155,8 +5157,8 @@ ObjectPtr Parser::Parse_Polynom ()
 			GET (COLON_TOKEN);
 			value = Parse_Float();
 			if (!Object->Set_Coeff(x,y,z,value))
-	    {
-			   Error("Coefficient of polynom is out of range.");
+			{
+				Error("Coefficient of polynom is out of range.");
 			}
 			Parse_Comma();
 		END_CASE
@@ -5541,7 +5543,7 @@ ObjectPtr Parser::Parse_Prism()
 					break;
 				}
 
-			loopStart = i;
+				loopStart = i;
 			}
 		}
 		if ((fabs(Points[Object->Number-1][X] - Points[loopStart][X]) > EPSILON) ||
@@ -5910,79 +5912,79 @@ ObjectPtr Parser::Parse_Sphere()
 
 ObjectPtr Parser::Parse_Sphere_Sweep()
 {
-		SphereSweep *Object;
-		int i;
+	SphereSweep *Object;
+	int i;
 
-		Parse_Begin();
+	Parse_Begin();
 
-		if ((Object = (SphereSweep *)Parse_Object_Id()) != NULL)
-				return ((ObjectPtr)Object);
+	if ((Object = (SphereSweep *)Parse_Object_Id()) != NULL)
+		return ((ObjectPtr)Object);
 
-		Object = new SphereSweep();
+	Object = new SphereSweep();
 
-		/* Get type of interpolation */
-		EXPECT
-				CASE(LINEAR_SPLINE_TOKEN)
-						Object->Interpolation = LINEAR_SPHERE_SWEEP;
-						EXIT
-				END_CASE
-				CASE(CUBIC_SPLINE_TOKEN)
-						Object->Interpolation = CATMULL_ROM_SPLINE_SPHERE_SWEEP;
-						EXIT
-				END_CASE
-				CASE(B_SPLINE_TOKEN)
-						Object->Interpolation = B_SPLINE_SPHERE_SWEEP;
-						EXIT
-				END_CASE
-				OTHERWISE
-						UNGET
-						EXIT
-				END_CASE
-		END_EXPECT
+	/* Get type of interpolation */
+	EXPECT
+		CASE(LINEAR_SPLINE_TOKEN)
+			Object->Interpolation = LINEAR_SPHERE_SWEEP;
+			EXIT
+		END_CASE
+		CASE(CUBIC_SPLINE_TOKEN)
+			Object->Interpolation = CATMULL_ROM_SPLINE_SPHERE_SWEEP;
+			EXIT
+		END_CASE
+		CASE(B_SPLINE_TOKEN)
+			Object->Interpolation = B_SPLINE_SPHERE_SWEEP;
+			EXIT
+		END_CASE
+		OTHERWISE
+			UNGET
+			EXIT
+		END_CASE
+	END_EXPECT
 
-		if (Object->Interpolation == -1)
-		{
-				Error("Invalid type of interpolation.");
-		}
+	if (Object->Interpolation == -1)
+	{
+			Error("Invalid type of interpolation.");
+	}
 
+	Parse_Comma();
+
+	/* Get number of modeling spheres */
+	Object->Num_Modeling_Spheres = (int)Parse_Float();
+
+	if ((Object->Num_Modeling_Spheres < 2) || (Object->Interpolation != LINEAR_SPHERE_SWEEP && Object->Num_Modeling_Spheres < 4))
+		Error("Too few modeling spheres for interpolation type.");
+
+	Object->Modeling_Sphere =
+		(SPHSWEEP_SPH *)POV_MALLOC(Object->Num_Modeling_Spheres * sizeof(SPHSWEEP_SPH),
+		"sphere sweep modeling spheres");
+
+	for (i = 0; i < Object->Num_Modeling_Spheres; i++)
+	{
 		Parse_Comma();
+		Parse_Vector(Object->Modeling_Sphere[i].Center);
+		Parse_Comma();
+		Object->Modeling_Sphere[i].Radius = Parse_Float();
+	}
 
-		/* Get number of modeling spheres */
-		Object->Num_Modeling_Spheres = (int)Parse_Float();
+	EXPECT
+		CASE(TOLERANCE_TOKEN)
+			Object->Depth_Tolerance = Parse_Float();
+			EXIT
+		END_CASE
+		OTHERWISE
+			UNGET
+			EXIT
+		END_CASE
+	END_EXPECT
 
-		if ((Object->Num_Modeling_Spheres < 2) || (Object->Interpolation != LINEAR_SPHERE_SWEEP && Object->Num_Modeling_Spheres < 4))
-				Error("Too few modeling spheres for interpolation type.");
+	Object->Compute();
 
-		Object->Modeling_Sphere =
-				(SPHSWEEP_SPH *)POV_MALLOC(Object->Num_Modeling_Spheres * sizeof(SPHSWEEP_SPH),
-				"sphere sweep modeling spheres");
+	Object->Compute_BBox();
 
-		for (i = 0; i < Object->Num_Modeling_Spheres; i++)
-		{
-				Parse_Comma();
-				Parse_Vector(Object->Modeling_Sphere[i].Center);
-				Parse_Comma();
-				Object->Modeling_Sphere[i].Radius = Parse_Float();
-		}
+	Parse_Object_Mods((ObjectPtr )Object);
 
-		EXPECT
-				CASE(TOLERANCE_TOKEN)
-						Object->Depth_Tolerance = Parse_Float();
-						EXIT
-				END_CASE
-				OTHERWISE
-						UNGET
-						EXIT
-				END_CASE
-		END_EXPECT
-
-		Object->Compute();
-
-		Object->Compute_BBox();
-
-		Parse_Object_Mods((ObjectPtr )Object);
-
-		return ((ObjectPtr )Object);
+	return ((ObjectPtr )Object);
 }
 
 
@@ -6175,23 +6177,34 @@ ObjectPtr Parser::Parse_Triangle()
 ObjectPtr Parser::Parse_TrueType ()
 {
 	ObjectPtr Object;
-	char *filename;
+	char *filename = NULL;
 	UCS2 *text_string;
 	DBL depth;
 	VECTOR offset;
+	int builtin_font = 0;
 	TRANSFORM Local_Trans;
 
 	Parse_Begin ();
 
-	GET(TTF_TOKEN);
-
 	if ( (Object = (ObjectPtr )Parse_Object_Id()) != NULL)
 		return ((ObjectPtr ) Object);
 
-	/*** Object = Create_TTF(); */
+	EXPECT
+		CASE(TTF_TOKEN)
+			filename = Parse_C_String(true);
+			EXIT
+		END_CASE
+		CASE(INTERNAL_TOKEN) 
+			builtin_font = (int)Parse_Float();
+			EXIT
+		END_CASE
+		OTHERWISE
+		  Expectation_Error ("ttf or internal");
+		END_CASE
+	END_EXPECT
 
-	/* Parse the TrueType font file name */
-	filename = Parse_C_String(true);
+
+	/*** Object = Create_TTF(); */
 	Parse_Comma();
 
 	/* Parse the text string to be rendered */
@@ -6206,10 +6219,15 @@ ObjectPtr Parser::Parse_TrueType ()
 
 	/* Process all this good info */
 	Object = new CSGUnion();
-	TrueType::ProcessNewTTF((CSG *)Object, filename, text_string, depth, offset, this, sceneData);
+	TrueType::ProcessNewTTF((CSG *)Object, filename, builtin_font, text_string, depth, offset, this, sceneData);
+	if (filename)
+	{
+		/* Free up the filename  */
+		POV_FREE (filename);
+	}
 
-	/* Free up the filename and text string memory */
-	POV_FREE (filename);
+
+	/* Free up the text string memory */
 	POV_FREE (text_string);
 
 	/**** Compute_TTF_BBox(Object); */
@@ -7672,7 +7690,7 @@ ObjectPtr Parser::Parse_Object_Mods (ObjectPtr Object)
 					Object->RadiosityImportance = Parse_Float ();
 					if ( (Object->RadiosityImportance <= 0.0) ||
 					     (Object->RadiosityImportance >  1.0) )
-					Error("Radiosity importance must be greater than 0.0 and at most 1.0.");
+						Error("Radiosity importance must be greater than 0.0 and at most 1.0.");
 				END_CASE
 
 				OTHERWISE
@@ -8747,7 +8765,7 @@ int Parser::Parse_RValue (int Previous, int *NumberPtr, void **DataPtr, SYM_ENTR
 			Temp_Data=(char *) Parse_Spline();
 			Parse_End();
 			*NumberPtr = SPLINE_ID_TOKEN;
-			Test_Redefine( Previous, NumberPtr, *DataPtr , allow_redefine);
+			Test_Redefine(Previous,NumberPtr,*DataPtr, allow_redefine);
 			*DataPtr = (void *)Temp_Data;
 			EXIT
 		END_CASE
@@ -9145,7 +9163,7 @@ void Parser::Test_Redefine(TOKEN Previous, TOKEN *NumberPtr, void *Data, bool al
 		}
 		else
 		{
-			char *oldt, *newt;
+			const char *oldt, *newt;
 
 			oldt = Get_Token_String (Previous);
 			newt = Get_Token_String (*NumberPtr);
@@ -9201,7 +9219,7 @@ void Parser::Parse_Error(TOKEN Token_Id)
 
 void Parser::Found_Instead_Error(const char *exstr, const char *extokstr)
 {
-	char *found;
+	const char *found;
 
 	switch(Token.Token_Id)
 	{
@@ -9933,8 +9951,8 @@ void Parser::Set_CSG_Tree_Flag(ObjectPtr Object, unsigned int f, int val)
 	{
 		ObjectPtr p = *Sib ;
 		if((dynamic_cast<CSGUnion *>(p) != NULL) || // FIXME
-				(dynamic_cast<CSGIntersection *>(p) != NULL) || // FIXME
-				(dynamic_cast<CSGMerge *>(p) != NULL)) // FIXME
+		   (dynamic_cast<CSGIntersection *>(p) != NULL) || // FIXME
+		   (dynamic_cast<CSGMerge *>(p) != NULL)) // FIXME
 		{
 			Set_CSG_Tree_Flag(p, f, val);
 		}

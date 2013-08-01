@@ -23,9 +23,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/vfe/vfecontrol.cpp $
- * $Revision: #29 $
- * $Change: 5303 $
- * $DateTime: 2010/12/27 14:22:56 $
+ * $Revision: #30 $
+ * $Change: 5625 $
+ * $DateTime: 2012/03/10 21:41:16 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -331,8 +331,8 @@ int vfeSession::SetOptions (vfeRenderOptions& opts)
     return (m_LastError = vfeNoInputFile);
   m_InputFilename = str;
 
-  POVMSUtil_GetInt (&obj, kPOVAttrib_Width, (int *) &m_RenderWidth) ;
-  POVMSUtil_GetInt (&obj, kPOVAttrib_Height, (int *) &m_RenderHeight) ;
+  POVMSUtil_GetInt (&obj, kPOVAttrib_Width, &m_RenderWidth) ;
+  POVMSUtil_GetInt (&obj, kPOVAttrib_Height, &m_RenderHeight) ;
 
   std::list<Path> libpaths;
   POVMS_Object ropts (obj) ;

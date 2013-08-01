@@ -24,9 +24,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/polygon.cpp $
- * $Revision: #29 $
- * $Change: 5103 $
- * $DateTime: 2010/08/22 06:58:49 $
+ * $Revision: #30 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -991,7 +991,7 @@ void Polygon::Compute_BBox()
 *
 ******************************************************************************/
 
-bool Polygon::in_polygon(int number, const UV_VECT *points, DBL u, DBL  v)
+bool Polygon::in_polygon(int number, UV_VECT *points, DBL u, DBL  v)
 {
 	register int i, yflag0, yflag1, inside_flag;
 	register DBL ty, tx;

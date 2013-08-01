@@ -121,7 +121,7 @@
 
 <p>Both distributions are available for download at the <a href="http://www.povray.org/">POV-Ray website</a> and on the POV-Ray FTP server <code>ftp.povray.org</code>.</p>
 
-<p class="Note"><strong>Note:</strong> If you are building POV-Ray from the source package, you should review the section <a href="u1_7.html#u1_7_2">Known Bugs</a> for more information.</p>
+<p class="Note"><strong>Note:</strong> If you are building POV-Ray from the source package, you should review the section <a href="u1_7.html#u1_7_1">Known Bugs</a> for more information.</p>
 
 </div>
 <a name="u1_3_2"></a>
@@ -192,9 +192,9 @@ chmod 4755 povray
 <p>This can be changed at runtime by setting the <code>Output_File_Type</code> or <code>+fx</code> option.</p> <p>Alternately the default format can be changed at compile time by changing <code>DEFAULT_OUTPUT_FORMAT</code> in the <code>syspovconfig.h</code> file located in the <code>~vfe/unix</code> directory of the source code distribution.</p>
 
 <p>Other convenient formats on Unix systems might be PPM <code>+fp</code> and TGA <code>+ft</code>.</p>
-<p>For more information about output file formats see <a href="r3_1.html#r3_1_2_4">File Output Options</a>.</p>
+<p>For more information about output file formats see <a href="r3_2.html#r3_2_4">File Output Options</a>.</p>
 
-<p> If you are generating histogram files (See <a href="r3_1.html#r3_1_2_4_6">CPU Utilization Histogram</a>) in the CSV format (comma separated values), then the units of time are in tens of microseconds (10 x 10<sup>-6</sup> s), and each grid block can store times up to 12 hours.</p>
+<p> If you are generating histogram files (See <a href="r3_2.html#r3_2_4_6">CPU Utilization Histogram</a>) in the CSV format (comma separated values), then the units of time are in tens of microseconds (10 x 10<sup>-6</sup> s), and each grid block can store times up to 12 hours.</p>
 
 </div>
 <a name="u1_3_4"></a>
@@ -273,7 +273,7 @@ povray -iscene.pov +fp -o- | cjpeg &gt; scene.jpg
 povray [Options] 2&gt; log.txt
 </pre>
 
-<p>See also <a href="r3_1.html#r3_1_2_7_3">Directing Text Streams to Files</a>.</p>
+<p>See also <a href="r3_2.html#r3_2_7_3">Directing Text Streams to Files</a>.</p>
 
 <p>For remote execution of POV-Ray, as for example in a rendering service on the web, make sure you read and comply with the <a href="t2_5.html#t2_5_1">POV-Ray Legal Document</a>.</p>
 

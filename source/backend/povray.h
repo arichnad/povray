@@ -26,10 +26,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/povray.h $
- * $Revision: #81 $
- * $Change: 5618 $
- * $DateTime: 2012/02/27 07:38:22 $
- * $Author: jholsenback $
+ * $Revision: #83 $
+ * $Change: 5711 $
+ * $DateTime: 2012/09/02 05:20:31 $
+ * $Author: chrisc $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -137,8 +137,8 @@ bool povray_terminated();
 #define POV_RAY_IS_OFFICIAL 1
 #define POV_RAY_IS_RELEASE_CANDIDATE
 
-#define POV_RAY_VERSION "3.7.0.RC5"
-#define POV_RAY_COPYRIGHT "Copyright 1991-2003 Persistence of Vision Team\nCopyright 2003-2011 Persistence of Vision Raytracer Pty. Ltd."
+#define POV_RAY_VERSION "3.7.0.RC7"
+#define POV_RAY_COPYRIGHT "Copyright 1991-2003 Persistence of Vision Team\nCopyright 2003-2012 Persistence of Vision Raytracer Pty. Ltd."
 #define OFFICIAL_VERSION_NUMBER 370
 #define OFFICIAL_VERSION_NUMBER_HEX 0x0370
 

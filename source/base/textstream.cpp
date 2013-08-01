@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/textstream.cpp $
- * $Revision: #19 $
- * $Change: 5446 $
- * $DateTime: 2011/06/02 08:31:56 $
+ * $Revision: #20 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -209,7 +209,7 @@ void ITextStream::ungetchar(int chr)
 		lineno--;
 }
 
-bool ITextStream::eof()
+bool ITextStream::eof() const
 {
 	if(ungetbuffer != EOF)
 		return false;
@@ -250,7 +250,7 @@ bool ITextStream::seekg(ITextStream::FilePos fp)
 	return result;
 }
 
-ITextStream::FilePos ITextStream::tellg()
+ITextStream::FilePos ITextStream::tellg() const
 {
 	FilePos fp;
 

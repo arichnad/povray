@@ -20,10 +20,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/timer.cpp $
- * $Revision: #20 $
- * $Change: 5009 $
- * $DateTime: 2010/06/05 10:39:30 $
- * $Author: chrisc $
+ * $Revision: #22 $
+ * $Change: 5726 $
+ * $DateTime: 2012/11/12 05:47:18 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -117,7 +117,7 @@ TimerDefault::~TimerDefault()
 POV_LONG TimerDefault::ElapsedRealTime() const
 {
 	boost::xtime t;
-	boost::xtime_get(&t, boost::TIME_UTC);
+	boost::xtime_get(&t, POV_TIME_UTC);
 	POV_LONG tt = (POV_LONG)(t.sec) * (POV_LONG)(1000000000) + (POV_LONG)(t.nsec);
 	POV_LONG st = (POV_LONG)(realTimeStart.sec) * (POV_LONG)(1000000000) + (POV_LONG)(realTimeStart.nsec);
 	return ((tt - st) / (POV_LONG)(1000000));
@@ -126,7 +126,7 @@ POV_LONG TimerDefault::ElapsedRealTime() const
 POV_LONG TimerDefault::ElapsedCPUTime() const
 {
 	boost::xtime t;
-	boost::xtime_get(&t, boost::TIME_UTC);
+	boost::xtime_get(&t, POV_TIME_UTC);
 	POV_LONG tt = (POV_LONG)(t.sec) * (POV_LONG)(1000000000) + (POV_LONG)(t.nsec);
 	POV_LONG st = (POV_LONG)(cpuTimeStart.sec) * (POV_LONG)(1000000000) + (POV_LONG)(cpuTimeStart.nsec);
 	return ((tt - st) / (POV_LONG)(1000000));
@@ -139,8 +139,8 @@ bool TimerDefault::HasValidCPUTime() const
 
 void TimerDefault::Reset()
 {
-	boost::xtime_get(&realTimeStart, boost::TIME_UTC);
-	boost::xtime_get(&cpuTimeStart, boost::TIME_UTC);
+	boost::xtime_get(&realTimeStart, POV_TIME_UTC);
+	boost::xtime_get(&cpuTimeStart, POV_TIME_UTC);
 }
 
 }
@@ -155,7 +155,7 @@ namespace pov_base
 void Delay(unsigned int msec)
 {
 	boost::xtime t;
-	boost::xtime_get(&t, boost::TIME_UTC);
+	boost::xtime_get(&t, POV_TIME_UTC);
 	POV_ULONG ns = (POV_ULONG)(t.sec) * (POV_ULONG)(1000000000) + (POV_ULONG)(t.nsec) + (POV_ULONG)(msec) * (POV_ULONG)(1000000);
 	t.sec = (boost::xtime::xtime_sec_t)(ns / (POV_ULONG)(1000000000));
 	t.nsec = (boost::xtime::xtime_nsec_t)(ns % (POV_ULONG)(1000000000));

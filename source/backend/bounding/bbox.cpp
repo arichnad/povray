@@ -30,9 +30,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/bounding/bbox.cpp $
- * $Revision: #46 $
- * $Change: 5401 $
- * $DateTime: 2011/02/08 21:06:55 $
+ * $Revision: #49 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -129,7 +129,7 @@ void priority_queue_insert(PriorityQueue& Queue, DBL Depth, BBOX_TREE *Node);
 PriorityQueue::PriorityQueue()
 {
 	QSize = 0;
-	Queue = (Qelem *)POV_MALLOC(INITIAL_PRIORITY_QUEUE_SIZE * sizeof(Qelem), "priority queue");
+	Queue = reinterpret_cast<Qelem *>(POV_MALLOC(INITIAL_PRIORITY_QUEUE_SIZE * sizeof(Qelem), "priority queue"));
 	Max_QSize = INITIAL_PRIORITY_QUEUE_SIZE;
 }
 
@@ -276,8 +276,8 @@ void Build_BBox_Tree(BBOX_TREE **Root, size_t numOfFiniteObjects, BBOX_TREE **&F
 		// Move infinite objects in the first leaf of Root.
 		if(numOfInfiniteObjects > 0)
 		{
-			root = (BBOX_TREE *)(*Root);
-			root->Node = (BBOX_TREE **)POV_REALLOC(root->Node, (root->Entries + 1) * sizeof(BBOX_TREE *), "composite");
+			root = *Root;
+			root->Node = reinterpret_cast<BBOX_TREE **>(POV_REALLOC(root->Node, (root->Entries + 1) * sizeof(BBOX_TREE *), "composite"));
 			POV_MEMMOVE(&(root->Node[1]), &(root->Node[0]), root->Entries * sizeof(BBOX_TREE *));
 			root->Entries++;
 			cd = create_bbox_node(numOfInfiniteObjects);
@@ -285,7 +285,7 @@ void Build_BBox_Tree(BBOX_TREE **Root, size_t numOfFiniteObjects, BBOX_TREE **&F
 				cd->Node[i] = Infinite[i];
 
 			calc_bbox(&(cd->BBox), Infinite, 0, numOfInfiniteObjects);
-			root->Node[0] = (BBOX_TREE *)cd;
+			root->Node[0] = cd;
 			calc_bbox(&(root->BBox), root->Node, 0, root->Entries);
 
 			// Root and first node are infinite.
@@ -304,7 +304,7 @@ void Build_BBox_Tree(BBOX_TREE **Root, size_t numOfFiniteObjects, BBOX_TREE **&F
 			for(size_t i = 0; i < numOfInfiniteObjects; i++)
 				cd->Node[i] = Infinite[i];
 			calc_bbox(&(cd->BBox), Infinite, 0, numOfInfiniteObjects);
-			*Root = (BBOX_TREE *)cd;
+			*Root = cd;
 			(*Root)->Infinite = true;
 		}
 	}
@@ -324,9 +324,9 @@ void Build_Bounding_Slabs(BBOX_TREE **Root, vector<ObjectPtr>& objects, unsigned
 	{
 		if((*i)->Type & LIGHT_SOURCE_OBJECT)
 		{
-			if(((LightSource *)(*i))->children.size() > 0)
+			if((reinterpret_cast<LightSource *>(*i))->children.size() > 0)
 			{
-				Temp = ((LightSource *)(*i))->children[0];
+				Temp = (reinterpret_cast<LightSource *>(*i))->children[0];
 				numberOfLightSources++;
 			}
 			else
@@ -357,11 +357,11 @@ void Build_Bounding_Slabs(BBOX_TREE **Root, vector<ObjectPtr>& objects, unsigned
 	Finite = Infinite = NULL;
 
 	if(numberOfFiniteObjects > 0)
-		Finite = (BBOX_TREE **)POV_MALLOC(maxfinitecount*sizeof(BBOX_TREE *), "bounding boxes");
+		Finite = reinterpret_cast<BBOX_TREE **>(POV_MALLOC(maxfinitecount*sizeof(BBOX_TREE *), "bounding boxes"));
 
 	// Create array to hold pointers to infinite objects.
 	if(numberOfInfiniteObjects > 0)
-		Infinite = (BBOX_TREE **)POV_MALLOC(numberOfInfiniteObjects*sizeof(BBOX_TREE *), "bounding boxes");
+		Infinite = reinterpret_cast<BBOX_TREE **>(POV_MALLOC(numberOfInfiniteObjects*sizeof(BBOX_TREE *), "bounding boxes"));
 
 	// Init lists.
 	for(int i = 0; i < numberOfFiniteObjects; i++)
@@ -377,8 +377,8 @@ void Build_Bounding_Slabs(BBOX_TREE **Root, vector<ObjectPtr>& objects, unsigned
 	{
 		if((*i)->Type & LIGHT_SOURCE_OBJECT)
 		{
-			if(((LightSource *)(*i))->children.size() > 0)
-				Temp = ((LightSource *)(*i))->children[0];
+			if((reinterpret_cast<LightSource *>(*i))->children.size() > 0)
+				Temp = (reinterpret_cast<LightSource *>(*i))->children[0];
 			else
 				Temp = NULL;
 		}
@@ -392,14 +392,14 @@ void Build_Bounding_Slabs(BBOX_TREE **Root, vector<ObjectPtr>& objects, unsigned
 			{
 				Infinite[iInfinite]->Infinite = true;
 				Infinite[iInfinite]->BBox     = Temp->BBox;
-				Infinite[iInfinite]->Node     = (BBOX_TREE **)Temp;
+				Infinite[iInfinite]->Node     = reinterpret_cast<BBOX_TREE **>(Temp);
 
 				iInfinite++;
 			}
 			else
 			{
 				Finite[iFinite]->BBox = Temp->BBox;
-				Finite[iFinite]->Node = (BBOX_TREE **)Temp;
+				Finite[iFinite]->Node = reinterpret_cast<BBOX_TREE **>(Temp);
 
 				iFinite++;
 			}
@@ -456,7 +456,7 @@ bool Intersect_BBox_Tree(PriorityQueue& pqueue, const BBOX_TREE *Root, const Ray
 		else
 		{
 			// This is a leaf so test contained object.
-			if(Find_Intersection(&New_Intersection, (ObjectPtr )Node->Node, ray, Thread))
+			if(Find_Intersection(&New_Intersection, reinterpret_cast<ObjectPtr>(Node->Node), ray, Thread))
 			{
 				if(New_Intersection.Depth < Best_Intersection->Depth)
 				{
@@ -508,10 +508,10 @@ bool Intersect_BBox_Tree(PriorityQueue& pqueue, const BBOX_TREE *Root, const Ray
 		}
 		else
 		{
-			if(precondition(ray, (ObjectPtr )Node->Node, 0.0) == true)
+			if(precondition(ray, reinterpret_cast<ObjectPtr>(Node->Node), 0.0) == true)
 			{
 				// This is a leaf so test contained object.
-				if(Find_Intersection(&New_Intersection, (ObjectPtr )Node->Node, ray, postcondition, Thread))
+				if(Find_Intersection(&New_Intersection, reinterpret_cast<ObjectPtr>(Node->Node), ray, postcondition, Thread))
 				{
 					if(New_Intersection.Depth < Best_Intersection->Depth)
 					{
@@ -550,15 +550,15 @@ void priority_queue_insert(PriorityQueue& Queue, DBL Depth, const BBOX_TREE *Nod
 
 		Queue.Max_QSize *= 2;
 
-		Queue.Queue = (PriorityQueue::Qelem *)POV_REALLOC(Queue.Queue, Queue.Max_QSize*sizeof(PriorityQueue::Qelem), "priority queue");
+		Queue.Queue = reinterpret_cast<PriorityQueue::Qelem *>(POV_REALLOC(Queue.Queue, Queue.Max_QSize*sizeof(PriorityQueue::Qelem), "priority queue"));
 	}
 
 	List = Queue.Queue;
 
 	/*
-	//***
+	 *** 
 	List[size].depth = Depth;
-	List[size].node  = (BBOX_TREE *)Node;
+	List[size].node  = Node;
 
 	i = size;
 
@@ -572,7 +572,7 @@ void priority_queue_insert(PriorityQueue& Queue, DBL Depth, const BBOX_TREE *Nod
 
 		i = i / 2;
 	}
-	//***
+	***
 	*/
 
 	i = size;
@@ -582,7 +582,7 @@ void priority_queue_insert(PriorityQueue& Queue, DBL Depth, const BBOX_TREE *Nod
 		i /= 2;
 	}
 	List[i].depth = Depth;
-	List[i].node  = (BBOX_TREE *)Node;
+	List[i].node  = Node;
 }
 
 // Get an element from the priority queue.
@@ -647,7 +647,7 @@ void Priority_Queue_Delete(PriorityQueue& Queue, DBL *Depth, const BBOX_TREE **N
 	}
 }
 
-void Check_And_Enqueue(PriorityQueue& Queue, const BBOX_TREE *Node, const BBOX *BBox, Rayinfo *rayinfo, TraceThreadData *Thread)
+void Check_And_Enqueue(PriorityQueue& Queue, const BBOX_TREE *Node, const BBOX *BBox, const Rayinfo *rayinfo, TraceThreadData *Thread)
 {
 	DBL tmin, tmax;
 	DBL dmin, dmax;
@@ -799,7 +799,7 @@ BBOX_TREE *create_bbox_node(int size)
 {
 	BBOX_TREE *New;
 
-	New = (BBOX_TREE *)POV_MALLOC(sizeof(BBOX_TREE), "bounding box node");
+	New = reinterpret_cast<BBOX_TREE *>(POV_MALLOC(sizeof(BBOX_TREE), "bounding box node"));
 
 	New->Infinite = false;
 	New->Entries = size;
@@ -807,7 +807,7 @@ BBOX_TREE *create_bbox_node(int size)
 	Make_BBox(New->BBox, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
 	if(size)
-		New->Node = (BBOX_TREE **)POV_MALLOC(size*sizeof(BBOX_TREE *), "bounding box node");
+		New->Node = reinterpret_cast<BBOX_TREE **>(POV_MALLOC(size*sizeof(BBOX_TREE *), "bounding box node"));
 	else
 		New->Node = NULL;
 
@@ -817,11 +817,12 @@ BBOX_TREE *create_bbox_node(int size)
 template<int Axis>
 int CDECL compboxes(const void *in_a, const void *in_b)
 {
-	BBOX *a, *b;
+	const BBOX *a, *b;
 	BBOX_VAL am, bm;
+	typedef const BBOX_TREE *CONST_BBOX_TREE_PTR;
 
-	a = &((*(BBOX_TREE **)in_a)->BBox);
-	b = &((*(BBOX_TREE **)in_b)->BBox);
+	a = &((*reinterpret_cast<const CONST_BBOX_TREE_PTR *>(in_a))->BBox);
+	b = &((*reinterpret_cast<const CONST_BBOX_TREE_PTR *>(in_b))->BBox);
 
 	am = 2.0 * a->Lower_Left[Axis] + a->Lengths[Axis];
 	bm = 2.0 * b->Lower_Left[Axis] + b->Lengths[Axis];
@@ -997,13 +998,13 @@ int sort_and_split(BBOX_TREE **Root, BBOX_TREE **&Finite, size_t *numOfFiniteObj
 	switch(Axis)
 	{
 		case X:
-			QSORT((void *)(&Finite[first]), size, sizeof(BBOX_TREE *), compboxes<X>);
+			QSORT(reinterpret_cast<void *>(&Finite[first]), size, sizeof(BBOX_TREE *), compboxes<X>);
 			break;
 		case Y:
-			QSORT((void *)(&Finite[first]), size, sizeof(BBOX_TREE *), compboxes<Y>);
+			QSORT(reinterpret_cast<void *>(&Finite[first]), size, sizeof(BBOX_TREE *), compboxes<Y>);
 			break;
 		case Z:
-			QSORT((void *)(&Finite[first]), size, sizeof(BBOX_TREE *), compboxes<Z>);
+			QSORT(reinterpret_cast<void *>(&Finite[first]), size, sizeof(BBOX_TREE *), compboxes<Z>);
 			break;
 	}
 
@@ -1013,8 +1014,8 @@ int sort_and_split(BBOX_TREE **Root, BBOX_TREE **&Finite, size_t *numOfFiniteObj
 	// area_right[i] holds the surface area of the box containing Finite
 	// i through size-1.
 
-	area_left = (DBL *)POV_MALLOC(size * sizeof(DBL), "bounding boxes");
-	area_right = (DBL *)POV_MALLOC(size * sizeof(DBL), "bounding boxes");
+	area_left = reinterpret_cast<DBL *>(POV_MALLOC(size * sizeof(DBL), "bounding boxes"));
+	area_right = reinterpret_cast<DBL *>(POV_MALLOC(size * sizeof(DBL), "bounding boxes"));
 
 	// Precalculate the areas for speed.
 	build_area_table(Finite, first, last - 1, area_left);
@@ -1051,7 +1052,7 @@ int sort_and_split(BBOX_TREE **Root, BBOX_TREE **&Finite, size_t *numOfFiniteObj
 			cd->Node[i] = Finite[first+i];
 
 		calc_bbox(&(cd->BBox), Finite, first, last);
-		*Root = (BBOX_TREE *)cd;
+		*Root = cd;
 		if(*numOfFiniteObjects >= maxfinitecount)
 		{
 			// Prim array overrun, increase array by 50%.
@@ -1059,7 +1060,7 @@ int sort_and_split(BBOX_TREE **Root, BBOX_TREE **&Finite, size_t *numOfFiniteObj
 
 			// For debugging only.
 			// TODO MESSAGE      Debug_Info("Reallocing Finite to %d\n", maxfinitecount);
-			Finite = (BBOX_TREE **)POV_REALLOC(Finite, maxfinitecount * sizeof(BBOX_TREE *), "bounding boxes");
+			Finite = reinterpret_cast<BBOX_TREE **>(POV_REALLOC(Finite, maxfinitecount * sizeof(BBOX_TREE *), "bounding boxes"));
 		}
 
 		Finite[*numOfFiniteObjects] = cd;

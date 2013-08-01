@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/blob.h $
- * $Revision: #25 $
- * $Change: 5091 $
- * $DateTime: 2010/08/06 11:17:18 $
+ * $Revision: #26 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -206,11 +206,11 @@ class Blob : public ObjectBase
 
 		void Test_Blob_Opacity();
 
-		static void Translate_Blob_Element(Blob_Element *Element, VECTOR Vector);
-		static void Rotate_Blob_Element(Blob_Element *Element, VECTOR Vector);
-		static void Scale_Blob_Element(Blob_Element *Element, VECTOR Vector);
+		static void Translate_Blob_Element(Blob_Element *Element, const VECTOR Vector);
+		static void Rotate_Blob_Element(Blob_Element *Element, const VECTOR Vector);
+		static void Scale_Blob_Element(Blob_Element *Element, const VECTOR Vector);
 		static void Invert_Blob_Element(Blob_Element *Element);
-		static void Transform_Blob_Element(Blob_Element *Element, TRANSFORM *Trans);
+		static void Transform_Blob_Element(Blob_Element *Element, const TRANSFORM *Trans);
 	private:
 		static void element_normal(VECTOR Result, const VECTOR P, const Blob_Element *Element);
 		static int intersect_element(const VECTOR P, const VECTOR D, const Blob_Element *Element, DBL mindist, DBL *t0, DBL *t1, TraceThreadData *Thread);

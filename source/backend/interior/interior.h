@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/interior/interior.h $
- * $Revision: #9 $
- * $Change: 5009 $
- * $DateTime: 2010/06/05 10:39:30 $
- * $Author: chrisc $
+ * $Revision: #10 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -123,7 +123,7 @@ Interior *Copy_Interior_Pointer(Interior *);
 void Destroy_Interior(Interior *);
 
 MATERIAL *Create_Material(void);
-MATERIAL *Copy_Material(MATERIAL *);
+MATERIAL *Copy_Material(const MATERIAL *);
 void Destroy_Material(MATERIAL *);
 
 }

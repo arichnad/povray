@@ -23,9 +23,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/parser/reswords.h $
- * $Revision: #41 $
- * $Change: 5527 $
- * $DateTime: 2011/11/22 13:53:10 $
+ * $Revision: #43 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -120,7 +120,7 @@ struct Sym_Table_Entry
 struct Reserved_Word_Struct
 {
 	TOKEN Token_Number;
-	char *Token_Name;
+	const char *Token_Name;
 };
 
 // Token Definitions for Parser

@@ -31,9 +31,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/hfield.cpp $
- * $Revision: #35 $
- * $Change: 5103 $
- * $DateTime: 2010/08/22 06:58:49 $
+ * $Revision: #37 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -579,6 +579,8 @@ bool HField::intersect_pixel(int x, int z, const Ray &ray, DBL height1, DBL heig
 		VDot(dot, N, ray.Direction);
 
 		if ((dot > EPSILON) || (dot < -EPSILON))
+			// (Rays virtually parallel to the triangle's plane are asking for mathematical trouble,
+			// so they're always presumed to be a no-hit.)
 		{
 			VSub(V1, P, ray.Origin);
 
@@ -587,11 +589,13 @@ bool HField::intersect_pixel(int x, int z, const Ray &ray, DBL height1, DBL heig
 			depth1 /= dot;
 
 			if ((depth1 >= mindist) && (depth1 <= maxdist))
+				// (More expensive check to make sure the ray isn't near-parallel to the triangle's plane.)
 			{
 				s = ray.Origin[X] + depth1 * ray.Direction[X] - (DBL)x;
 				t = ray.Origin[Z] + depth1 * ray.Direction[Z] - (DBL)z;
 
 				if ((s >= -0.0001) && (t >= -0.0001) && ((s+t) <= 1.0001))
+					// (Check whether the point of intersection with the plane is within the triangle)
 				{
 #ifdef HFIELD_EXTRA_STATS
 					Thread->Stats()[Ray_HField_Triangle_Tests_Succeeded]++;
@@ -600,11 +604,18 @@ bool HField::intersect_pixel(int x, int z, const Ray &ray, DBL height1, DBL heig
 					VEvaluateRay(P, RRay.Origin, depth1, RRay.Direction);
 
 					if (Clip.empty() || Point_In_Clip(P, Clip, Thread))
+						// (Check whether the point of intersection is within the clipped-by volume)
 					{
-						if (Test_Flag(this, SMOOTHED_FLAG))  // TODO - someone needs to understand this wholeif-else! [trf]
+						if (Test_Flag(this, SMOOTHED_FLAG))
+							// Smoothed height field;
+							// computation of surface normal is still non-trivial from here,
+							// so defer it until we know it's needed.
 							HField_Stack->push(Intersection(depth1, P, this));
 						else
 						{
+							// Non-smoothed height field;
+							// we've already computed the surface normal by now, so just convert it into
+							// world coordinate space, so we don't need to re-compute it in case it's indeed needed later.
 							VECTOR tmp;
 							Assign_Vector(tmp,N);
 							MTransNormal(tmp,tmp,Trans);
@@ -647,6 +658,8 @@ bool HField::intersect_pixel(int x, int z, const Ray &ray, DBL height1, DBL heig
 		VDot(dot, N, ray.Direction);
 
 		if ((dot > EPSILON) || (dot < -EPSILON))
+			// (Rays virtually parallel to the triangle's plane are asking for mathematical trouble,
+			// so they're always presumed to be a no-hit.)
 		{
 			VSub(V1, P, ray.Origin);
 
@@ -655,11 +668,13 @@ bool HField::intersect_pixel(int x, int z, const Ray &ray, DBL height1, DBL heig
 			depth2 /= dot;
 
 			if ((depth2 >= mindist) && (depth2 <= maxdist))
+				// (More expensive check to make sure the ray isn't near-parallel to the triangle's plane.)
 			{
 				s = ray.Origin[X] + depth2 * ray.Direction[X] - (DBL)x;
 				t = ray.Origin[Z] + depth2 * ray.Direction[Z] - (DBL)z;
 
 				if ((s <= 1.0001) && (t <= 1.0001) && ((s+t) >= 0.9999))
+					// (Check whether the point of intersection with the plane is within the triangle)
 				{
 #ifdef HFIELD_EXTRA_STATS
 					Thread->Stats()[Ray_HField_Triangle_Tests_Succeeded]++;
@@ -668,11 +683,18 @@ bool HField::intersect_pixel(int x, int z, const Ray &ray, DBL height1, DBL heig
 					VEvaluateRay(P, RRay.Origin, depth2, RRay.Direction);
 
 					if (Clip.empty() || Point_In_Clip(P, Clip, Thread))
+						// (Check whether the point of intersection is within the clipped-by volume)
 					{
-						if (Test_Flag(this, SMOOTHED_FLAG)) // TODO - someone needs to understand this wholeif-else! [trf]
+						if (Test_Flag(this, SMOOTHED_FLAG))
+							// Smoothed height field;
+							// computation of surface normal is still non-trivial from here,
+							// so defer it until we know it's needed.
 							HField_Stack->push(Intersection(depth2, P, this));
 						else
 						{
+							// Non-smoothed height field;
+							// we've already computed the surface normal by now, so just convert it into
+							// world coordinate space, so we don't need to re-compute it in case it's indeed needed later.
 							VECTOR tmp;
 							Assign_Vector(tmp,N);
 							MTransNormal(tmp,tmp,Trans);
@@ -863,7 +885,7 @@ void HField::smooth_height_field(int xsize, int zsize)
 *
 ******************************************************************************/
 
-void HField::Compute_HField(ImageData *image)
+void HField::Compute_HField(const ImageData *image)
 {
 	int x, z, max_x, max_z;
 	HF_VAL min_y, max_y, temp_y;

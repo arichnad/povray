@@ -23,10 +23,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/texture/pigment.cpp $
- * $Revision: #31 $
- * $Change: 5215 $
- * $DateTime: 2010/11/30 18:41:01 $
- * $Author: chrisc $
+ * $Revision: #33 $
+ * $Change: 5783 $
+ * $DateTime: 2013/02/04 10:34:35 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -266,9 +266,9 @@ PIGMENT *Create_Pigment ()
 {
 	PIGMENT *New;
 
-	New = (PIGMENT *)POV_MALLOC(sizeof (PIGMENT), "pigment");
+	New = reinterpret_cast<PIGMENT *>(POV_MALLOC(sizeof (PIGMENT), "pigment"));
 
-	Init_TPat_Fields((TPATTERN *)New);
+	Init_TPat_Fields(reinterpret_cast<TPATTERN *>(New));
 
 	New->colour.clear();
 	New->Quick_Colour = Colour(-1.0,-1.0,-1.0);
@@ -312,12 +312,12 @@ PIGMENT *Copy_Pigment (const PIGMENT *Old)
 	{
 		New = Create_Pigment ();
 
-		Copy_TPat_Fields ((TPATTERN *)New, (const TPATTERN *)Old);
+		Copy_TPat_Fields (reinterpret_cast<TPATTERN *>(New), reinterpret_cast<const TPATTERN *>(Old));
 
 		if (Old->Type == PLAIN_PATTERN)
 			New->colour = Old->colour;
 		New->Quick_Colour = Old->Quick_Colour;
-		New->Next = (TPATTERN *)Copy_Pigment((const PIGMENT *)Old->Next);
+		New->Next = reinterpret_cast<TPATTERN *>(Copy_Pigment(reinterpret_cast<const PIGMENT *>(Old->Next)));
 	}
 	else
 	{
@@ -357,9 +357,9 @@ void Destroy_Pigment (PIGMENT *Pigment)
 {
 	if (Pigment != NULL)
 	{
-		Destroy_Pigment((PIGMENT *)Pigment->Next);
+		Destroy_Pigment(reinterpret_cast<PIGMENT *>(Pigment->Next));
 
-		Destroy_TPat_Fields ((TPATTERN *)Pigment);
+		Destroy_TPat_Fields (reinterpret_cast<TPATTERN *>(Pigment));
 
 		POV_FREE(Pigment);
 	}
@@ -436,6 +436,7 @@ int Post_Pigment(PIGMENT *Pigment)
 			{
 				switch (Pigment->Type)
 				{
+					// NB: The const default blend maps are marked so that they will not be modified nor destroyed later.
 					case BOZO_PATTERN:    Pigment->Blend_Map = const_cast<BLEND_MAP *>(&Bozo_Default_Map);  break;
 					case BRICK_PATTERN:   Pigment->Blend_Map = const_cast<BLEND_MAP *>(&Brick_Default_Map); break;
 					case WOOD_PATTERN:    Pigment->Blend_Map = const_cast<BLEND_MAP *>(&Wood_Default_Map);  break;
@@ -500,7 +501,7 @@ int Post_Pigment(PIGMENT *Pigment)
 
 	if (Pigment->Next != NULL)
 	{
-		Post_Pigment((PIGMENT *)Pigment->Next);
+		Post_Pigment(reinterpret_cast<PIGMENT *>(Pigment->Next));
 	}
 
 	return(Has_Filter);
@@ -550,9 +551,9 @@ bool Compute_Pigment (Colour& colour, const PIGMENT *Pigment, const VECTOR EPoin
 	VECTOR TPoint;
 	DBL value;
 	register DBL fraction;
-	BLEND_MAP_ENTRY *Cur, *Prev;
+	const BLEND_MAP_ENTRY *Cur, *Prev;
 	Colour Temp_Colour;
-	BLEND_MAP *Blend_Map = Pigment->Blend_Map;
+	const BLEND_MAP *Blend_Map = Pigment->Blend_Map;
 	UV_VECT UV_Coords;
 
 	if ((Thread->qualityFlags & Q_QUICKC) != 0 && Pigment->Quick_Colour[pRED] != -1.0 && Pigment->Quick_Colour[pGREEN] != -1.0 && Pigment->Quick_Colour[pBLUE] != -1.0)
@@ -581,7 +582,7 @@ bool Compute_Pigment (Colour& colour, const PIGMENT *Pigment, const VECTOR EPoin
 
 			case AVERAGE_PATTERN:
 
-				Warp_EPoint (TPoint, EPoint, (TPATTERN *)Pigment);
+				Warp_EPoint (TPoint, EPoint, reinterpret_cast<const TPATTERN *>(Pigment));
 
 				Do_Average_Pigments(colour, Pigment, TPoint, Intersect, ray, Thread);
 
@@ -615,7 +616,7 @@ bool Compute_Pigment (Colour& colour, const PIGMENT *Pigment, const VECTOR EPoin
 
 			case BITMAP_PATTERN:
 
-				Warp_EPoint (TPoint, EPoint, (TPATTERN *)Pigment);
+				Warp_EPoint (TPoint, EPoint, reinterpret_cast<const TPATTERN *>(Pigment));
 
 				colour.clear();
 
@@ -634,8 +635,8 @@ bool Compute_Pigment (Colour& colour, const PIGMENT *Pigment, const VECTOR EPoin
 	Colour_Found = false;
 
 	/* NK 19 Nov 1999 added Warp_EPoint */
-	Warp_EPoint (TPoint, EPoint, (TPATTERN *)Pigment);
-	value = Evaluate_TPat ((TPATTERN *)Pigment,TPoint,Intersect, ray, Thread);
+	Warp_EPoint (TPoint, EPoint, reinterpret_cast<const TPATTERN *>(Pigment));
+	value = Evaluate_TPat (reinterpret_cast<const TPATTERN *>(Pigment),TPoint,Intersect, ray, Thread);
 
 	Search_Blend_Map (value, Blend_Map, &Prev, &Cur);
 
@@ -647,7 +648,7 @@ bool Compute_Pigment (Colour& colour, const PIGMENT *Pigment, const VECTOR EPoin
 	}
 	else
 	{
-		Warp_EPoint (TPoint, EPoint, (TPATTERN *)Pigment);
+		Warp_EPoint (TPoint, EPoint, reinterpret_cast<const TPATTERN *>(Pigment));
 
 		if (Compute_Pigment(colour, Cur->Vals.Pigment,TPoint,Intersect, ray, Thread))
 			Colour_Found = true;
@@ -718,7 +719,7 @@ static void Do_Average_Pigments (Colour& colour, const PIGMENT *Pigment, const V
 	colour /= Total;
 }
 
-void Evaluate_Density_Pigment(PIGMENT *pigm, const Vector3d& p, RGBColour& c, TraceThreadData *ttd)
+void Evaluate_Density_Pigment(const PIGMENT *pigm, const Vector3d& p, RGBColour& c, TraceThreadData *ttd)
 {
 	Colour lc;
 
@@ -734,7 +735,7 @@ void Evaluate_Density_Pigment(PIGMENT *pigm, const Vector3d& p, RGBColour& c, Tr
 		c.green() *= lc.green();
 		c.blue()  *= lc.blue();
 
-		pigm = (PIGMENT *)pigm->Next;
+		pigm = reinterpret_cast<const PIGMENT *>(pigm->Next);
 	}
 }
 

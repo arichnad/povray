@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/math/matrices.cpp $
- * $Revision: #15 $
- * $Change: 5091 $
- * $DateTime: 2010/08/06 11:17:18 $
+ * $Revision: #17 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -466,9 +466,9 @@ void MTransPoint (VECTOR result, const VECTOR vector, const TRANSFORM *transform
 {
 	register int i;
 	DBL answer_array[4];
-	MATRIX *matrix;
+	const MATRIX *matrix;
 
-	matrix = (MATRIX *) transform->matrix;
+	matrix = &transform->matrix;
 
 	for (i = 0 ; i < 3 ; i++)
 	{
@@ -512,9 +512,9 @@ void MInvTransPoint (VECTOR result, const VECTOR vector, const TRANSFORM *transf
 {
 	register int i;
 	DBL answer_array[4];
-	MATRIX *matrix;
+	const MATRIX *matrix;
 
-	matrix = (MATRIX *) transform->inverse;
+	matrix = &transform->inverse;
 
 	for (i = 0 ; i < 3 ; i++)
 	{
@@ -558,9 +558,9 @@ void MTransDirection (VECTOR result, const VECTOR vector, const TRANSFORM *trans
 {
 	register int i;
 	DBL answer_array[4];
-	MATRIX *matrix;
+	const MATRIX *matrix;
 
-	matrix = (MATRIX *) transform->matrix;
+	matrix = &transform->matrix;
 
 	for (i = 0 ; i < 3 ; i++)
 	{
@@ -604,9 +604,9 @@ void MInvTransDirection (VECTOR result, const VECTOR vector, const TRANSFORM*tra
 {
 	register int i;
 	DBL answer_array[4];
-	MATRIX *matrix;
+	const MATRIX *matrix;
 
-	matrix = (MATRIX *) transform->inverse;
+	matrix = &transform->inverse;
 
 	for (i = 0 ; i < 3 ; i++)
 	{
@@ -650,9 +650,9 @@ void MTransNormal (VECTOR result, const VECTOR vector, const TRANSFORM*transform
 {
 	register int i;
 	DBL answer_array[3];
-	MATRIX *matrix;
+	const MATRIX *matrix;
 
-	matrix = (MATRIX *) transform->inverse;
+	matrix = &transform->inverse;
 
 	for (i = 0 ; i < 3 ; i++)
 	{
@@ -696,9 +696,9 @@ void MInvTransNormal (VECTOR result, const VECTOR vector, const TRANSFORM*transf
 {
 	register int i;
 	DBL answer_array[3];
-	MATRIX *matrix;
+	const MATRIX *matrix;
 
-	matrix = (MATRIX *) transform->matrix;
+	matrix = &transform->matrix;
 
 	for (i = 0 ; i < 3 ; i++)
 	{
@@ -991,11 +991,11 @@ void Compute_Look_At_Transform (TRANSFORM *result, VECTOR Look_At, VECTOR Up, VE
 *
 ******************************************************************************/
 
-void Compose_Transforms (TRANSFORM *Original_Transform, const TRANSFORM *New_Transform)
+void Compose_Transforms (TRANSFORM *Original_Transform, const TRANSFORM *Additional_Transform)
 {
-	MTimesA(Original_Transform->matrix, New_Transform->matrix);
+	MTimesA(Original_Transform->matrix, Additional_Transform->matrix);
 
-	MTimesB(New_Transform->inverse, Original_Transform->inverse);
+	MTimesB(Additional_Transform->inverse, Original_Transform->inverse);
 }
 
 
@@ -1141,7 +1141,7 @@ TRANSFORM *Create_Transform()
 {
 	TRANSFORM *New;
 
-	New = (TRANSFORM *)POV_MALLOC(sizeof (TRANSFORM), "transform");
+	New = reinterpret_cast<TRANSFORM *>(POV_MALLOC(sizeof (TRANSFORM), "transform"));
 
 	MIdentity (New->matrix);
 	MIdentity (New->inverse);
@@ -1253,7 +1253,7 @@ VECTOR *Create_Vector ()
 {
 	VECTOR *New;
 
-	New = (VECTOR *)POV_MALLOC(sizeof (VECTOR), "vector");
+	New = reinterpret_cast<VECTOR *>(POV_MALLOC(sizeof (VECTOR), "vector"));
 
 	Make_Vector (*New, 0.0, 0.0, 0.0);
 
@@ -1290,7 +1290,7 @@ DBL *Create_Float ()
 {
 	DBL *New_Float;
 
-	New_Float = (DBL *)POV_MALLOC(sizeof (DBL), "float");
+	New_Float = reinterpret_cast<DBL *>(POV_MALLOC(sizeof (DBL), "float"));
 
 	*New_Float = 0.0;
 
@@ -1448,7 +1448,7 @@ UV_VECT *Create_UV_Vect ()
 {
 	UV_VECT *New;
 
-	New = (UV_VECT *)POV_MALLOC(sizeof (UV_VECT), "uv vector");
+	New = reinterpret_cast<UV_VECT *>(POV_MALLOC(sizeof (UV_VECT), "uv vector"));
 
 	(*New)[0]= 0.0;
 	(*New)[1]= 0.0;
@@ -1460,7 +1460,7 @@ VECTOR_4D *Create_Vector_4D ()
 {
 	VECTOR_4D *New;
 
-	New = (VECTOR_4D *)POV_MALLOC(sizeof (VECTOR_4D), "4d vector");
+	New = reinterpret_cast<VECTOR_4D *>(POV_MALLOC(sizeof (VECTOR_4D), "4d vector"));
 
 	(*New)[0]= 0.0;
 	(*New)[1]= 0.0;
@@ -1499,7 +1499,7 @@ VECTOR_4D *Create_Vector_4D ()
 *
 ******************************************************************************/
 
-void MTransUVPoint(DBL p[2], DBL m[3][3], DBL t[2])
+void MTransUVPoint(const DBL p[2], const DBL m[3][3], DBL t[2])
 {
 	DBL w;
 
@@ -1545,7 +1545,7 @@ void MTransUVPoint(DBL p[2], DBL m[3][3], DBL t[2])
 *
 ******************************************************************************/
 
-void MSquareQuad(UV_VECT st[4], DBL sq[3][3])
+void MSquareQuad(const UV_VECT st[4], DBL sq[3][3])
 {
 	DBL sx, sy, dx1, dx2, dy1, dy2, det;
 

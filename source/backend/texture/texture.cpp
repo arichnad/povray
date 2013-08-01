@@ -26,10 +26,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/texture/texture.cpp $
- * $Revision: #38 $
- * $Change: 5597 $
- * $DateTime: 2011/12/24 21:06:16 $
- * $Author: chrisc $
+ * $Revision: #41 $
+ * $Change: 5745 $
+ * $DateTime: 2013/01/21 11:29:35 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -230,7 +230,7 @@ ALIGN16 DBL RTable[267*2] =
 	 -0.848112, 0.0,    0.724697, 0.0,    0.473503, 0.0,    0.998749, 0.0,    0.174701, 0.0,    0.559625, 0.0,
 	 -0.029099, 0.0,   -0.337392, 0.0,   -0.958129, 0.0,   -0.659785, 0.0,    0.236042, 0.0,   -0.246937, 0.0,
 	  0.659449, 0.0,   -0.027512, 0.0,    0.821897, 0.0,   -0.226215, 0.0,   0.0181735, 0.0,    0.500481, 0.0,
-	 -0.420127, 0.0,   -0.427878, 0.0,    0.566186
+	 -0.420127, 0.0,   -0.427878, 0.0,    0.566186, 0.0
 };
 
 /*****************************************************************************/
@@ -289,7 +289,7 @@ void Initialize_Noise()
 	/* are - initialize Perlin style noise function */
 	InitSolidNoise();
 
-	sintab = (DBL *)POV_MALLOC(SINTABSIZE * sizeof(DBL), "sine table");
+	sintab = reinterpret_cast<DBL *>(POV_MALLOC(SINTABSIZE * sizeof(DBL), "sine table"));
 
 	for(int i = 0 ; i < 267 ; i++)
 		RTable[(i * 2) + 1] = RTable[i * 2] * 0.5;
@@ -348,7 +348,7 @@ static void InitTextureTable()
 	int next_rand = 0;
 
 	#ifdef DYNAMIC_HASHTABLE
-		hashTable = (unsigned short *)POV_MALLOC(8192*sizeof(unsigned short), "hash table");
+		hashTable = reinterpret_cast<unsigned short *>(POV_MALLOC(8192*sizeof(unsigned short), "hash table"));
 	#endif
 
 	for(i = 0; i < 4096; i++)
@@ -1158,16 +1158,16 @@ void Transform_Textures(TEXTURE *Textures, const TRANSFORM *Trans)
 {
 	TEXTURE *Layer;
 
-	for (Layer = Textures; Layer != NULL; Layer = (TEXTURE *)Layer->Next)
+	for (Layer = Textures; Layer != NULL; Layer = reinterpret_cast<TEXTURE *>(Layer->Next))
 	{
 		if (Layer->Type == PLAIN_PATTERN)
 		{
-			Transform_Tpattern((TPATTERN *)Layer->Pigment, Trans);
-			Transform_Tpattern((TPATTERN *)Layer->Tnormal, Trans);
+			Transform_Tpattern(reinterpret_cast<TPATTERN *>(Layer->Pigment), Trans);
+			Transform_Tpattern(reinterpret_cast<TPATTERN *>(Layer->Tnormal), Trans);
 		}
 		else
 		{
-			Transform_Tpattern((TPATTERN *)Layer, Trans);
+			Transform_Tpattern(reinterpret_cast<TPATTERN *>(Layer), Trans);
 		}
 	}
 }
@@ -1200,7 +1200,7 @@ FINISH *Create_Finish()
 {
 	FINISH *New;
 
-	New = (FINISH *)POV_MALLOC(sizeof (FINISH), "finish");
+	New = reinterpret_cast<FINISH *>(POV_MALLOC(sizeof (FINISH), "finish"));
 
 	New->Ambient.set(0.1);
 	New->Emission.clear();
@@ -1211,6 +1211,8 @@ FINISH *Create_Finish()
 	New->Reflection_Falloff = 1;    /* Added by MBP 8/27/98 */
 	New->Diffuse            = 0.6;
 	New->DiffuseBack        = 0.0;
+	New->RawDiffuse         = New->Diffuse;
+	New->RawDiffuseBack     = New->DiffuseBack;
 	New->Brilliance         = 1.0;
 	New->Phong              = 0.0;
 	New->Phong_Size         = 40.0;
@@ -1302,9 +1304,9 @@ TEXTURE *Create_Texture()
 {
 	TEXTURE *New;
 
-	New = (TEXTURE *)POV_MALLOC(sizeof (TEXTURE), "texture");
+	New = reinterpret_cast<TEXTURE *>(POV_MALLOC(sizeof (TEXTURE), "texture"));
 
-	Init_TPat_Fields((TPATTERN *)New);
+	Init_TPat_Fields(reinterpret_cast<TPATTERN *>(New));
 
 	New->References = 1;
 
@@ -1385,10 +1387,10 @@ TEXTURE *Copy_Textures(const TEXTURE *Textures)
 
 	Previous = First = NULL;
 
-	for (Layer = Textures; Layer != NULL; Layer = (const TEXTURE *)Layer->Next)
+	for (Layer = Textures; Layer != NULL; Layer = reinterpret_cast<const TEXTURE *>(Layer->Next))
 	{
 		New = Create_Texture();
-		Copy_TPat_Fields ((TPATTERN *)New, (const TPATTERN *)Layer);
+		Copy_TPat_Fields (reinterpret_cast<TPATTERN *>(New), reinterpret_cast<const TPATTERN *>(Layer));
 
 		/*  Mesh copies a texture pointer that already has multiple
 		    references.  We just want a clean copy, not a copy
@@ -1424,7 +1426,7 @@ TEXTURE *Copy_Textures(const TEXTURE *Textures)
 
 		if (Previous != NULL)
 		{
-			Previous->Next = (TPATTERN *)New;
+			Previous->Next = reinterpret_cast<TPATTERN *>(New);
 		}
 
 		Previous = New;
@@ -1526,7 +1528,7 @@ void Destroy_Textures(TEXTURE *Textures)
 			Mats = Temp;
 		}
 
-		Destroy_TPat_Fields((TPATTERN *)Layer);
+		Destroy_TPat_Fields(reinterpret_cast<TPATTERN *>(Layer));
 
 		switch (Layer->Type)
 		{
@@ -1548,7 +1550,7 @@ void Destroy_Textures(TEXTURE *Textures)
 			break;
 		}
 
-		Temp = (TEXTURE *)Layer->Next;
+		Temp = reinterpret_cast<TEXTURE *>(Layer->Next);
 		POV_FREE(Layer);
 		Layer = Temp;
 	}
@@ -1587,7 +1589,7 @@ void Post_Textures(TEXTURE *Textures)
 		return;
 	}
 
-	for (Layer = Textures; Layer != NULL; Layer = (TEXTURE *)Layer->Next)
+	for (Layer = Textures; Layer != NULL; Layer = reinterpret_cast<TEXTURE *>(Layer->Next))
 	{
 		if (!((Layer->Flags) & POST_DONE))
 		{
@@ -1627,7 +1629,7 @@ void Post_Textures(TEXTURE *Textures)
 			{
 				if (Layer->Type == AVERAGE_PATTERN)
 				{
-				throw POV_EXCEPTION_STRING("No texture map in averaged texture.");
+					throw POV_EXCEPTION_STRING("No texture map in averaged texture.");
 				}
 			}
 		}
@@ -1671,10 +1673,10 @@ void Post_Textures(TEXTURE *Textures)
 *
 ******************************************************************************/
 
-int Test_Opacity(TEXTURE *Texture)
+int Test_Opacity(const TEXTURE *Texture)
 {
 	int Opaque, Help;
-	TEXTURE *Layer, *Material;
+	const TEXTURE *Layer, *Material;
 
 	if (Texture == NULL)
 	{
@@ -1687,7 +1689,7 @@ int Test_Opacity(TEXTURE *Texture)
 
 	/* Test all layers. If at least one layer is opaque the object is opaque. */
 
-	for (Layer = Texture; Layer != NULL; Layer = (TEXTURE *)Layer->Next)
+	for (Layer = Texture; Layer != NULL; Layer = reinterpret_cast<const TEXTURE *>(Layer->Next))
 	{
 		switch (Layer->Type)
 		{

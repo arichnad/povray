@@ -20,10 +20,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/frontend/processrenderoptions.cpp $
- * $Revision: #60 $
- * $Change: 5414 $
- * $DateTime: 2011/02/27 08:21:26 $
- * $Author: jgrimbert $
+ * $Revision: #62 $
+ * $Change: 5786 $
+ * $DateTime: 2013/02/06 10:16:21 $
+ * $Author: thorsten $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -156,6 +156,13 @@ struct ProcessOptions::Output_FileType_Table FileTypeTable[] = {
 	{ 'S',  0,                              kPOVList_FileType_System,           SYS_GRAYSCALE_FLAG, SYS_ALPHA_FLAG },
 #endif // SYS_TO_STANDARD
 
+	//  [1] Alpha support for BMP uses an inofficial extension to the BMP file format, which is not recognized by
+	//      most image pocessing software.
+
+	//  [2] While OpenEXR does support greyscale output at >8 bits, the variants currently supported by POV-Ray
+	//      use 16-bit floating-point values with 10 bit mantissa, which might be insufficient for various purposes
+	//      such as height fields.
+
 	// end-of-list marker
 	{ '\0', 0, 0, false }
 };
@@ -184,13 +191,6 @@ struct ProcessOptions::Parameter_Code_Table DitherMethodTable[] = {
 	// end-of-list marker
 	{ NULL,     0 }
 };
-
-//  [1] Alpha support for BMP uses an inofficial extension to the BMP file format, which is not recognized by
-//      most image pocessing software.
-
-//  [2] While OpenEXR does support greyscale output at >8 bits, the variants currently supported by POV-Ray
-//      use 16-bit floating-point values with 10 bit mantissa, which might be insufficient for various purposes
-//      such as height fields.
 
 /*
    Keyword table for the INI-file parser.
@@ -379,6 +379,7 @@ struct ProcessOptions::Cmd_Parser_Table RenderOptions_Cmd_Table[] =
 	{ "GF",  kPOVAttrib_FatalFile,          kPOVMSType_UCS2String,  kPOVAttrib_FatalConsole },
 	{ "GF",  kNoParameter,                  kNoParameter,           kPOVAttrib_FatalConsole },
 	{ "GI",  kPOVAttrib_CreateIni,          kPOVMSType_UCS2String,  kNoParameter },
+	{ "GP",  kNoParameter,                  kNoParameter,           kPOVAttrib_AppendConsoleFiles },
 	{ "GR",  kPOVAttrib_RenderFile,         kPOVMSType_UCS2String,  kPOVAttrib_RenderConsole },
 	{ "GR",  kNoParameter,                  kNoParameter,           kPOVAttrib_RenderConsole },
 	{ "GS",  kPOVAttrib_StatisticsFile,     kPOVMSType_UCS2String,  kPOVAttrib_StatisticsConsole },

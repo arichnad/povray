@@ -24,10 +24,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/lighting/photonstrategytask.cpp $
- * $Revision: #12 $
- * $Change: 5316 $
- * $DateTime: 2011/01/01 04:54:21 $
- * $Author: chrisc $
+ * $Revision: #13 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -228,7 +228,6 @@ void PhotonStrategyTask::Finish()
 
 void PhotonStrategyTask::SearchThroughObjectsCreateUnits(vector<ObjectPtr>& Objects, LightSource *Light)
 {
-	ViewThreadData *renderDataPtr = GetViewDataPtr();
 	shared_ptr<SceneData> sceneData = GetSceneData();
 
 	/* check this object and all siblings */
@@ -240,7 +239,7 @@ void PhotonStrategyTask::SearchThroughObjectsCreateUnits(vector<ObjectPtr>& Obje
 			/* do not shoot photons if global lights are turned off for ObjectPtr */
 			if(!Test_Flag((*Sib), NO_GLOBAL_LIGHTS_FLAG))
 			{
-				strategy->createUnitsForCombo((*Sib), Light, renderDataPtr, sceneData);
+				strategy->createUnitsForCombo((*Sib), Light, sceneData);
 			}
 
 			Cooperate();

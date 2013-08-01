@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/math/splines.cpp $
- * $Revision: #15 $
- * $Change: 5489 $
- * $DateTime: 2011/09/14 16:18:34 $
+ * $Revision: #16 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -131,11 +131,11 @@ namespace pov
 * Local functions
 ******************************************************************************/
 
-DBL linear_interpolate(SPLINE_ENTRY * se, int i, int k, DBL p);
-DBL quadratic_interpolate(SPLINE_ENTRY * se, int i, int k, DBL p);
-DBL natural_interpolate(SPLINE_ENTRY * se, int i, int k, DBL p);
-DBL catmull_rom_interpolate(SPLINE_ENTRY * se, int i, int k, DBL p);
-int findt(SPLINE * sp, DBL Time);
+DBL linear_interpolate(const SPLINE_ENTRY * se, int i, int k, DBL p);
+DBL quadratic_interpolate(const SPLINE_ENTRY * se, int i, int k, DBL p);
+DBL natural_interpolate(const SPLINE_ENTRY * se, int i, int k, DBL p);
+DBL catmull_rom_interpolate(const SPLINE_ENTRY * se, int i, int k, DBL p);
+int findt(const SPLINE * sp, DBL Time);
 void mkfree(SPLINE * sp, int i);
 void Precompute_Cubic_Coeffs(SPLINE *sp);
 
@@ -237,7 +237,7 @@ void Precompute_Cubic_Coeffs(SPLINE *sp)
 *
 ******************************************************************************/
 
-DBL linear_interpolate(SPLINE_ENTRY * se, int i, int k, DBL p)
+DBL linear_interpolate(const SPLINE_ENTRY * se, int i, int k, DBL p)
 {
 	DBL p1, p2, v1, v2;
 	p1 = se[i].par;
@@ -278,7 +278,7 @@ DBL linear_interpolate(SPLINE_ENTRY * se, int i, int k, DBL p)
 *
 ******************************************************************************/
 
-DBL quadratic_interpolate(SPLINE_ENTRY * se, int i, int k, DBL p)
+DBL quadratic_interpolate(const SPLINE_ENTRY * se, int i, int k, DBL p)
 {
 	/* fit quadratic function to three point*/
 	DBL n;
@@ -335,7 +335,7 @@ DBL quadratic_interpolate(SPLINE_ENTRY * se, int i, int k, DBL p)
 *
 ******************************************************************************/
 
-DBL natural_interpolate(SPLINE_ENTRY * se, int i, int k, DBL p)
+DBL natural_interpolate(const SPLINE_ENTRY * se, int i, int k, DBL p)
 {
 	DBL h, tmp;
 	h = se[i+1].par - se[i].par;
@@ -375,7 +375,7 @@ DBL natural_interpolate(SPLINE_ENTRY * se, int i, int k, DBL p)
 *
 ******************************************************************************/
 
-DBL catmull_rom_interpolate(SPLINE_ENTRY * se, int i, int k, DBL p)
+DBL catmull_rom_interpolate(const SPLINE_ENTRY * se, int i, int k, DBL p)
 {
 	DBL dt = (se[i+1].par - se[i].par); /* Time between se[i] and se[i+1] */
 	DBL u = (p - se[i].par)/dt;         /* Fractional time from se[i] to p */
@@ -418,7 +418,7 @@ DBL catmull_rom_interpolate(SPLINE_ENTRY * se, int i, int k, DBL p)
 *
 ******************************************************************************/
 
-int findt(SPLINE * sp, DBL Time)
+int findt(const SPLINE * sp, DBL Time)
 {
 	int i, i2;
 	SPLINE_ENTRY * se;
@@ -582,7 +582,7 @@ SPLINE * Create_Spline(int Type)
 *
 ******************************************************************************/
 
-SPLINE * Copy_Spline(SPLINE * Old)
+SPLINE * Copy_Spline(const SPLINE * Old)
 {
 	SPLINE * New;
 	New = (SPLINE *)POV_MALLOC(sizeof(SPLINE), "spline");
@@ -695,7 +695,7 @@ void Destroy_Spline(SPLINE * Spline)
 *
 ******************************************************************************/
 
-void Insert_Spline_Entry(SPLINE * sp, DBL p, EXPRESS v)
+void Insert_Spline_Entry(SPLINE * sp, DBL p, const EXPRESS v)
 {
 	int i, k;
 

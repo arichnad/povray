@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/bounding/bbox.h $
- * $Revision: #24 $
- * $Change: 5401 $
- * $DateTime: 2011/02/08 21:06:55 $
+ * $Revision: #26 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -160,7 +160,7 @@ struct PriorityQueue
 	struct Qelem
 	{
 		DBL depth;
-		BBOX_TREE *node;
+		const BBOX_TREE *node;
 	};
 
 	unsigned QSize;
@@ -178,7 +178,7 @@ void Recompute_BBox(BBOX *bbox, const TRANSFORM *trans);
 void Recompute_Inverse_BBox(BBOX *bbox, const TRANSFORM *trans);
 bool Intersect_BBox_Tree(PriorityQueue& pqueue, const BBOX_TREE *Root, const Ray& ray, Intersection *Best_Intersection, TraceThreadData *Thread);
 bool Intersect_BBox_Tree(PriorityQueue& pqueue, const BBOX_TREE *Root, const Ray& ray, Intersection *Best_Intersection, const RayObjectCondition& precondition, const RayObjectCondition& postcondition, TraceThreadData *Thread);
-void Check_And_Enqueue(PriorityQueue& Queue, const BBOX_TREE *Node, const BBOX *BBox, Rayinfo *rayinfo, TraceThreadData *Thread);
+void Check_And_Enqueue(PriorityQueue& Queue, const BBOX_TREE *Node, const BBOX *BBox, const Rayinfo *rayinfo, TraceThreadData *Thread);
 void Priority_Queue_Delete(PriorityQueue& Queue, DBL *key, const BBOX_TREE **Node);
 void Destroy_BBox_Tree(BBOX_TREE *Node);
 

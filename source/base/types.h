@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/types.h $
- * $Revision: #35 $
- * $Change: 5408 $
- * $DateTime: 2011/02/21 15:17:08 $
+ * $Revision: #39 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -120,6 +120,49 @@ inline T clip(T val, T minv, T maxv)
 	else
 		return val;
 }
+
+// force a value's precision to a given type, even if computations are normally done with extended precision
+// (such as GNU Linux on 32-bit CPU, which uses 80-bit extended double precision)
+// TODO - we might make this code platform-specific
+template<typename T>
+inline T forcePrecision(T val)
+{
+	volatile T tempVal;
+	tempVal = val;
+	return tempVal;
+}
+
+// wrap value into the range [0..upperLimit);
+// (this is equivalent to fmod() for positive values, but not for negative ones)
+template<typename T>
+inline T wrap(T val, T upperLimit)
+{
+	T tempVal = fmod(val, upperLimit);
+	// NB: The range of the value computed by fmod() should be in the range [0..upperLimit) already,
+	// but on some architectures may actually be in the range [0..upperLimit].
+
+	if (tempVal < T(0.0))
+	{
+		// For negative values, fmod() returns a value in the range [-upperLimit..0];
+		// transpose it into the range [0..upperLimit].
+		tempVal += upperLimit;
+	}
+
+	// for negative values (and also for positive values on systems that internally use higher precision
+	// than double for computations) we may end up with value equal to upperLimit (in double precision);
+	// make sure to wrap these special cases to the range [0..upperLimit) as well.
+	if (forcePrecision<double>(tempVal) >= upperLimit)
+		tempVal = T(0.0);
+
+	return tempVal;
+}
+
+// round up/down to a multiple of some value
+template<typename T1, typename T2>
+inline T1 RoundDownToMultiple(T1 x, T2 base) { return x - (x % base); }
+template<typename T1, typename T2>
+inline T1 RoundUpToMultiple(T1 x, T2 base) { return RoundDownToMultiple (x + base - 1, base); }
+
 
 template<typename T>
 class GenericRGBColour;
@@ -791,9 +834,9 @@ class FloatSetting : public GenericSetting
 {
 	public:
 		explicit FloatSetting(double data = 0.0, bool set = false): data(data), GenericSetting(set) {}
-		double operator=(double b)      { data = b; set = true; return data; }
-		operator double() const         { return data; }
-		double operator()(double def)   { if (set) return data; else return def; }
+		double operator=(double b)          { data = b; set = true; return data; }
+		operator double() const             { return data; }
+		double operator()(double def) const { if (set) return data; else return def; }
 	private:
 		double  data;
 };

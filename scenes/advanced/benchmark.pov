@@ -1,7 +1,7 @@
 // Persistence Of Vision Ray Tracer Scene Description File
 //
 // File:            benchmark.pov
-// Benchmark Vers:  2.00 Scene File Version
+// Benchmark Vers:  2.01 Scene File Version
 // Desc:            POV-Ray benchmark scene
 // Date:            October/November 2001
 //
@@ -12,7 +12,7 @@
 //
 // ==================================================================
 //
-//    Standard POV-Ray benchmark version 2.00 Scene File Version
+//    Standard POV-Ray benchmark version 2.01 Scene File Version
 //
 // This is the official POV-Ray benchmark scene.  It is designed
 // to test a variety of POV-Ray features and should render in a
@@ -29,7 +29,7 @@
 // make sure the differences are made clear when publishing them.
 //
 // When publishing results, be sure to quote the exact version of the
-// benchmark scene used (2.00 Scene File Version), and the exact
+// benchmark scene used (2.01 Scene File Version), and the exact
 // version of POV-Ray.
 //
 // ==================================================================
@@ -42,6 +42,8 @@
 // Apr. 2002   changed max_gradient of isosurface (new ver is 1.01)
 // Jun. 2002   added photons pass_through to clouds (new ver is 1.02)
 // Dec. 2010   made ready for v3.7 release (new ver is 2.00)
+// Oct. 2012   allow run without installation (same ver : 2.00)
+// Jan. 2013   change version to 2.01 to differentiate from beta.
 //
 // ==================================================================
 //
@@ -145,9 +147,9 @@
 
 #default { texture { finish { ambient 0 diffuse 1 }}}
 
-#include "functions.inc"
-#include "colors.inc"
-#include "logo.inc"
+//#include "functions.inc"
+//#include "colors.inc"
+//#include "logo.inc"
 
 #declare use_radiosity = false;
 
@@ -250,6 +252,17 @@ fog{
 
 
 //====================================================================================
+
+// Copied from functions.inc for Oct 2012
+#declare f_ridged_mf = function { internal(59) }
+// Parameters: x, y, z
+    // Six extra parameters required:                          
+    // 1. H 
+    // 2. Lacunarity 
+    // 3. octaves
+    // 4. offset 
+    // 5. Gain 
+    // 6. noise
 
 
 #declare RMF = function{ f_ridged_mf(x, y, z, 0.07, 2.2,  7, 0.6, 0.9, 1)}
@@ -699,8 +712,8 @@ difference {
 
 #declare POV_Text =
 text {
-   ttf
-   "timrom.ttf"
+   //ttf "timrom.ttf"
+   internal 1
    "POV-Ray"
    0.25,0
    scale 0.3
@@ -710,8 +723,8 @@ text {
 
 #declare Version_Text =
 text {
-   ttf
-   "timrom.ttf"
+   //ttf "timrom.ttf"
+   internal 1
    "Version 3.7"
    0.25,0
    scale 0.3
@@ -842,6 +855,26 @@ isosurface {
    translate Pos1
 }
 
+// Copied from logo.inc for Oct 2012
+// The original version is made of various objects.
+#declare Povray_Logo =
+merge {
+   sphere {2*y, 1}
+   difference {
+      cone {2*y, 1, -4*y, 0}
+      sphere {2*y, 1.4 scale <1,1,2>}
+   }
+   difference {
+      sphere {0, 1 scale <2.6, 2.2, 1>}
+      sphere {0, 1 scale <2.3, 1.8, 2> translate <-0.35, 0, 0>}
+      rotate z*30 translate 2*y
+   }
+   rotate <0, 0, -25>
+   translate <-0.5,-0.35,0>
+   scale 1/4
+}
+
+
 object {
    Povray_Logo
 
@@ -953,8 +986,8 @@ sphere {
 
 #declare Letter =
 text {
-   ttf
-   "timrom.ttf"
+   //ttf "timrom.ttf"
+   internal 1
    "X"
    1,0
    scale <1/0.7,1/0.66,1>

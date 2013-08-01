@@ -23,9 +23,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/pattern/warps.cpp $
- * $Revision: #21 $
- * $Change: 5107 $
- * $DateTime: 2010/08/27 14:53:23 $
+ * $Revision: #23 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -118,10 +118,10 @@ RandomDoubleSequence WarpRands(0.0, 1.0, 32768);
 /*****************************************************************************
 * Static functions
 ******************************************************************************/
-static int warp_cylindrical(VECTOR TPoint, CYLW *Warp);
-static int warp_spherical(VECTOR TPoint, SPHEREW *Warp);
-static int warp_toroidal(VECTOR TPoint,  TOROIDAL *Warp);
-static int warp_planar(VECTOR TPoint,  PLANARW *Warp);
+static int warp_cylindrical(VECTOR TPoint, const CYLW *Warp);
+static int warp_spherical(VECTOR TPoint, const SPHEREW *Warp);
+static int warp_toroidal(VECTOR TPoint, const TOROIDAL *Warp);
+static int warp_planar(VECTOR TPoint, const PLANARW *Warp);
 static int warp_cubic(VECTOR TPoint); // JN2007: Cubic warp
 
 
@@ -186,7 +186,7 @@ void Warp_EPoint (VECTOR TPoint, const VECTOR EPoint, const TPATTERN *TPat)
 			/* If not a special type, fall through to next case */
 
 			case EXTRA_TURB_WARP:
-				Turb=(TURB *)Warp;
+				Turb=reinterpret_cast<TURB *>(Warp);
 				DTurbulence (PTurbulence, TPoint, Turb);
 				TPoint[X] += PTurbulence[X] * Turb->Turbulence[X];
 				TPoint[Y] += PTurbulence[Y] * Turb->Turbulence[Y];
@@ -197,12 +197,12 @@ void Warp_EPoint (VECTOR TPoint, const VECTOR EPoint, const TPATTERN *TPat)
 				break;
 
 			case TRANSFORM_WARP:
-				Tr=(TRANS *)Warp;
+				Tr=reinterpret_cast<TRANS *>(Warp);
 				MInvTransPoint(TPoint, TPoint, &(Tr->Trans));
 				break;
 
 			case REPEAT_WARP:
-				Repeat=(REPEAT *)Warp;
+				Repeat=reinterpret_cast<REPEAT *>(Warp);
 				Assign_Vector(RP,TPoint);
 				Axis=Repeat->Axis;
 				BlkNum=(SNGL)floor(TPoint[Axis]/Repeat->Width);
@@ -223,7 +223,7 @@ void Warp_EPoint (VECTOR TPoint, const VECTOR EPoint, const TPATTERN *TPat)
 				break;
 
 			case BLACK_HOLE_WARP:
-				Black_Hole = (BLACK_HOLE *) Warp ;
+				Black_Hole = reinterpret_cast<BLACK_HOLE *>(Warp) ;
 				Assign_Vector (Center, Black_Hole->Center) ;
 
 				if (Black_Hole->Repeat)
@@ -305,19 +305,19 @@ void Warp_EPoint (VECTOR TPoint, const VECTOR EPoint, const TPATTERN *TPat)
 			warps */
 
 			case CYLINDRICAL_WARP:
-				warp_cylindrical(TPoint, (CYLW *)Warp);
+				warp_cylindrical(TPoint, reinterpret_cast<CYLW *>(Warp));
 				break;
 
 			case PLANAR_WARP:
-				warp_planar(TPoint, (PLANARW *)Warp);
+				warp_planar(TPoint, reinterpret_cast<PLANARW *>(Warp));
 				break;
 
 			case SPHERICAL_WARP:
-				warp_spherical(TPoint, (SPHEREW *)Warp);
+				warp_spherical(TPoint, reinterpret_cast<SPHEREW *>(Warp));
 				break;
 
 			case TOROIDAL_WARP:
-				warp_toroidal(TPoint, (TOROIDAL *) Warp);
+				warp_toroidal(TPoint, reinterpret_cast<TOROIDAL *>(Warp));
 				break;
 
 			case CUBIC_WARP:
@@ -339,10 +339,10 @@ void Warp_EPoint (VECTOR TPoint, const VECTOR EPoint, const TPATTERN *TPat)
 
 }
 
-void Warp_Normal (VECTOR TNorm, const VECTOR ENorm, TPATTERN *TPat, bool DontScaleBumps)
+void Warp_Normal (VECTOR TNorm, const VECTOR ENorm, const TPATTERN *TPat, bool DontScaleBumps)
 {
-	WARP *Warp=TPat->Warps;
-	TRANS *Tr;
+	const WARP *Warp=TPat->Warps;
+	const TRANS *Tr;
 
 	if(!DontScaleBumps)
 		VNormalize(TNorm,ENorm);
@@ -357,7 +357,7 @@ void Warp_Normal (VECTOR TNorm, const VECTOR ENorm, TPATTERN *TPat, bool DontSca
 			case NO_WARP:
 				break;
 			case TRANSFORM_WARP:
-				Tr=(TRANS *)Warp;
+				Tr=reinterpret_cast<const TRANS *>(Warp);
 				MInvTransNormal(TNorm, TNorm, &(Tr->Trans));
 				break;
 			/*
@@ -372,9 +372,9 @@ void Warp_Normal (VECTOR TNorm, const VECTOR ENorm, TPATTERN *TPat, bool DontSca
 		VNormalizeEq(TNorm);
 }
 
-void UnWarp_Normal (VECTOR TNorm, const VECTOR ENorm, TPATTERN *TPat, bool DontScaleBumps)
+void UnWarp_Normal (VECTOR TNorm, const VECTOR ENorm, const TPATTERN *TPat, bool DontScaleBumps)
 {
-	WARP *Warp = NULL;
+	const WARP *Warp = NULL;
 
 	if(!DontScaleBumps)
 		VNormalize(TNorm,ENorm);
@@ -390,7 +390,7 @@ void UnWarp_Normal (VECTOR TNorm, const VECTOR ENorm, TPATTERN *TPat, bool DontS
 		for(; Warp != NULL; Warp = Warp->Prev_Warp)
 		{
 			if(Warp->Warp_Type == TRANSFORM_WARP)
-				MTransNormal(TNorm, TNorm, &(((TRANS *)Warp)->Trans));
+				MTransNormal(TNorm, TNorm, &((reinterpret_cast<const TRANS *>(Warp))->Trans));
 		}
 	}
 
@@ -419,7 +419,7 @@ void UnWarp_Normal (VECTOR TNorm, const VECTOR ENorm, TPATTERN *TPat, bool DontS
 *
 ******************************************************************************/
 
-static int warp_planar(VECTOR EPoint, PLANARW *Warp)
+static int warp_planar(VECTOR EPoint, const PLANARW *Warp)
 {
 	DBL x = EPoint[X];
 	DBL z = Warp->OffSet;
@@ -471,7 +471,7 @@ static int warp_planar(VECTOR EPoint, PLANARW *Warp)
 *
 ******************************************************************************/
 
-static int warp_cylindrical(VECTOR EPoint, CYLW *Warp)
+static int warp_cylindrical(VECTOR EPoint, const CYLW *Warp)
 {
 	DBL len, theta;
 	DBL x = EPoint[X];
@@ -556,7 +556,7 @@ static int warp_cylindrical(VECTOR EPoint, CYLW *Warp)
 *
 ******************************************************************************/
 
-static int warp_toroidal(VECTOR EPoint, TOROIDAL *Warp)
+static int warp_toroidal(VECTOR EPoint, const TOROIDAL *Warp)
 {
 	DBL len, phi, theta;
 	DBL r0;
@@ -665,7 +665,7 @@ static int warp_toroidal(VECTOR EPoint, TOROIDAL *Warp)
 * CHANGES
 *
 ******************************************************************************/
-static int warp_spherical(VECTOR EPoint, SPHEREW *Warp)
+static int warp_spherical(VECTOR EPoint, const SPHEREW *Warp)
 {
 	DBL len, phi, theta,dist;
 	DBL x = EPoint[X];
@@ -858,7 +858,7 @@ WARP *Create_Warp (int Warp_Type)
 		case CLASSIC_TURB_WARP:
 		case EXTRA_TURB_WARP:
 
-			TNew = (TURB *)POV_MALLOC(sizeof(TURB),"turbulence struct");
+			TNew = reinterpret_cast<TURB *>(POV_MALLOC(sizeof(TURB),"turbulence struct"));
 
 			Make_Vector(TNew->Turbulence,0.0,0.0,0.0);
 
@@ -866,13 +866,13 @@ WARP *Create_Warp (int Warp_Type)
 			TNew->Omega = 0.5;
 			TNew->Lambda = 2.0;
 
-			New = (WARP *)TNew;
+			New = reinterpret_cast<WARP *>(TNew);
 
 			break;
 
 		case REPEAT_WARP:
 
-			RNew = (REPEAT *)POV_MALLOC(sizeof(REPEAT),"repeat warp");
+			RNew = reinterpret_cast<REPEAT *>(POV_MALLOC(sizeof(REPEAT),"repeat warp"));
 
 			RNew->Axis = -1;
 			RNew->Width = 0.0;
@@ -880,12 +880,12 @@ WARP *Create_Warp (int Warp_Type)
 			Make_Vector(RNew->Offset,0.0,0.0,0.0);
 			Make_Vector(RNew->Flip,1.0,1.0,1.0);
 
-			New = (WARP *)RNew;
+			New = reinterpret_cast<WARP *>(RNew);
 
 			break;
 
 		case BLACK_HOLE_WARP:
-			BNew = (BLACK_HOLE *)POV_MALLOC (sizeof (BLACK_HOLE), "black hole warp") ;
+			BNew = reinterpret_cast<BLACK_HOLE *>(POV_MALLOC (sizeof (BLACK_HOLE), "black hole warp")) ;
 			Make_Vector (BNew->Center, 0.0, 0.0, 0.0) ;
 			Make_Vector (BNew->Repeat_Vector, 0.0, 0.0, 0.0) ;
 			Make_Vector (BNew->Uncertainty_Vector, 0.0, 0.0, 0.0) ;
@@ -898,52 +898,52 @@ WARP *Create_Warp (int Warp_Type)
 			BNew->Type = 0 ;
 			BNew->Repeat = false ;
 			BNew->Uncertain = false ;
-			New = (WARP *) BNew ;
+			New = reinterpret_cast<WARP *>(BNew) ;
 			break ;
 
 		case TRANSFORM_WARP:
 
-			TRNew = (TRANS *)POV_MALLOC(sizeof(TRANS),"pattern transform");
+			TRNew = reinterpret_cast<TRANS *>(POV_MALLOC(sizeof(TRANS),"pattern transform"));
 
 			MIdentity (TRNew->Trans.matrix);
 			MIdentity (TRNew->Trans.inverse);
 
-			New = (WARP *)TRNew;
+			New = reinterpret_cast<WARP *>(TRNew);
 
 			break;
 
 		case SPHERICAL_WARP:
-			SNew = (SPHEREW *)POV_MALLOC(sizeof(SPHEREW),"cylindrical warp");
+			SNew = reinterpret_cast<SPHEREW *>(POV_MALLOC(sizeof(SPHEREW),"cylindrical warp"));
 			Make_Vector (SNew->Orientation_Vector, 0.0, 0.0, 1.0) ;
 			SNew->DistExp = 0.0;
-			New = (WARP *)SNew;
+			New = reinterpret_cast<WARP *>(SNew);
 			break;
 
 		case PLANAR_WARP:
-			PNew = (PLANARW *)POV_MALLOC(sizeof(PLANARW),"planar warp");
+			PNew = reinterpret_cast<PLANARW *>(POV_MALLOC(sizeof(PLANARW),"planar warp"));
 			Make_Vector (PNew->Orientation_Vector, 0.0, 0.0, 1.0) ;
 			PNew->OffSet = 0.0;
-			New = (WARP *)PNew;
+			New = reinterpret_cast<WARP *>(PNew);
 			break;
 
 		case CYLINDRICAL_WARP:
-			CNew = (CYLW *)POV_MALLOC(sizeof(CYLW),"cylindrical warp");
+			CNew = reinterpret_cast<CYLW *>(POV_MALLOC(sizeof(CYLW),"cylindrical warp"));
 			Make_Vector (CNew->Orientation_Vector, 0.0, 0.0, 1.0) ;
 			CNew->DistExp = 0.0;
-			New = (WARP *)CNew;
+			New = reinterpret_cast<WARP *>(CNew);
 			break;
 
 		case TOROIDAL_WARP:
-			TorNew = (TOROIDAL *)POV_MALLOC(sizeof(TOROIDAL),"toroidal warp");
+			TorNew = reinterpret_cast<TOROIDAL *>(POV_MALLOC(sizeof(TOROIDAL),"toroidal warp"));
 			TorNew->MajorRadius = 1.0 ;
 			TorNew->DistExp = 0.0;
 			Make_Vector (TorNew->Orientation_Vector, 0.0, 0.0, 1.0) ;
-			New = (WARP *) TorNew;
+			New = reinterpret_cast<WARP *>(TorNew);
 			break;
 
 		// JN2007: Cubic warp
 		case CUBIC_WARP:
-			New = (WARP *)POV_MALLOC(sizeof(WARP),"cubic warp");
+			New = reinterpret_cast<WARP *>(POV_MALLOC(sizeof(WARP),"cubic warp"));
 			break;
 
 		default:
@@ -1012,7 +1012,7 @@ void Destroy_Warps (WARP *Warps)
 *
 ******************************************************************************/
 
-WARP *Copy_Warps (WARP *Old)
+WARP *Copy_Warps (const WARP *Old)
 {
 	WARP *New;
 

@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/image/pgm.cpp $
- * $Revision: #22 $
- * $Change: 5303 $
- * $DateTime: 2010/12/27 14:22:56 $
+ * $Revision: #24 $
+ * $Change: 5769 $
+ * $DateTime: 2013/01/30 05:42:03 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -207,13 +207,13 @@ Image *Read (IStream *file, const Image::ReadOptions& options)
 {
 	int                   width;
 	int                   height;
-	unsigned int          data_hi;
-	unsigned int          data_lo;
+	int                   data_hi; // not unsigned as it may need to hold EOF
+	int                   data_lo; // not unsigned as it may need to hold EOF
 	char                  line[1024];
 	char                  *ptr;
 	Image                 *image = NULL;
 	unsigned int          depth;
-	unsigned int          v;
+	int                   v; // not unsigned as it may need to hold EOF
 	unsigned char         header[2];
 
 	// PGM files may or may not be gamma-encoded.
@@ -222,7 +222,7 @@ Image *Read (IStream *file, const Image::ReadOptions& options)
 		gamma = TranscodingGammaCurve::Get(options.workingGamma, options.defaultGamma);
 
 	// --- Read Header ---
-	if (!file->read((char *)header, 2))
+	if (!file->read(header, 2))
 		throw POV_EXCEPTION(kFileDataErr, "Cannot read header of PGM image");
 
 	if(header[0] != 'P')
@@ -257,7 +257,7 @@ Image *Read (IStream *file, const Image::ReadOptions& options)
 	} while (line[0]=='\0');  // read until line without comment from beginning
 
 	// --- Second: one number: color depth ---
-	if (sscanf(line,"%d",&depth) != 1)
+	if (sscanf(line,"%u",&depth) != 1)
 		throw POV_EXCEPTION(kFileDataErr, "Cannot read color depth from PGM image");
 
 	if ((depth > 65535) || (depth < 1))

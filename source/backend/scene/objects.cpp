@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/scene/objects.cpp $
- * $Revision: #51 $
- * $Change: 5410 $
- * $DateTime: 2011/02/24 16:46:18 $
+ * $Revision: #52 $
+ * $Change: 5625 $
+ * $DateTime: 2012/03/10 21:41:16 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -827,7 +827,7 @@ ObjectPtr Copy_Object (ObjectPtr Old)
 	if(Old == NULL)
 		return NULL;
 
-	New = (ObjectPtr)Old->Copy();
+	New = Old->Copy();
 
 	/*
 	 * The following copying of OBJECT_FIELDS is redundant if Copy
@@ -922,13 +922,13 @@ void Destroy_Single_Object (ObjectPtr *objectPtr)
 
 	Destroy_Object(object->Bound);
 
-	Destroy_Interior((Interior *)object->interior);
+	Destroy_Interior(object->interior);
 
 	/* NK 1998 */
 	Destroy_Transform(object->UV_Trans);
 
 	Destroy_Object(object->Bound);
-	Destroy_Interior((Interior *)object->interior);
+	Destroy_Interior(object->interior);
 
 	if(object->Bound != object->Clip)
 		Destroy_Object(object->Clip);
@@ -955,14 +955,14 @@ void Destroy_Object(ObjectPtr Object)
 		Destroy_Textures(Object->Interior_Texture);
 		Destroy_Object(Object->Bound);
 
-		Destroy_Interior((Interior *)Object->interior);
+		Destroy_Interior(Object->interior);
 		Destroy_Transform(Object->UV_Trans);
 
 		if (DestroyClip)
 			Destroy_Object(Object->Clip);
 
 		if (dynamic_cast<CompoundObject *> (Object) != NULL)
-			Destroy_Object (((CompoundObject *) Object)->children);
+			Destroy_Object ((dynamic_cast<CompoundObject *> (Object))->children);
 
 		delete Object;
 	}

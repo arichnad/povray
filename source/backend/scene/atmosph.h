@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/scene/atmosph.h $
- * $Revision: #17 $
- * $Change: 5573 $
- * $DateTime: 2011/12/02 21:56:12 $
+ * $Revision: #18 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -153,20 +153,20 @@ struct Skysphere_Struct
 ******************************************************************************/
 
 FOG *Create_Fog (void);
-FOG *Copy_Fog (FOG *Fog);
+FOG *Copy_Fog (const FOG *Fog);
 void Destroy_Fog (FOG *Fog);
 
 RAINBOW *Create_Rainbow (void);
-RAINBOW *Copy_Rainbow (RAINBOW *Rainbow);
+RAINBOW *Copy_Rainbow (const RAINBOW *Rainbow);
 void Destroy_Rainbow (RAINBOW *Rainbow);
 
 SKYSPHERE *Create_Skysphere (void);
-SKYSPHERE *Copy_Skysphere (SKYSPHERE *Skysphere);
+SKYSPHERE *Copy_Skysphere (const SKYSPHERE *Skysphere);
 void Destroy_Skysphere (SKYSPHERE *Skysphere);
-void Scale_Skysphere (SKYSPHERE *Skysphere, VECTOR Vector);
-void Rotate_Skysphere (SKYSPHERE *Skysphere, VECTOR Vector);
-void Translate_Skysphere (SKYSPHERE *Skysphere, VECTOR Vector);
-void Transform_Skysphere (SKYSPHERE *Skysphere, TRANSFORM *Trans);
+void Scale_Skysphere (SKYSPHERE *Skysphere, const VECTOR Vector);
+void Rotate_Skysphere (SKYSPHERE *Skysphere, const VECTOR Vector);
+void Translate_Skysphere (SKYSPHERE *Skysphere, const VECTOR Vector);
+void Transform_Skysphere (SKYSPHERE *Skysphere, const TRANSFORM *Trans);
 
 }
 

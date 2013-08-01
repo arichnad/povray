@@ -25,9 +25,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/sphsweep.cpp $
- * $Revision: #33 $
- * $Change: 5103 $
- * $DateTime: 2010/08/22 06:58:49 $
+ * $Revision: #34 $
+ * $Change: 5745 $
+ * $DateTime: 2013/01/21 11:29:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -1219,7 +1219,7 @@ void SphereSweep::Scale(const VECTOR Vector, const TRANSFORM *tr)
 		Compute_BBox();
 	}
 	else
-	Transform(tr);
+		Transform(tr);
 }
 
 

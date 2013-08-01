@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/support/randomsequences.h $
- * $Revision: #14 $
- * $Change: 5408 $
- * $DateTime: 2011/02/21 15:17:08 $
+ * $Revision: #17 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -108,6 +108,8 @@ using namespace pov_base;
 vector<int> RandomInts(int minval, int maxval, size_t count);
 vector<double> RandomDoubles(int minval, int maxval, size_t count);
 
+DBL POV_rand(unsigned int& next_rand);
+
 // need this to prevent VC++ v8 from thinking that Generator refers to boost::Generator
 class Generator;
 
@@ -125,7 +127,7 @@ class RandomIntSequence
 				Generator(RandomIntSequence *seq, size_t seedindex = 0);
 				int operator()();
 				int operator()(size_t seedindex);
-				size_t GetSeed();
+				size_t GetSeed() const;
 				void SetSeed(size_t seedindex);
 			private:
 				RandomIntSequence *sequence;
@@ -149,7 +151,7 @@ class RandomDoubleSequence
 				Generator(RandomDoubleSequence *seq, size_t seedindex = 0);
 				double operator()();
 				double operator()(size_t seedindex);
-				size_t GetSeed();
+				size_t GetSeed() const;
 				void SetSeed(size_t seedindex);
 			private:
 				RandomDoubleSequence *sequence;
@@ -227,10 +229,6 @@ class IndexedNumberGenerator
  *  @name Number Generator Pointers
  *
  *  The following types hold shared references to number generators.
- *
- *  @note   These are of type boost::shared_ptr<>; the assignment operator (=) may not work as expected,
- *          as it is in fact implemented as a swap operation.
- *          To clone a reference, use e.g. "SequentialDoubleGeneratorPtr myNewPtr(myOldPtr);".
  *
  *  @{
  */

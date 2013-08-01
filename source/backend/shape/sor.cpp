@@ -24,9 +24,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/sor.cpp $
- * $Revision: #32 $
- * $Change: 5103 $
- * $DateTime: 2010/08/22 06:58:49 $
+ * $Revision: #33 $
+ * $Change: 5746 $
+ * $DateTime: 2013/01/22 16:08:40 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -601,16 +601,13 @@ void Sor::Normal(VECTOR Result, Intersection *Inter, TraceThreadData *Thread) co
 
 			MInvTransPoint(P, Inter->IPoint, Trans);
 
-			if (P[X] * P[X] + P[Z] * P[Z] > DEPTH_TOLERANCE)
-			{
-				Entry = &Spline->Entry[Inter->i2];
+			Entry = &Spline->Entry[Inter->i2];
 
-				k = 0.5 * (P[Y] * (3.0 * Entry->A * P[Y] + 2.0 * Entry->B) + Entry->C);
+			k = 0.5 * (P[Y] * (3.0 * Entry->A * P[Y] + 2.0 * Entry->B) + Entry->C);
 
-				N[X] = P[X];
-				N[Y] = -k;
-				N[Z] = P[Z];
-			}
+			N[X] = P[X];
+			N[Y] = -k;
+			N[Z] = P[Z];
 
 			break;
 

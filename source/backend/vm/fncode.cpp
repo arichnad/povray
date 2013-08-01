@@ -25,9 +25,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/vm/fncode.cpp $
- * $Revision: #18 $
- * $Change: 5091 $
- * $DateTime: 2010/08/06 11:17:18 $
+ * $Revision: #19 $
+ * $Change: 5745 $
+ * $DateTime: 2013/01/21 11:29:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -141,7 +141,7 @@ namespace pov
 *
 ******************************************************************************/
 
-FNCode::FNCode(Parser *pa, FunctionCode *f, bool is_local, char *n)
+FNCode::FNCode(Parser *pa, FunctionCode *f, bool is_local, const char *n)
 {
 	unsigned int i = 0;
 

@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/fractal.h $
- * $Revision: #20 $
- * $Change: 5009 $
- * $DateTime: 2010/06/05 10:39:30 $
- * $Author: chrisc $
+ * $Revision: #21 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -140,9 +140,9 @@ class Fractal;
 typedef struct cmplx { DBL x,y; } CMPLX;
 typedef void (*NORMAL_CALC_METHOD) (VECTOR, int, const Fractal *, DBL **);
 typedef int (*ITERATION_METHOD) (const VECTOR, const Fractal *, DBL **);
-typedef int (*D_ITERATION_METHOD) (VECTOR, const Fractal *, const VECTOR&, DBL *, DBL **);
-typedef int (*F_BOUND_METHOD) (Ray &, const Fractal *, DBL *, DBL *);
-typedef void (*COMPLEX_FUNCTION_METHOD) (CMPLX *, CMPLX *, const CMPLX *);
+typedef int (*D_ITERATION_METHOD) (const VECTOR, const Fractal *, const VECTOR&, DBL *, DBL **);
+typedef int (*F_BOUND_METHOD) (const Ray &, const Fractal *, DBL *, DBL *);
+typedef void (*COMPLEX_FUNCTION_METHOD) (CMPLX *, const CMPLX *, const CMPLX *);
 
 class Fractal : public ObjectBase
 {

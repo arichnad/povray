@@ -20,9 +20,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/lighting/photonshootingstrategy.h $
- * $Revision: #8 $
- * $Change: 5088 $
- * $DateTime: 2010/08/05 17:08:44 $
+ * $Revision: #9 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -113,7 +113,7 @@ class PhotonShootingStrategy
 
 		vector<PhotonShootingUnit*> units;
 
-		void createUnitsForCombo(ObjectPtr obj, LightSource* light, ViewThreadData* renderDataPtr, shared_ptr<SceneData> sceneData);
+		void createUnitsForCombo(ObjectPtr obj, LightSource* light, shared_ptr<SceneData> sceneData);
 		void start();
 		PhotonShootingUnit* getNextUnit();
 

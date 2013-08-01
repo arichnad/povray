@@ -26,9 +26,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/image/hdr.cpp $
- * $Revision: #23 $
- * $Change: 5303 $
- * $DateTime: 2010/12/27 14:22:56 $
+ * $Revision: #25 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -138,7 +138,7 @@ struct Messages
 typedef unsigned char RGBE[4]; // red, green, blue, exponent
 
 void GetRGBE(RGBE rgbe, const Image *image, int col, int row, const GammaCurvePtr& gamma, DitherHandler* dither);
-void SetRGBE(unsigned char *scanline, Image *image, int row, int width, const GammaCurvePtr& gamma);
+void SetRGBE(const unsigned char *scanline, Image *image, int row, int width, const GammaCurvePtr& gamma);
 void ReadOldLine(unsigned char *scanline, int width, IStream *file);
 
 /*****************************************************************************
@@ -176,7 +176,7 @@ void GetRGBE(RGBE rgbe, const Image *image, int col, int row, const GammaCurvePt
 	dh->setError(col,row,linOff);
 }
 
-void SetRGBE(unsigned char *scanline, Image *image, int row, int width, const GammaCurvePtr& gamma)
+void SetRGBE(const unsigned char *scanline, Image *image, int row, int width, const GammaCurvePtr& gamma)
 {
 	for(int i = 0; i < width; i++)
 	{
@@ -272,7 +272,7 @@ Image *Read(IStream *file, const Image::ReadOptions& options)
 		}
 	}
 
-	if(sscanf(line, "%2[+-XY] %d %2[+-XY] %d\n", s1, &height, s2, &width) != 4)
+	if(sscanf(line, "%2[+-XY] %u %2[+-XY] %u\n", s1, &height, s2, &width) != 4)
 		throw POV_EXCEPTION(kFileDataErr, "Bad HDR file header");
 
 	if(imagetype == Image::Undefined)

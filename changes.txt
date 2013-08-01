@@ -10,6 +10,147 @@ Changelog information is available in the file revision.txt, which should be
 located in the same directory as this file is.
 ----------------------------------------------------------------------------
 
+-----------------------------------
+Changes between 3.7.RC6 and 3.7.RC7
+-----------------------------------
+
+   - This is the FINAL release candidate. It features continued refinements to
+     the Windows user interface as well as the setup/install process, fixes
+     found by static code analysis, and various other bug fixes.
+
+Windows Installer:
+------------------
+
+   - POVWIN now assigns .pov file association to when installing.
+   - Improved cloning of v3.6 INI and provide better defaults.
+   - Various fixes/improvements to the way Windows INSTALL works and how the
+     documents path is auto-detected if not specified.
+   - Additional setup tweaks.
+
+Windows Crash Reports:
+----------------------
+
+   - Fix to handle filenames with a comma in them: crash report #419.
+
+Static Code Analysis:
+---------------------
+
+   - CID 967356: Uninitialized scalar variable
+     uninit_use: Using uninitialized value "r". See also FS#267
+
+   - CID 967224: Truncated stdio return value
+     char_io: Assigning the return value of "pov_base::ITextStream::getchar()"
+     to char "chr" truncated its value
+
+   - CID 967248: Copy-paste error
+     copy_paste_error: "t1" in "t1 < 1e+07." looks like a copy-paste error.
+     Should it says "t2" instead
+
+   - CID 967249  Resource leak in object
+     1. alloc_new: Allocating memory by calling
+        "new double[camera.Blur_Samples]"
+     2. var_assign: Assigning: "this->Sample_Threshold" =
+        "new double[camera.Blur_Samples]"
+     3. ctor_dtor_leak: The constructor allocates field "Sample_Threshold" of
+        "pov::TracePixel::FocalBlurData" but the destructor and whatever
+        functions it calls do not free it
+ 
+   - CID 967420: Non-virtual destructor
+     Nonvirtual_dtor: Class pov::RadiosityTask::RadiosityBlockInfo has a
+     destructor and a pointer to it is upcast to class pov::ViewData::BlockInfo
+     which doesn't have a virtual destructor 
+
+Fixed or mitigated the following bug reports:
+---------------------------------------------
+
+   - http://bugs.povray.org/task/270  render abort-continue (+C) skips blocks
+   - http://bugs.povray.org/task/267  bug in "sor" primitive causes artifacts
+   - http://bugs.povray.org/task/266  improper quoted strings handling
+   - http://bugs.povray.org/task/265  supress clang compilation warnings
+   - http://bugs.povray.org/task/257  Input file resuming animation render
+   - http://bugs.povray.org/task/249  UTF-8 files with BOM read error
+   - http://bugs.povray.org/task/247  set no_radiosity in Screen_Object()
+   - http://bugs.povray.org/task/238  error during #read leaves file open
+   - http://bugs.povray.org/task/234  allows GD flag to work correctly
+   - http://bugs.povray.org/task/233  picture index out of range
+   - http://bugs.povray.org/task/232  illegal map_type usage reporting
+   - http://bugs.povray.org/task/224  syntax highlighting/auto-comp (windows)
+   - http://bugs.povray.org/task/153  determine I/O permission for output file
+   - http://bugs.povray.org/task/150  improves POVWIN shell "open with" option
+   - http://bugs.povray.org/task/135  editor tab right-click menu additions
+   - http://bugs.povray.org/task/109  frame-by-frame debug data handling
+
+Other Noteworthy:
+-----------------
+
+    - Several updates to #5678 (FS#233): workaround for fmod() apparently not
+      conforming to C++ standard on some linux machines.
+    - Fixed radiosity issues with "diffuse albedo" syntax.
+    - Fix for benchmark thread vs CPU count (windows version).
+    - Fix to get rid of a shape/poly.cpp compile warning on Linux variants
+    - Added (re-enabled) crand support.
+    - Couple of fixes for an issue caused by a "boost" change.
+    - Build-in benchmark can now render without external distribution files.
+    - Fixed a bug in file-backed image container.
+    - Bump benchmark version to 2.01
+    - Various windows user interface refinements
+    - Added new option to prevent the system (windows) from sleeping whilst a
+      render is in progress. by default this is selected.
+    - Fix a long-standing bug where pressing 'pause' during a parse or render
+      could sometimes put the frontend/backend sync into an unrecoverable state
+    - Updated copyright information for some 3rd party libraries.
+    - A few signedness fixes in image handling code.
+    - Continued code cleanup including getting rid of unused code & parameters.
+    - Updated VS project libraries: zlib, libpng, libjpeg
+    - Added Append_File +GP option, which allows users to append streamed
+      console to existing console stream output file(s).
+
+----------------------------------------
+Changes between 3.7.beta.RC5 and 3.7.RC6
+----------------------------------------
+
+   - This release candidate features continued refinements to the Windows
+     installer, VS10 code (and other) cleanup and a few bug fixes.
+
+Windows Installer:
+------------------
+
+   - Several updates and improvements that address user feedback.
+   - Fixed an issue with the XP64 installer.
+
+Windows Source Build:
+---------------------
+
+   - Fixed ALL tiff project targets to build tiff config headers.
+   - Fixed Debug/x64 target to build OpenEXR to Float.
+
+Windows Crash Reports:
+----------------------
+
+   - Fix for divide-by-zero in stats code when radiosity query count is 0
+     crash report #384, dump file #342
+   - Fix merge issue from change #5387 which re-introduced a bug fixed earlier
+     crash report #385, dump file #343
+   - Potential fixes for a number of crash reports related to the editor
+     (particularly drag&drop actions)
+   - Fix for numeric overflow issues in image handling; eg: VERY large images
+
+
+Fixed or mitigated the following reports:
+-----------------------------------------
+
+http://bugs.povray.org/task/241    FS#241    (Photons not working correctly)
+
+Other Noteworthy
+----------------
+
+   - Insert menu (windows version) update from Friedrich Lohmller.
+   - Fixed problems with colored transparent backgrounds.
+   - Fixed the Windows help file searchable index.
+   - Some general code housekeeping (comments and whitespace).
+   - A minor fix for radiosity adc_bailout handling.
+   - Corrected a formatting issue with radiosity statistics reporting.
+ 
 ----------------------------------------
 Changes between 3.7.beta.RC4 and 3.7.RC5
 ----------------------------------------
@@ -2928,4 +3069,3 @@ You can render in only one thread by using the '/THREADS 1' switch in the
 Windows version. Note that parsing and photon building will only use one 
 thread no matter how many are specified. However photon scenes will benefit 
 from multiple threads once photon building has completed.
-

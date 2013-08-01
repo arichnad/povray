@@ -23,9 +23,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/parser/express.cpp $
- * $Revision: #41 $
- * $Change: 5487 $
- * $DateTime: 2011/09/12 23:27:22 $
+ * $Revision: #43 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -1774,7 +1774,7 @@ void Parser::Parse_Rel_Factor (EXPRESS Express,int *Terms)
 *
 ******************************************************************************/
 
-void Parser::Parse_Rel_String_Term (UCS2* lhs, EXPRESS Express, int *Terms)
+void Parser::Parse_Rel_String_Term (const UCS2* lhs, EXPRESS Express, int Terms)
 {
 	int Val, i;
 	UCS2* rhs = NULL;
@@ -1785,7 +1785,7 @@ void Parser::Parse_Rel_String_Term (UCS2* lhs, EXPRESS Express, int *Terms)
 			Val = UCS2_strcmp(lhs, rhs);
 			POV_FREE(rhs);
 
-			for(i=0;i<*Terms;i++)
+			for(i=0;i<Terms;i++)
 				Express[i] = (DBL)(Val < 0);
 		END_CASE
 
@@ -1794,7 +1794,7 @@ void Parser::Parse_Rel_String_Term (UCS2* lhs, EXPRESS Express, int *Terms)
 			Val = UCS2_strcmp(lhs, rhs);
 			POV_FREE(rhs);
 
-			for(i=0;i<*Terms;i++)
+			for(i=0;i<Terms;i++)
 				Express[i] = (DBL)(Val <= 0);
 		END_CASE
 
@@ -1803,7 +1803,7 @@ void Parser::Parse_Rel_String_Term (UCS2* lhs, EXPRESS Express, int *Terms)
 			Val = UCS2_strcmp(lhs, rhs);
 			POV_FREE(rhs);
 
-			for(i=0;i<*Terms;i++)
+			for(i=0;i<Terms;i++)
 				Express[i] = (DBL)(Val == 0);
 		END_CASE
 
@@ -1812,7 +1812,7 @@ void Parser::Parse_Rel_String_Term (UCS2* lhs, EXPRESS Express, int *Terms)
 			Val = UCS2_strcmp(lhs, rhs);
 			POV_FREE(rhs);
 
-			for(i=0;i<*Terms;i++)
+			for(i=0;i<Terms;i++)
 				Express[i] = (DBL)(Val != 0);
 		END_CASE
 
@@ -1821,7 +1821,7 @@ void Parser::Parse_Rel_String_Term (UCS2* lhs, EXPRESS Express, int *Terms)
 			Val = UCS2_strcmp(lhs, rhs);
 			POV_FREE(rhs);
 
-			for(i=0;i<*Terms;i++)
+			for(i=0;i<Terms;i++)
 				Express[i] = (DBL)(Val >= 0);
 		END_CASE
 
@@ -1830,7 +1830,7 @@ void Parser::Parse_Rel_String_Term (UCS2* lhs, EXPRESS Express, int *Terms)
 			Val = UCS2_strcmp(lhs, rhs);
 			POV_FREE(rhs);
 
-			for(i=0;i<*Terms;i++)
+			for(i=0;i<Terms;i++)
 				Express[i] = (DBL)(Val > 0);
 		END_CASE
 
@@ -1871,7 +1871,7 @@ void Parser::Parse_Rel_Term (EXPRESS Express,int *Terms)
 	UCS2* Local_String = Parse_String(false, false);
 	if(Local_String != NULL)
 	{
-			Parse_Rel_String_Term(Local_String, Express, Terms);
+			Parse_Rel_String_Term(Local_String, Express, *Terms);
 			POV_FREE(Local_String);
 			Ok_To_Declare = old_Ok_To_Declare;
 			return;
@@ -2906,7 +2906,7 @@ BLEND_MAP *Parser::Parse_Blend_Map (int Blend_Type,int Pat_Type)
 *
 ******************************************************************************/
 
-BLEND_MAP *Parser::Parse_Blend_List (int Count,BLEND_MAP *Def_Map,int Blend_Type)
+BLEND_MAP *Parser::Parse_Blend_List (int Count,const BLEND_MAP *Def_Map,int Blend_Type)
 {
 	BLEND_MAP *New;
 	BLEND_MAP_ENTRY *Temp_Ent;
@@ -3519,9 +3519,7 @@ void Parser::POV_strlwr(char *s)
 
 DBL Parser::stream_rand(int stream)
 {
-	next_rand[stream] = next_rand[stream] * 1812433253L + 12345L;
-
-	return((DBL)(next_rand[stream] & 0xFFFFFFFFUL) / 0xFFFFFFFFUL);
+	return POV_rand(next_rand[stream]);
 }
 
 

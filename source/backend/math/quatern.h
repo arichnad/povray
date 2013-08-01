@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/math/quatern.h $
- * $Revision: #14 $
- * $Change: 5009 $
- * $DateTime: 2010/06/05 10:39:30 $
- * $Author: chrisc $
+ * $Revision: #15 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -112,13 +112,13 @@ namespace pov
 * Global functions
 ******************************************************************************/
 
-int F_Bound_Julia (Ray & Ray, const Fractal * Fractal, DBL * Depth_Min, DBL * Depth_Max);
+int F_Bound_Julia (const Ray & Ray, const Fractal * Fractal, DBL * Depth_Min, DBL * Depth_Max);
 void Normal_Calc_Julia (VECTOR Result, int N_Max, const Fractal *fractal, DBL **);
 void Normal_Calc_z3 (VECTOR Result, int N_Max, const Fractal *fractal, DBL **);
 int Iteration_Julia (const VECTOR point, const Fractal * Julia, DBL **);
-int D_Iteration_Julia (VECTOR point, const Fractal *Julia, const VECTOR& Direction, DBL *Dist, DBL **);
+int D_Iteration_Julia (const VECTOR point, const Fractal *Julia, const VECTOR& Direction, DBL *Dist, DBL **);
 int Iteration_z3 (const VECTOR point, const Fractal * Julia, DBL **);
-int D_Iteration_z3 (VECTOR point, const Fractal *Julia, const VECTOR& Direction, DBL *Dist, DBL **);
+int D_Iteration_z3 (const VECTOR point, const Fractal *Julia, const VECTOR& Direction, DBL *Dist, DBL **);
 
 }
 

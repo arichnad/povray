@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/parser/parsestr.cpp $
- * $Revision: #22 $
- * $Change: 5271 $
- * $DateTime: 2010/12/15 06:32:29 $
+ * $Revision: #24 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -241,9 +241,9 @@ UCS2 *Parser::Parse_String(bool pathname, bool require)
 		END_CASE
 
 		CASE(STRING_ID_TOKEN)
-			len = UCS2_strlen((UCS2 *)(Token.Data)) + 1;
-			New = (UCS2 *)POV_MALLOC(len * sizeof(UCS2), "UCS2 String");
-			POV_MEMMOVE((void *)New, (void *)(Token.Data), len * sizeof(UCS2));
+			len = UCS2_strlen(reinterpret_cast<UCS2 *>(Token.Data)) + 1;
+			New = reinterpret_cast<UCS2 *>(POV_MALLOC(len * sizeof(UCS2), "UCS2 String"));
+			POV_MEMMOVE(reinterpret_cast<void *>(New), reinterpret_cast<void *>(Token.Data), len * sizeof(UCS2));
 			EXIT
 		END_CASE
 
@@ -497,7 +497,7 @@ UCS2 *Parser::Parse_Chr(bool /*pathname*/)
 	UCS2 *New;
 	int d;
 
-	New = (UCS2 *)POV_MALLOC(sizeof(UCS2) * 2, "temporary string");
+	New = reinterpret_cast<UCS2 *>(POV_MALLOC(sizeof(UCS2) * 2, "temporary string"));
 
 	d = (int)Parse_Float_Param();
 	if((d < 0) || (d > 65535))
@@ -641,7 +641,7 @@ UCS2 *Parser::Parse_Substr(bool pathname)
 	if(((l + d - 1) > UCS2_strlen(str)) || (l < 0) || (d < 0))
 		Error("Illegal parameters in substr.");
 
-	New = (UCS2 *)POV_MALLOC(sizeof(UCS2) * (d + 1), "temporary string");
+	New = reinterpret_cast<UCS2 *>(POV_MALLOC(sizeof(UCS2) * (d + 1), "temporary string"));
 	UCS2_strncpy(New, &(str[l - 1]), d);
 	New[d] = 0;
 
@@ -735,7 +735,7 @@ UCS2 *Parser::Parse_Strlwr(bool pathname)
  *
 ******************************************************************************/
 
-UCS2 *Parser::String_To_UCS2(char *str, bool pathname)
+UCS2 *Parser::String_To_UCS2(const char *str, bool pathname)
 {
 	UCS2 *char_string = NULL;
 	UCS2 *char_array = NULL;
@@ -750,7 +750,7 @@ UCS2 *Parser::String_To_UCS2(char *str, bool pathname)
 
 	if(strlen(str) == 0)
 	{
-		char_string = (UCS2 *)POV_MALLOC(sizeof(UCS2), "UCS2 String");
+		char_string = reinterpret_cast<UCS2 *>(POV_MALLOC(sizeof(UCS2), "UCS2 String"));
 		char_string[0] = 0;
 
 		return char_string;
@@ -760,7 +760,7 @@ UCS2 *Parser::String_To_UCS2(char *str, bool pathname)
 	{
 		case 0: // ASCII
 			char_array_size = (int)strlen(str);
-			char_array = (UCS2 *)POV_MALLOC(char_array_size * sizeof(UCS2), "Character Array");
+			char_array = reinterpret_cast<UCS2 *>(POV_MALLOC(char_array_size * sizeof(UCS2), "Character Array"));
 			for(i = 0; i < char_array_size; i++)
 			{
 				if(sceneData->languageVersion < 350)
@@ -777,10 +777,10 @@ UCS2 *Parser::String_To_UCS2(char *str, bool pathname)
 			}
 			break;
 		case 1: // UTF8
-			char_array = Convert_UTF8_To_UCS2((unsigned char *)str, (int)strlen(str), &char_array_size);
+			char_array = Convert_UTF8_To_UCS2(reinterpret_cast<const unsigned char *>(str), (int)strlen(str), &char_array_size);
 			break;
 		case 2: // System Specific
-			char_array = POV_CONVERT_TEXT_TO_UCS2((unsigned char *)str, strlen(str), &char_array_size);
+			char_array = POV_CONVERT_TEXT_TO_UCS2(reinterpret_cast<const unsigned char *>(str), strlen(str), &char_array_size);
 			if(char_array == NULL)
 				Error("Cannot convert system specific text format to Unicode.");
 			break;
@@ -792,7 +792,7 @@ UCS2 *Parser::String_To_UCS2(char *str, bool pathname)
 	if(char_array == NULL)
 		Error("Cannot convert text to UCS2 format.");
 
-	char_string = (UCS2 *)POV_MALLOC((char_array_size + 1) * sizeof(UCS2), "UCS2 String");
+	char_string = reinterpret_cast<UCS2 *>(POV_MALLOC((char_array_size + 1) * sizeof(UCS2), "UCS2 String"));
 	for(index_in = 0, index_out = 0; index_in < char_array_size; index_in++, index_out++)
 	{
 		if((char_array[index_in] == '\\') && (pathname == false))
@@ -859,7 +859,7 @@ UCS2 *Parser::String_To_UCS2(char *str, bool pathname)
 	char_string[index_out] = 0;
 	index_out++;
 
-	char_string = (UCS2 *)POV_REALLOC(char_string, index_out * sizeof(UCS2), "UCS2 String");
+	char_string = reinterpret_cast<UCS2 *>(POV_REALLOC(char_string, index_out * sizeof(UCS2), "UCS2 String"));
 
 	if(char_array != NULL)
 		POV_FREE(char_array);
@@ -886,12 +886,12 @@ UCS2 *Parser::String_To_UCS2(char *str, bool pathname)
  *
 ******************************************************************************/
 
-char *Parser::UCS2_To_String(UCS2 *str, bool)
+char *Parser::UCS2_To_String(const UCS2 *str, bool)
 {
 	char *str_out;
 	char *strp;
 
-	str_out = (char *)POV_MALLOC(UCS2_strlen(str)+1, "C String");
+	str_out = reinterpret_cast<char *>(POV_MALLOC(UCS2_strlen(str)+1, "C String"));
 
 	for(strp = str_out; *str != 0; str++, strp++)
 	{
@@ -937,13 +937,13 @@ char *Parser::UCS2_To_String(UCS2 *str, bool)
 *
 ******************************************************************************/
 
-UCS4 *Parser::Convert_UTF8_To_UCS4(unsigned char *text_array, int text_array_size, int *char_array_size)
+UCS4 *Parser::Convert_UTF8_To_UCS4(const unsigned char *text_array, int text_array_size, int *char_array_size)
 {
 	UCS4 *char_array = NULL;
 	UCS4 chr;
 	int i, j, k, seqlen;
 
-	char_array = (UCS4 *)POV_MALLOC(text_array_size * sizeof(UCS4), "Character Array");
+	char_array = reinterpret_cast<UCS4 *>(POV_MALLOC(text_array_size * sizeof(UCS4), "Character Array"));
 	if((char_array == NULL) || (text_array == NULL) || (text_array_size == 0) || (char_array_size == NULL))
 		return NULL;
 
@@ -962,7 +962,7 @@ UCS4 *Parser::Convert_UTF8_To_UCS4(unsigned char *text_array, int text_array_siz
 		char_array[k] = chr - gUTF8Offsets[seqlen];
 	}
 
-	char_array = (UCS4 *)POV_REALLOC(char_array, k * sizeof(UCS4), "Character Array");
+	char_array = reinterpret_cast<UCS4 *>(POV_REALLOC(char_array, k * sizeof(UCS4), "Character Array"));
 	*char_array_size = k;
 
 	return char_array;
@@ -998,13 +998,13 @@ UCS4 *Parser::Convert_UTF8_To_UCS4(unsigned char *text_array, int text_array_siz
 *
 ******************************************************************************/
 
-UCS2 *Parser::Convert_UTF8_To_UCS2(unsigned char *text_array, int text_array_size, int *char_array_size)
+UCS2 *Parser::Convert_UTF8_To_UCS2(const unsigned char *text_array, int text_array_size, int *char_array_size)
 {
 	UCS2 *char_array = NULL;
 	UCS4 chr;
 	int i, j, k, seqlen;
 
-	char_array = (UCS2 *)POV_MALLOC(text_array_size * sizeof(UCS2), "Character Array");
+	char_array = reinterpret_cast<UCS2 *>(POV_MALLOC(text_array_size * sizeof(UCS2), "Character Array"));
 	if((char_array == NULL) || (text_array == NULL) || (text_array_size == 0) || (char_array_size == NULL))
 		return NULL;
 
@@ -1028,7 +1028,7 @@ UCS2 *Parser::Convert_UTF8_To_UCS2(unsigned char *text_array, int text_array_siz
 			char_array[k] = 0x0000FFFDUL;
 	}
 
-	char_array = (UCS2 *)POV_REALLOC(char_array, k * sizeof(UCS2), "Character Array");
+	char_array = reinterpret_cast<UCS2 *>(POV_REALLOC(char_array, k * sizeof(UCS2), "Character Array"));
 	*char_array_size = k;
 
 	return char_array;
@@ -1053,14 +1053,14 @@ UCS2 *Parser::Convert_UTF8_To_UCS2(unsigned char *text_array, int text_array_siz
  *
 ******************************************************************************/
 
-UCS2 *Parser::UCS2_strcat(UCS2 *s1, UCS2 *s2)
+UCS2 *Parser::UCS2_strcat(UCS2 *s1, const UCS2 *s2)
 {
 	int l1, l2;
 
 	l1 = UCS2_strlen(s1);
 	l2 = UCS2_strlen(s2);
 
-	s1 = (UCS2 *)POV_REALLOC(s1, sizeof(UCS2) * (l1 + l2 + 1), "UCS2 String");
+	s1 = reinterpret_cast<UCS2 *>(POV_REALLOC(s1, sizeof(UCS2) * (l1 + l2 + 1), "UCS2 String"));
 
 	UCS2_strcpy(&s1[l1], s2);
 
@@ -1261,7 +1261,7 @@ UCS2 *Parser::UCS2_strdup(const UCS2 *s)
 {
 	UCS2 *New;
 
-	New=(UCS2 *)POV_MALLOC((UCS2_strlen(s)+1) * sizeof(UCS2), UCS2toASCIIString(s).c_str());
+	New=reinterpret_cast<UCS2 *>(POV_MALLOC((UCS2_strlen(s)+1) * sizeof(UCS2), UCS2toASCIIString(s).c_str()));
 	UCS2_strcpy(New,s);
 	return (New);
 }

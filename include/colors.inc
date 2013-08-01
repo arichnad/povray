@@ -1,6 +1,6 @@
 //    Persistence of Vision Ray Tracer version 3.5 Include File
 //    File: colors.inc
-//    Last updated: 2001.7.21
+//    Last updated: 2012.5.23
 //    Description: This file contains pre-defined colors and color-manipulation macros.
 
 #ifndef(Colors_Inc_Temp)
@@ -160,8 +160,8 @@
 // Color manipulation macros
 
 // Takes Hue value as input, returns RGB vector.
-#macro CH2RGB (H)
-   #local H = mod(H, 360);
+#macro CH2RGB (HH)
+   #local H = mod(HH, 360);
    #local H = (H < 0 ? H+360 : H);
    #switch (H)
       #range (0, 120)

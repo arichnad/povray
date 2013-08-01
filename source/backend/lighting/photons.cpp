@@ -24,9 +24,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/lighting/photons.cpp $
- * $Revision: #49 $
- * $Change: 5569 $
- * $DateTime: 2011/12/01 09:21:57 $
+ * $Revision: #51 $
+ * $Change: 5783 $
+ * $DateTime: 2013/02/04 10:34:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -287,7 +287,8 @@ DBL PhotonTrace::TraceRay(const Ray& ray, Colour& colour, COLC weight, Trace::Tr
 		return bestisect.Depth;
 }
 
-void PhotonTrace::ComputeLightedTexture(Colour& LightCol, TEXTURE *Texture, vector<TEXTURE *>& warps, const Vector3d& ipoint, const Vector3d& rawnormal, const Ray& ray, COLC weight, Intersection& isect, Trace::TraceTicket& ticket)
+void PhotonTrace::ComputeLightedTexture(Colour& LightCol, const TEXTURE *Texture, vector<const TEXTURE *>& warps, const Vector3d& ipoint, const Vector3d& rawnormal,
+                                        const Ray& ray, COLC weight, Intersection& isect, Trace::TraceTicket& ticket)
 {
 	int i;
 	int layer_number;
@@ -301,7 +302,7 @@ void PhotonTrace::ComputeLightedTexture(Colour& LightCol, TEXTURE *Texture, vect
 	RGBColour AttCol, ResCol;
 	Colour TmpCol;
 	Interior *interior;
-	TEXTURE *Layer;
+	const TEXTURE *Layer;
 	Ray NewRay(ray);
 	int doReflection, doDiffuse, doRefraction;
 	DBL reflectionWeight, refractionWeight, diffuseWeight, dieWeight, totalWeight;
@@ -435,16 +436,16 @@ void PhotonTrace::ComputeLightedTexture(Colour& LightCol, TEXTURE *Texture, vect
 
 		if ((qualityFlags & Q_NORMAL) && (Layer->Tnormal != NULL))
 		{
-			for(vector<TEXTURE *>::iterator i(warps.begin()); i != warps.end(); i++)
-				Warp_Normal(*LayNormal, *LayNormal, (TPATTERN *)(*i), Test_Flag((*i), DONT_SCALE_BUMPS_FLAG));
+			for(vector<const TEXTURE *>::iterator i(warps.begin()); i != warps.end(); i++)
+				Warp_Normal(*LayNormal, *LayNormal, reinterpret_cast<const TPATTERN *>(*i), Test_Flag((*i), DONT_SCALE_BUMPS_FLAG));
 
 			Perturb_Normal(*LayNormal, Layer->Tnormal, *ipoint, &isect, &ray, threadData);
 
 			if((Test_Flag(Layer->Tnormal, DONT_SCALE_BUMPS_FLAG)))
 				LayNormal.normalize();
 
-			for(vector<TEXTURE *>::reverse_iterator i(warps.rbegin()); i != warps.rend(); i++)
-				UnWarp_Normal(*LayNormal, *LayNormal, (TPATTERN *)(*i), Test_Flag((*i), DONT_SCALE_BUMPS_FLAG));
+			for(vector<const TEXTURE *>::reverse_iterator i(warps.rbegin()); i != warps.rend(); i++)
+				UnWarp_Normal(*LayNormal, *LayNormal, reinterpret_cast<const TPATTERN *>(*i), Test_Flag((*i), DONT_SCALE_BUMPS_FLAG));
 		}
 
 		// Store top layer normal.
@@ -1106,7 +1107,7 @@ void PhotonMediaFunction::addMediaPhoton(const VECTOR Point, const VECTOR Origin
 
 }
 
-void PhotonMediaFunction::ComputeMediaAndDepositPhotons(MediaVector& medias, const Ray& ray, Intersection& isect, Colour& colour, Trace::TraceTicket& ticket)
+void PhotonMediaFunction::ComputeMediaAndDepositPhotons(MediaVector& medias, const Ray& ray, const Intersection& isect, Colour& colour, Trace::TraceTicket& ticket)
 {
 	LightSourceEntryVector lights;
 	LitIntervalVector litintervals;
@@ -1181,11 +1182,11 @@ void PhotonMediaFunction::ComputeMediaAndDepositPhotons(MediaVector& medias, con
 	//if((IMedia->Sample_Method == 3) && !all_constant_and_light_ray) //  adaptive sampling
 	//  ComputeMediaAdaptiveSampling(medias, lights, mediaintervals, ray, IMedia, aa_threshold, minSamples, ignore_photons, use_scattering, false);
 	//else
-	DepositMediaPhotons(colour, medias, lights, mediaintervals, ray, IMedia, minSamples, ignore_photons, use_scattering, all_constant_and_light_ray, ticket);
+	DepositMediaPhotons(colour, medias, lights, mediaintervals, ray, minSamples, ignore_photons, use_scattering, all_constant_and_light_ray, ticket);
 }
 
 void PhotonMediaFunction::DepositMediaPhotons(Colour& colour, MediaVector& medias, LightSourceEntryVector& lights, MediaIntervalVector& mediaintervals,
-                                              const Ray& ray, Media *IMedia, int minsamples, bool ignore_photons, bool use_scattering, bool all_constant_and_light_ray, Trace::TraceTicket& ticket)
+                                              const Ray& ray, int minsamples, bool ignore_photons, bool use_scattering, bool all_constant_and_light_ray, Trace::TraceTicket& ticket)
 {
 	int j;
 	RGBColour Od;
@@ -1673,60 +1674,6 @@ void ShootingDirection::compute()
 	            --
 	*/
 }
-
-
-
-
-DBL computeAttenuation(LightSource* Light, Ray& ray, DBL dist_of_initial_from_center)
-{
-	DBL costheta_spot;
-	DBL Attenuation = 1.0;
-
-	//  ---------- spot light ---------
-	if (Light->Light_Type == SPOT_SOURCE)
-	{
-		VDot(costheta_spot, ray.Direction, Light->Direction);
-
-		if (costheta_spot > 0.0)
-		{
-			Attenuation = pow(costheta_spot, Light->Coeff);
-
-			if (Light->Radius > 0.0)
-				Attenuation *= cubic_spline(Light->Falloff, Light->Radius, costheta_spot);
-
-		}
-		else
-			Attenuation = 0.0;
-	}
-	// ---------- cylinder light -----------
-	else if (Light->Light_Type == CYLINDER_SOURCE)
-	{
-		DBL k, len;
-
-		VDot(k, ray.Direction, Light->Direction);
-
-		if (k > 0.0)
-		{
-			len = dist_of_initial_from_center;
-
-			if (len < Light->Falloff)
-			{
-				DBL dist = 1.0 - len / Light->Falloff;
-				Attenuation = pow(dist, Light->Coeff);
-
-				if (Light->Radius > 0.0 && len > Light->Radius)
-					Attenuation *= cubic_spline(0.0, 1.0 - Light->Radius / Light->Falloff, dist);
-
-			}
-			else
-				Attenuation = 0.0;
-		}
-		else
-			Attenuation = 0.0;
-	}
-	return Attenuation;
-}
-
 
 
 /* ====================================================================== */
@@ -2861,7 +2808,7 @@ int LightTargetCombo::computeMergedFlags()
 }
 
 
-void LightTargetCombo::computeAnglesAndDeltas(ViewThreadData* renderDataPtr, shared_ptr<SceneData> sceneData)
+void LightTargetCombo::computeAnglesAndDeltas(shared_ptr<SceneData> sceneData)
 {
 	shootingDirection.compute();
 

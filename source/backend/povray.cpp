@@ -20,9 +20,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/povray.cpp $
- * $Revision: #73 $
- * $Change: 5264 $
- * $DateTime: 2010/12/14 07:48:54 $
+ * $Revision: #78 $
+ * $Change: 5791 $
+ * $DateTime: 2013/02/09 03:48:01 $
  * $Author: chrisc $
  *******************************************************************************/
 
@@ -111,13 +111,13 @@
 #ifndef DONT_SHOW_IMAGE_LIB_VERSIONS
 	// these are needed for copyright notices and version numbers
 	#ifndef LIBZ_MISSING
-		#include "zlib.h"
+		#include <zlib.h>
 	#endif
 	#ifndef LIBPNG_MISSING
-		#include "png.h"
+		#include <png.h>
 	#endif
 	#ifndef LIBJPEG_MISSING
-		#include "jversion.h"
+		#include <jversion.h>
 	#endif
 
 	// Including tiffio.h causes the Windows compile to break. As all we need is the
@@ -175,6 +175,7 @@ const char *PrimaryDevelopers[] =
 const char *AssistingDevelopers[] =
 {
 	"Nicolas Calimet",
+	"Jerome Grimbert",
 	"James Holsenback",
 	"Christoph Hormann",
 	"Nathan Kopp",
@@ -266,7 +267,7 @@ int ConnectToFrontend(POVMSObjectPtr msg, POVMSObjectPtr result, int, void *)
 	{
 		if(POV_FrontendAddress == POVMSInvalidAddress)
 		{
-			if(POVMSMsg_GetSourceAddress(msg, (POVMSAddress *)&POV_FrontendAddress) == kNoErr)
+			if(POVMSMsg_GetSourceAddress(msg, const_cast<POVMSAddress *>(&POV_FrontendAddress)) == kNoErr)
 			{
 				BuildInitInfo(result);
 
@@ -398,9 +399,9 @@ void BuildInitInfo(POVMSObjectPtr msg)
 		{
 			ExtractLibraryVersion(zlibVersion(), buffer);
 
-			const char *tempstr = pov_tsprintf("ZLib %s, Copyright 1995-1998 Jean-loup Gailly and Mark Adler", buffer);
+			const char *tempstr = pov_tsprintf("ZLib %s, Copyright 1995-2012 Jean-loup Gailly and Mark Adler", buffer);
 
-			err = POVMSAttr_Set(&attr, kPOVMSType_CString, (void *)tempstr, (int) strlen(tempstr) + 1);
+			err = POVMSAttr_Set(&attr, kPOVMSType_CString, reinterpret_cast<const void *>(tempstr), (int) strlen(tempstr) + 1);
 			if(err == kNoErr)
 				err = POVMSAttrList_Append(&attrlist, &attr);
 			else
@@ -418,9 +419,10 @@ void BuildInitInfo(POVMSObjectPtr msg)
 		{
 			ExtractLibraryVersion(png_get_libpng_ver(NULL), buffer);
 
-			const char *tempstr = pov_tsprintf("LibPNG %s, Copyright 1998-2002 Glenn Randers-Pehrson", buffer);
+			// TODO FIXME - shouldn't we use png_get_copyright() instead of png_get_libpng_ver() and a hard-coded string?
+			const char *tempstr = pov_tsprintf("LibPNG %s, Copyright 1998-2012 Glenn Randers-Pehrson", buffer);
 
-			err = POVMSAttr_Set(&attr, kPOVMSType_CString, (void *)tempstr, (int) strlen(tempstr) + 1);
+			err = POVMSAttr_Set(&attr, kPOVMSType_CString, reinterpret_cast<const void *>(tempstr), (int) strlen(tempstr) + 1);
 			if(err == kNoErr)
 				err = POVMSAttrList_Append(&attrlist, &attr);
 			else
@@ -438,9 +440,10 @@ void BuildInitInfo(POVMSObjectPtr msg)
 		{
 			ExtractLibraryVersion(JVERSION, buffer);
 
-			const char *tempstr = pov_tsprintf("LibJPEG %s, Copyright 1998 Thomas G. Lane", buffer);
+			// TODO FIXME - shouldn't we use the JCOPYRIGHT string instead of hard-coding it here?
+			const char *tempstr = pov_tsprintf("LibJPEG %s, Copyright 1991-2013 Thomas G. Lane, Guido Vollbeding", buffer);
 
-			err = POVMSAttr_Set(&attr, kPOVMSType_CString, (void *)tempstr, (int) strlen(tempstr) + 1);
+			err = POVMSAttr_Set(&attr, kPOVMSType_CString, reinterpret_cast<const void *>(tempstr), (int) strlen(tempstr) + 1);
 			if(err == kNoErr)
 				err = POVMSAttrList_Append(&attrlist, &attr);
 			else
@@ -458,9 +461,10 @@ void BuildInitInfo(POVMSObjectPtr msg)
 		{
 			ExtractLibraryVersion(TIFFGetVersion(), buffer);
 
+			// TODO FIXME - shouldn't we use the complete TIFFGetVersion() string instead of extracting just the version number and hard-coding the copyright info here?
 			const char *tempstr = pov_tsprintf("LibTIFF %s, Copyright 1988-1997 Sam Leffler, 1991-1997 SGI", buffer);
 
-			err = POVMSAttr_Set(&attr, kPOVMSType_CString, (void *)tempstr, (int) strlen(tempstr) + 1);
+			err = POVMSAttr_Set(&attr, kPOVMSType_CString, reinterpret_cast<const void *>(tempstr), (int) strlen(tempstr) + 1);
 			if(err == kNoErr)
 				err = POVMSAttrList_Append(&attrlist, &attr);
 			else
@@ -479,7 +483,7 @@ void BuildInitInfo(POVMSObjectPtr msg)
 				BOOST_VERSION / 100000,
 				BOOST_VERSION / 100 % 1000);
 
-			err = POVMSAttr_Set(&attr, kPOVMSType_CString, (void *)tempstr, (int) strlen(tempstr) + 1);
+			err = POVMSAttr_Set(&attr, kPOVMSType_CString, reinterpret_cast<const void *>(tempstr), (int) strlen(tempstr) + 1);
 			if(err == kNoErr)
 				err = POVMSAttrList_Append(&attrlist, &attr);
 			else
@@ -499,7 +503,7 @@ void BuildInitInfo(POVMSObjectPtr msg)
 		if(err == kNoErr)
 		{
 			const char *tempstr = "OpenEXR, Copyright (c) 2004-2007, Industrial Light & Magic.";
-			err = POVMSAttr_Set(&attr, kPOVMSType_CString, (void *) tempstr, (int) strlen(tempstr) + 1);
+			err = POVMSAttr_Set(&attr, kPOVMSType_CString, reinterpret_cast<const void *>(tempstr), (int) strlen(tempstr) + 1);
 			if(err == kNoErr)
 				err = POVMSAttrList_Append(&attrlist, &attr);
 			else
@@ -546,7 +550,7 @@ void ExitFunction()
 		if(err == kNoErr)
 			err = POVMSMsg_SetupMessage(&msg, kPOVMsgClass_BackendControl, kPOVMsgIdent_Failed);
 		if(err == kNoErr)
-			err = POVMSMsg_SetDestinationAddress(&msg, (POVMSAddress)(POV_FrontendAddress));
+			err = POVMSMsg_SetDestinationAddress(&msg, const_cast<POVMSAddress>(POV_FrontendAddress));
 		if(err == kNoErr)
 			err = POVMS_Send(POV_RenderContext, &msg, NULL, kPOVMSSendMode_NoReply);
 		if(err != 0)
@@ -558,7 +562,7 @@ void MainThreadFunction(const boost::function0<void>& threadExit)
 {
 	try
 	{
-		if(POVMS_OpenContext((POVMSContext *)&POV_RenderContext) != kNoErr)
+		if(POVMS_OpenContext(const_cast<POVMSContext *>(&POV_RenderContext)) != kNoErr)
 			(void)POVMS_ASSERT_OUTPUT("Opening POVMS context failed in main POV-Ray backend thread.", __FILE__, __LINE__);
 		else
 		{

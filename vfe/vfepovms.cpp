@@ -23,10 +23,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/vfe/vfepovms.cpp $
- * $Revision: #9 $
- * $Change: 5009 $
- * $DateTime: 2010/06/05 10:39:30 $
- * $Author: chrisc $
+ * $Revision: #11 $
+ * $Change: 5726 $
+ * $DateTime: 2012/11/12 05:47:18 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -247,7 +247,7 @@ void *SysQNode::Receive (int *pLen, bool Blocking)
 
     // TODO: have a shorter wait but loop, and check for system shutdown
     boost::xtime t;
-    boost::xtime_get (&t, boost::TIME_UTC);
+    boost::xtime_get (&t, POV_TIME_UTC);
     t.nsec += 50000000 ;
     m_Event.timed_wait (lock, t);
 

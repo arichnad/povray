@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/support/fileutil.cpp $
- * $Revision: #22 $
- * $Change: 5088 $
- * $DateTime: 2010/08/05 17:08:44 $
+ * $Revision: #24 $
+ * $Change: 5730 $
+ * $DateTime: 2012/12/15 12:46:22 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -243,15 +243,15 @@ int InferFileTypeFromExt(const UCS2String& ext) // TODO FIXME - belongs in backe
 *   Locate_File
 *
 * INPUT
-*   
+*
 * OUTPUT
-*   
+*
 * RETURNS
-*   
+*
 * AUTHOR
 *
 *   POV-Ray Team
-*   
+*
 * DESCRIPTION
 *
 *   Find a file in the search path.
@@ -320,4 +320,37 @@ IStream *Locate_File(Parser *p, shared_ptr<SceneData>& sd, const UCS2String& fil
 	return result;
 }
 */
+/*****************************************************************************
+*
+* FUNCTION
+*
+*   Internal_Font_File
+*
+* INPUT
+*   The numeric identifier of a built-in file
+*
+* OUTPUT
+*
+* RETURNS
+*   An IStream for usage by the TTF analyser
+*
+* AUTHOR
+*
+*   POV-Ray Team
+*
+* DESCRIPTION
+*
+*   Provide a compiled font as a Stream for reading
+*
+* CHANGES
+*
+*   Creation. Oct 2012 [JG]
+*
+******************************************************************************/
+
+IMemStream *Internal_Font_File(const int font_id, UCS2String& buffer)
+{
+	return new IMemStream(font_id); 
+}
+
 }

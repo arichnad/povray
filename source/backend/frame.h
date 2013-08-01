@@ -23,9 +23,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/frame.h $
- * $Revision: #116 $
- * $Change: 5487 $
- * $DateTime: 2011/09/12 23:27:22 $
+ * $Revision: #119 $
+ * $Change: 5783 $
+ * $DateTime: 2013/02/04 10:34:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -162,6 +162,7 @@ using namespace pov_base;
 
 class ObjectBase;
 typedef ObjectBase * ObjectPtr;
+typedef const ObjectBase * ConstObjectPtr;
 
 class CompoundObject;
 
@@ -801,13 +802,13 @@ struct Bounding_Box_Struct
 		BBOX_VECT length;
 	};
 
-	SNGL GetMinX() { return Lower_Left[X]; }
-	SNGL GetMinY() { return Lower_Left[Y]; }
-	SNGL GetMinZ() { return Lower_Left[Z]; }
+	SNGL GetMinX() const { return Lower_Left[X]; }
+	SNGL GetMinY() const { return Lower_Left[Y]; }
+	SNGL GetMinZ() const { return Lower_Left[Z]; }
 
-	SNGL GetMaxX() { return Lower_Left[X] + Lengths[X]; }
-	SNGL GetMaxY() { return Lower_Left[Y] + Lengths[Y]; }
-	SNGL GetMaxZ() { return Lower_Left[Z] + Lengths[Z]; }
+	SNGL GetMaxX() const { return Lower_Left[X] + Lengths[X]; }
+	SNGL GetMaxY() const { return Lower_Left[Y] + Lengths[Y]; }
+	SNGL GetMaxZ() const { return Lower_Left[Z] + Lengths[Z]; }
 };
 
 inline void Assign_BBox_Vect(BBOX_VECT& d, const BBOX_VECT s)
@@ -1240,7 +1241,7 @@ struct Texture_Struct : public Pattern_Struct
 
 struct Finish_Struct
 {
-	SNGL Diffuse, DiffuseBack, Brilliance;
+	SNGL Diffuse, DiffuseBack, RawDiffuse, RawDiffuseBack, Brilliance;
 	SNGL Specular, Roughness;
 	SNGL Phong, Phong_Size;
 	SNGL Irid, Irid_Film_Thickness, Irid_Turb;

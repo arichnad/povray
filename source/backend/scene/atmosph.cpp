@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/scene/atmosph.cpp $
- * $Revision: #21 $
- * $Change: 5573 $
- * $DateTime: 2011/12/02 21:56:12 $
+ * $Revision: #22 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -193,7 +193,7 @@ FOG *Create_Fog()
 *
 ******************************************************************************/
 
-FOG *Copy_Fog(FOG *Old)
+FOG *Copy_Fog(const FOG *Old)
 {
 	FOG *New;
 
@@ -335,7 +335,7 @@ RAINBOW *Create_Rainbow()
 *
 ******************************************************************************/
 
-RAINBOW *Copy_Rainbow(RAINBOW *Old)
+RAINBOW *Copy_Rainbow(const RAINBOW *Old)
 {
 	RAINBOW *New;
 
@@ -464,7 +464,7 @@ SKYSPHERE *Create_Skysphere()
 *
 ******************************************************************************/
 
-SKYSPHERE *Copy_Skysphere(SKYSPHERE *Old)
+SKYSPHERE *Copy_Skysphere(const SKYSPHERE *Old)
 {
 	int i;
 	SKYSPHERE *New;
@@ -571,7 +571,7 @@ void Destroy_Skysphere(SKYSPHERE *Skysphere)
 *
 ******************************************************************************/
 
-void Rotate_Skysphere(SKYSPHERE *Skysphere, VECTOR Vector)
+void Rotate_Skysphere(SKYSPHERE *Skysphere, const VECTOR Vector)
 {
 	TRANSFORM Trans;
 
@@ -612,7 +612,7 @@ void Rotate_Skysphere(SKYSPHERE *Skysphere, VECTOR Vector)
 *
 ******************************************************************************/
 
-void Scale_Skysphere(SKYSPHERE *Skysphere, VECTOR Vector)
+void Scale_Skysphere(SKYSPHERE *Skysphere, const VECTOR Vector)
 {
 	TRANSFORM Trans;
 
@@ -653,7 +653,7 @@ void Scale_Skysphere(SKYSPHERE *Skysphere, VECTOR Vector)
 *
 ******************************************************************************/
 
-void Translate_Skysphere(SKYSPHERE *Skysphere, VECTOR Vector)
+void Translate_Skysphere(SKYSPHERE *Skysphere, const VECTOR Vector)
 {
 	TRANSFORM Trans;
 
@@ -694,7 +694,7 @@ void Translate_Skysphere(SKYSPHERE *Skysphere, VECTOR Vector)
 *
 ******************************************************************************/
 
-void Transform_Skysphere(SKYSPHERE *Skysphere, TRANSFORM *Trans)
+void Transform_Skysphere(SKYSPHERE *Skysphere, const TRANSFORM *Trans)
 {
 	if (Skysphere->Trans == NULL)
 	{

@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/povmscpp.cpp $
- * $Revision: #46 $
- * $Change: 5306 $
- * $DateTime: 2010/12/28 00:58:31 $
- * $Author: chrisc $
+ * $Revision: #47 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -215,7 +215,7 @@ POVMS_Attribute::POVMS_Attribute(const char *str)
 	err = POVMSAttr_New(&data);
 	if(err != pov_base::kNoErr)
 		throw POV_EXCEPTION_CODE(err);
-	err = POVMSAttr_Set(&data, kPOVMSType_CString, (void *)str, strlen(str) + 1);
+	err = POVMSAttr_Set(&data, kPOVMSType_CString, reinterpret_cast<const void *>(str), strlen(str) + 1);
 	if(err != pov_base::kNoErr)
 	{
 		(void)POVMSAttr_Delete(&data);
@@ -233,7 +233,7 @@ POVMS_Attribute::POVMS_Attribute(const POVMSUCS2 *str)
 	err = POVMSAttr_New(&data);
 	if(err != pov_base::kNoErr)
 		throw POV_EXCEPTION_CODE(err);
-	err = POVMSAttr_Set(&data, kPOVMSType_UCS2String, (void *)str, (len + 1) * 2);
+	err = POVMSAttr_Set(&data, kPOVMSType_UCS2String, reinterpret_cast<const void *>(str), (len + 1) * 2);
 	if(err != pov_base::kNoErr)
 	{
 		(void)POVMSAttr_Delete(&data);
@@ -422,7 +422,7 @@ void POVMS_Attribute::Get(POVMSType type, void *data, int *maxdatasize)
 		throw POV_EXCEPTION_CODE(err);
 }
 
-void POVMS_Attribute::Set(POVMSType type, void *data, int datasize)
+void POVMS_Attribute::Set(POVMSType type, const void *data, int datasize)
 {
 	int err;
 
@@ -431,7 +431,7 @@ void POVMS_Attribute::Set(POVMSType type, void *data, int datasize)
 		throw POV_EXCEPTION_CODE(err);
 }
 
-int POVMS_Attribute::GetStringLength() // Note: Includes trailing \0 character code!
+int POVMS_Attribute::GetStringLength() const // Note: Includes trailing \0 character code!
 {
 	return Size();
 }
@@ -468,7 +468,7 @@ std::string POVMS_Attribute::GetString()
 	return std::string();
 }
 
-int POVMS_Attribute::GetUCS2StringLength() // Note: Includes trailing \0 character code!
+int POVMS_Attribute::GetUCS2StringLength() const // Note: Includes trailing \0 character code!
 {
 	return Size() / 2;
 }
@@ -601,7 +601,7 @@ std::vector<POVMSType> POVMS_Attribute::GetTypeVector()
 	return result;
 }
 
-int POVMS_Attribute::GetVectorSize()
+int POVMS_Attribute::GetVectorSize() const
 {
 	switch(Type())
 	{

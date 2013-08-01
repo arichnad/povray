@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/quadrics.h $
- * $Revision: #15 $
- * $Change: 5009 $
- * $DateTime: 2010/06/05 10:39:30 $
- * $Author: chrisc $
+ * $Revision: #16 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -135,7 +135,7 @@ class Quadric : public ObjectBase
 		virtual void Invert();
 		virtual void Compute_BBox();
 
-		static void Compute_Plane_Min_Max(Plane *plane, VECTOR Min, VECTOR Max);
+		static void Compute_Plane_Min_Max(const Plane *plane, VECTOR Min, VECTOR Max);
 		void Compute_BBox(VECTOR ClipMin, VECTOR  ClipMax);
 	protected:
 		bool Intersect(const Ray& ray, DBL *Depth1, DBL *Depth2) const;

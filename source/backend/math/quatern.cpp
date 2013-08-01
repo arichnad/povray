@@ -25,9 +25,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/math/quatern.cpp $
- * $Revision: #18 $
- * $Change: 5091 $
- * $DateTime: 2010/08/06 11:17:18 $
+ * $Revision: #19 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -307,7 +307,7 @@ int Iteration_Julia(const VECTOR point, const Fractal *Julia, DBL **IterStack)
 
 /*----------- Distance estimator + iterations ------------*/
 
-int D_Iteration_z3(VECTOR point, const Fractal *Julia, const VECTOR &, DBL *Dist, DBL **IterStack)
+int D_Iteration_z3(const VECTOR point, const Fractal *Julia, const VECTOR &, DBL *Dist, DBL **IterStack)
 {
 	int i, j;
 	DBL Norm, d;
@@ -402,7 +402,7 @@ int D_Iteration_z3(VECTOR point, const Fractal *Julia, const VECTOR &, DBL *Dist
 *
 ******************************************************************************/
 
-int D_Iteration_Julia(VECTOR point, const Fractal *Julia, const VECTOR &, DBL *Dist, DBL **IterStack)
+int D_Iteration_Julia(const VECTOR point, const Fractal *Julia, const VECTOR &, DBL *Dist, DBL **IterStack)
 {
 	int i, j;
 	DBL Norm, d;
@@ -619,7 +619,7 @@ void Normal_Calc_Julia(VECTOR Result, int N_Max, const Fractal *, DBL **IterStac
 *
 ******************************************************************************/
 
-int F_Bound_Julia(Ray& ray, const Fractal *fractal, DBL *Depth_Min, DBL *Depth_Max)
+int F_Bound_Julia(const Ray& ray, const Fractal *fractal, DBL *Depth_Min, DBL *Depth_Max)
 {
 	return (Sphere::Intersect(ray, fractal->Center, fractal->Radius_Squared, Depth_Min, Depth_Max));
 }

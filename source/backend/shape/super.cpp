@@ -25,9 +25,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/super.cpp $
- * $Revision: #28 $
- * $Change: 5103 $
- * $DateTime: 2010/08/22 06:58:49 $
+ * $Revision: #29 $
+ * $Change: 5625 $
+ * $DateTime: 2012/03/10 21:41:16 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -1306,8 +1306,8 @@ int Superellipsoid::compdists(const void *in_a, const void *in_b)
 {
 	DBL a, b;
 
-	a = *((DBL *)in_a);
-	b = *((DBL *)in_b);
+	a = *reinterpret_cast<const DBL *>(in_a);
+	b = *reinterpret_cast<const DBL *>(in_b);
 
 	if (a < b)
 	{
@@ -1391,7 +1391,7 @@ int Superellipsoid::find_ray_plane_points(const VECTOR P, const VECTOR D, int cn
 
 	/* Sort the results for further processing. */
 
-	QSORT((void *)(dists), cnt, sizeof(DBL), compdists);
+	QSORT(reinterpret_cast<void *>(dists), cnt, sizeof(DBL), compdists);
 
 	return(cnt);
 }

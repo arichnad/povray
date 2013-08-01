@@ -25,10 +25,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/isosurf.h $
- * $Revision: #21 $
- * $Change: 5009 $
- * $DateTime: 2010/06/05 10:39:30 $
- * $Author: chrisc $
+ * $Revision: #22 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -191,7 +191,7 @@ class IsoSurface : public ObjectBase
 		bool Function_Find_Root_R(ISO_ThreadData& itd, const ISO_Pair*, const ISO_Pair*, DBL, DBL, DBL, DBL& max_gradient);
 
 		inline DBL Vector_Function(FPUContext *ctx, const VECTOR VPos) const;
-		inline DBL Float_Function(ISO_ThreadData& itd, DBL* t) const;
+		inline DBL Float_Function(ISO_ThreadData& itd, DBL t) const;
 		static inline DBL Evaluate_Function(FPUContext *ctx, FUNCTION funct, const VECTOR fnvec);
 	private:
 		ISO_Max_Gradient *mginfo; // global, but just a statistic (read: not thread safe but we don't care) [trf]

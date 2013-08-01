@@ -20,9 +20,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/support/randomsequences.cpp $
- * $Revision: #15 $
- * $Change: 5408 $
- * $DateTime: 2011/02/21 15:17:08 $
+ * $Revision: #21 $
+ * $Change: 5787 $
+ * $DateTime: 2013/02/06 11:17:30 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -97,6 +97,8 @@
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
 
+#include <boost/weak_ptr.hpp>
+
 // frame.h must always be the first POV file included (pulls in platform config)
 #include "backend/frame.h"
 #include "backend/support/randomsequences.h"
@@ -114,12 +116,55 @@ using boost::uniform_real;
 using boost::variate_generator;
 using boost::mt19937;
 
+using boost::weak_ptr;
+
 #ifndef SIZE_MAX
 #define SIZE_MAX ((size_t)-1)
 #endif
 
 #define PRIME_TABLE_COUNT 25
 unsigned int primeTable[PRIME_TABLE_COUNT] = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97 };
+
+
+
+/*****************************************************************************
+*
+* FUNCTION
+*
+*   stream_rand
+*
+* INPUT
+*
+*   stream - number of random stream
+*
+* OUTPUT
+*
+* RETURNS
+*
+*   DBL - random value
+*
+* AUTHOR
+*
+*   Dieter Bayer
+*
+* DESCRIPTION
+*
+*   Standard pseudo-random function.
+*
+* CHANGES
+*
+*   Feb 1996 : Creation.
+*   Mar 1996 : Return 2^32 random values instead of 2^16 [AED]
+*
+******************************************************************************/
+
+DBL POV_rand(unsigned int& next_rand)
+{
+	next_rand = next_rand * 1812433253L + 12345L;
+
+	return((DBL)(next_rand & 0xFFFFFFFFUL) / 0xFFFFFFFFUL);
+}
+
 
 /**********************************************************************************
  *  Legacy Code
@@ -179,7 +224,7 @@ int RandomIntSequence::Generator::operator()(size_t seedindex)
 	return (*sequence)(seedindex);
 }
 
-size_t RandomIntSequence::Generator::GetSeed()
+size_t RandomIntSequence::Generator::GetSeed() const
 {
 	return index;
 }
@@ -217,7 +262,7 @@ double RandomDoubleSequence::Generator::operator()(size_t seedindex)
 	return (*sequence)(seedindex);
 }
 
-size_t RandomDoubleSequence::Generator::GetSeed()
+size_t RandomDoubleSequence::Generator::GetSeed() const
 {
 	return index;
 }
@@ -374,7 +419,7 @@ class HaltonCosWeightedDirectionGenerator : public Halton2dBasedGenerator<Vector
 {
 	public:
 
-		struct ParameterStruct : Halton2dBasedGenerator<Vector3d, double>::ParameterStruct
+		struct ParameterStruct : public Halton2dBasedGenerator<Vector3d, double>::ParameterStruct
 		{
 			ParameterStruct(unsigned int baseA, unsigned int baseB);
 		};
@@ -390,7 +435,7 @@ class HaltonOnDiscGenerator : public Halton2dBasedGenerator<Vector2d, double>
 {
 	public:
 
-		struct ParameterStruct : Halton2dBasedGenerator<Vector2d, double>::ParameterStruct
+		struct ParameterStruct : public Halton2dBasedGenerator<Vector2d, double>::ParameterStruct
 		{
 			ParameterStruct(unsigned int baseA, unsigned int baseB, double radius);
 		};
@@ -406,7 +451,7 @@ class HaltonUniformDirectionGenerator : public Halton2dBasedGenerator<Vector3d, 
 {
 	public:
 
-		struct ParameterStruct : Halton2dBasedGenerator<Vector3d, double>::ParameterStruct
+		struct ParameterStruct : public Halton2dBasedGenerator<Vector3d, double>::ParameterStruct
 		{
 			ParameterStruct(unsigned int baseA, unsigned int baseB);
 		};
@@ -480,7 +525,7 @@ class NumberSequenceMetaFactory
 
 		typedef NumberSequenceFactory<ValueType>    Factory;
 		typedef shared_ptr<Factory>                 FactoryPtr;
-		typedef boost::weak_ptr<Factory>            FactoryWeakPtr;
+		typedef weak_ptr<Factory>                   FactoryWeakPtr;
 		typedef std::map<typename GeneratorType::ParameterStruct, FactoryWeakPtr> FactoryTable;
 
 		static  FactoryTable*   lookupTable;
@@ -508,8 +553,7 @@ class PrecomputedNumberGenerator : public HybridNumberGenerator<Type>
 		/// Construct from a sequence factory.
 		PrecomputedNumberGenerator(shared_ptr<NumberSequenceFactory<Type> > master, size_t size) :
 			HybridNumberGenerator<Type>(size),
-			values((*master)(size)),
-			startIndex(startIndex)
+			values((*master)(size))
 		{}
 
 		/// Returns a particular number from the sequence.
@@ -540,8 +584,6 @@ class PrecomputedNumberGenerator : public HybridNumberGenerator<Type>
 	protected:
 
 		shared_ptr<vector<Type> const> values;
-		size_t startIndex;
-
 };
 
 typedef PrecomputedNumberGenerator<int>         PrecomputedIntGenerator;
@@ -758,7 +800,7 @@ shared_ptr<vector<Type> const> NumberSequenceFactory<Type>::operator()(size_t co
  *********************************************************************************/
 
 template<class ValueType, class GeneratorType>
-std::map<typename GeneratorType::ParameterStruct, boost::weak_ptr<NumberSequenceFactory<ValueType> > >* NumberSequenceMetaFactory<ValueType, GeneratorType>::lookupTable;
+std::map<typename GeneratorType::ParameterStruct, weak_ptr<NumberSequenceFactory<ValueType> > >* NumberSequenceMetaFactory<ValueType, GeneratorType>::lookupTable;
 
 template<class ValueType, class GeneratorType>
 boost::mutex NumberSequenceMetaFactory<ValueType, GeneratorType>::lookupMutex;
@@ -769,11 +811,11 @@ shared_ptr<NumberSequenceFactory<ValueType> > NumberSequenceMetaFactory<ValueTyp
 	boost::mutex::scoped_lock lock(lookupMutex);
 	if (!lookupTable)
 		lookupTable = new FactoryTable();
-	shared_ptr<NumberSequenceFactory<ValueType> > factory = (*lookupTable)[param].lock();
+	FactoryPtr factory = (*lookupTable)[param].lock();
 	if (!factory)
 	{
 		shared_ptr<GeneratorType> masterGenerator(new GeneratorType(param));
-		factory = shared_ptr<NumberSequenceFactory<ValueType> >(new NumberSequenceFactory<ValueType>(masterGenerator));
+		factory = FactoryPtr(new Factory(shared_ptr<SequentialNumberGenerator<ValueType> >(masterGenerator)));
 		(*lookupTable)[param] = factory;
 	}
 	return factory;

@@ -23,9 +23,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/povmscpp.h $
- * $Revision: #26 $
- * $Change: 4955 $
- * $DateTime: 2010/04/26 06:09:29 $
+ * $Revision: #27 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -154,12 +154,12 @@ class POVMS_Attribute : public POVMS_Container
 		POVMS_Attribute& operator=(const POVMS_Attribute& source);
 
 		void Get(POVMSType type, void *data, int *maxdatasize);
-		void Set(POVMSType type, void *data, int datasize);
+		void Set(POVMSType type, const void *data, int datasize);
 
-		int GetStringLength(); // Note: Includes trailing \0 character code!
+		int GetStringLength() const; // Note: Includes trailing \0 character code!
 		int GetString(char *str, int maxlen);
 		std::string GetString();
-		int GetUCS2StringLength(); // Note: Includes trailing \0 character code!
+		int GetUCS2StringLength() const; // Note: Includes trailing \0 character code!
 		int GetUCS2String(POVMSUCS2 *str, int maxlen);
 		POVMSUCS2String GetUCS2String();
 		POVMSInt GetInt();
@@ -173,7 +173,7 @@ class POVMS_Attribute : public POVMS_Container
 		std::vector<POVMSFloat> GetFloatVector();
 		std::vector<POVMSType> GetTypeVector();
 
-		int GetVectorSize();
+		int GetVectorSize() const;
 };
 
 class POVMS_List : public POVMS_Container

@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/parser/parstxtr.cpp $
- * $Revision: #84 $
- * $Change: 5610 $
- * $DateTime: 2012/02/21 03:11:56 $
+ * $Revision: #89 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -151,7 +151,7 @@ namespace pov
 *
 ******************************************************************************/
 
-void Parser::Make_Pattern_Image(ImageData *image, FUNCTION_PTR fn, int *token)
+void Parser::Make_Pattern_Image(ImageData *image, FUNCTION_PTR fn, int token)
 {
 	int i = 0;
 	int j = 0;
@@ -161,7 +161,7 @@ void Parser::Make_Pattern_Image(ImageData *image, FUNCTION_PTR fn, int *token)
 
 	image->iwidth  = image->width;
 	image->iheight = image->height;
-	if(*token == FUNCT_ID_TOKEN)
+	if(token == FUNCT_ID_TOKEN)
 	{
 		image->data =Image::Create(image->iwidth, image->iheight, Image::Gray_Int16);
 
@@ -183,7 +183,7 @@ void Parser::Make_Pattern_Image(ImageData *image, FUNCTION_PTR fn, int *token)
 			}
 		}
 	}
-	else if((*token == VECTFUNCT_ID_TOKEN) && (f->return_size == 5))
+	else if((token == VECTFUNCT_ID_TOKEN) && (f->return_size == 5))
 	{
 		image->data =Image::Create(image->iwidth, image->iheight, Image::RGBA_Int16);
 		image->data->SetPremultiplied(false); // We're storing the data in non-premultiplied alpha format, as this preserves all the data we're getting from the function.
@@ -247,6 +247,7 @@ ImageData *Parser::Parse_Image(int Legal, bool GammaCorrect)
 	int token_id;
 	int filetype = NO_FILE;
 	UCS2String ign;
+	pov::FUNCTION_PTR fnPtr;
 
 	image = Create_Image();
 
@@ -276,7 +277,8 @@ ImageData *Parser::Parse_Image(int Legal, bool GammaCorrect)
 				Found_Instead_Error("Missing { after", "expression");
 			Unget_Token();
 
-			Make_Pattern_Image(image, Parse_DeclareFunction(&token_id, NULL, false), &token_id );
+			fnPtr = Parse_DeclareFunction(&token_id, NULL, false);
+			Make_Pattern_Image(image, fnPtr, token_id);
 			EXIT
 		END_CASE
 
@@ -611,10 +613,33 @@ void Parser::Parse_Image_Map (PIGMENT *Pigment)
 
 		CASE (INTERPOLATE_TOKEN)
 			image->Interpolation_Type = (int)Parse_Float();
+			switch(image->Interpolation_Type)
+			{
+				case BILINEAR:
+				case BICUBIC:
+				case NORMALIZED_DIST:
+					break;
+
+				default:
+					Error("Invalid interpolate value.");
+					break;
+			}
 		END_CASE
 
 		CASE (MAP_TYPE_TOKEN)
 			image->Map_Type = (int) Parse_Float ();
+			switch(image->Map_Type)
+			{
+				case PLANAR_MAP:
+				case SPHERICAL_MAP:
+				case CYLINDRICAL_MAP:
+				case TORUS_MAP:
+					break;
+
+				default:
+					Error("Invalid map_type value.");
+					break;
+			}
 		END_CASE
 
 		CASE (USE_COLOUR_TOKEN)
@@ -642,6 +667,7 @@ void Parser::Parse_Image_Map (PIGMENT *Pigment)
 
 		CASE (ALPHA_TOKEN)
 			Warning(155, "Keyword ALPHA discontinued. Use FILTER instead.");
+			// FALLTHROUGH
 
 		CASE (COLOUR_KEY_TOKEN)
 			switch(Token.Function_Id)
@@ -1224,7 +1250,7 @@ void Parser::Parse_Pattern (TPATTERN *New, int TPat_Type)
 			New->Type = CHECKER_PATTERN;
 			New->Frequency = 0.0;
 			Destroy_Blend_Map(New->Blend_Map);
-			New->Blend_Map = Parse_Blend_List(2,const_cast<BLEND_MAP *>(&Check_Default_Map),TPat_Type);
+			New->Blend_Map = Parse_Blend_List(2,&Check_Default_Map,TPat_Type);
 			if (TPat_Type == NORMAL_TYPE)
 				((TNORMAL *)New)->Delta = 0.02;
 			EXIT
@@ -1241,7 +1267,7 @@ void Parser::Parse_Pattern (TPATTERN *New, int TPat_Type)
 			New->Type = OBJECT_PATTERN;
 			New->Frequency = 0.0;
 			Destroy_Blend_Map(New->Blend_Map);
-			New->Blend_Map = Parse_Blend_List(2, const_cast<BLEND_MAP *>(&Check_Default_Map), TPat_Type);
+			New->Blend_Map = Parse_Blend_List(2, &Check_Default_Map, TPat_Type);
 			Parse_End();
 			EXIT
 		}
@@ -1261,7 +1287,7 @@ void Parser::Parse_Pattern (TPATTERN *New, int TPat_Type)
 			}
 			New->Frequency = 0.0;
 			Destroy_Blend_Map(New->Blend_Map);
-			New->Blend_Map = Parse_Blend_List(2,const_cast<BLEND_MAP *>(&Brick_Default_Map),TPat_Type);
+			New->Blend_Map = Parse_Blend_List(2,&Brick_Default_Map,TPat_Type);
 			if (TPat_Type == NORMAL_TYPE)
 				((TNORMAL *)New)->Delta = 0.02;
 			EXIT
@@ -1271,7 +1297,7 @@ void Parser::Parse_Pattern (TPATTERN *New, int TPat_Type)
 			New->Type = HEXAGON_PATTERN;
 			New->Frequency = 0.0;
 			Destroy_Blend_Map(New->Blend_Map);
-			New->Blend_Map = Parse_Blend_List(3,const_cast<BLEND_MAP *>(&Hex_Default_Map),TPat_Type);
+			New->Blend_Map = Parse_Blend_List(3,&Hex_Default_Map,TPat_Type);
 			if (TPat_Type == NORMAL_TYPE)
 				((TNORMAL *)New)->Delta = 0.02;
 			EXIT
@@ -1281,7 +1307,7 @@ void Parser::Parse_Pattern (TPATTERN *New, int TPat_Type)
 			New->Type = SQUARE_PATTERN;
 			New->Frequency = 0.0;
 			Destroy_Blend_Map(New->Blend_Map);
-			New->Blend_Map = Parse_Blend_List(4,const_cast<BLEND_MAP *>(&Square_Default_Map),TPat_Type);
+			New->Blend_Map = Parse_Blend_List(4,&Square_Default_Map,TPat_Type);
 			if (TPat_Type == NORMAL_TYPE)
 				((TNORMAL *)New)->Delta = 0.02;
 			EXIT
@@ -1291,7 +1317,7 @@ void Parser::Parse_Pattern (TPATTERN *New, int TPat_Type)
 			New->Type = TRIANGULAR_PATTERN;
 			New->Frequency = 0.0;
 			Destroy_Blend_Map(New->Blend_Map);
-			New->Blend_Map = Parse_Blend_List(6,const_cast<BLEND_MAP *>(&Triangular_Default_Map),TPat_Type);
+			New->Blend_Map = Parse_Blend_List(6,&Triangular_Default_Map,TPat_Type);
 			if (TPat_Type == NORMAL_TYPE)
 				((TNORMAL *)New)->Delta = 0.02;
 			EXIT
@@ -1302,7 +1328,7 @@ void Parser::Parse_Pattern (TPATTERN *New, int TPat_Type)
 			New->Type = CUBIC_PATTERN;
 			New->Frequency = 0.0;
 			Destroy_Blend_Map(New->Blend_Map);
-			New->Blend_Map = Parse_Blend_List(6,const_cast<BLEND_MAP *>(&Cubic_Default_Map),TPat_Type);
+			New->Blend_Map = Parse_Blend_List(6,&Cubic_Default_Map,TPat_Type);
 			if (TPat_Type == NORMAL_TYPE)
 				((TNORMAL *)New)->Delta = 0.02;
 			EXIT
@@ -2464,7 +2490,7 @@ void Parser::Parse_Finish (FINISH **Finish_Ptr)
 		CASE (ROUGHNESS_TOKEN)
 			New->Roughness = Parse_Float ();
 			if (New->Roughness != 0.0)
-			New->Roughness = 1.0/New->Roughness; /* CEY 12/92 */
+				New->Roughness = 1.0/New->Roughness; /* CEY 12/92 */
 			else
 				Warning(0, "Zero roughness used.");
 		END_CASE
@@ -2569,6 +2595,8 @@ void Parser::Parse_Finish (FINISH **Finish_Ptr)
 	// adjust diffuse, phong and/or specular intensity parameters
 	// so that a user-specified value of 1.0 corresponds to a
 	// backscattering of 100% of the incoming light
+	New->RawDiffuse     = New->Diffuse;
+	New->RawDiffuseBack = New->DiffuseBack;
 	if (diffuseAdjust)
 	{
 		New->Diffuse     *= (New->Brilliance + 1.0) / 2.0;
@@ -3162,7 +3190,7 @@ NOTE: Do not add new keywords to this section.  Use 1.0 syntax only.
 					Pigment->Type = CHECKER_PATTERN;
 					Pigment->Frequency = 0.0;
 					Destroy_Blend_Map(Pigment->Blend_Map);
-					Pigment->Blend_Map = Parse_Blend_List(2,const_cast<BLEND_MAP *>(&Check_Default_Map),COLOUR_TYPE);
+					Pigment->Blend_Map = Parse_Blend_List(2,&Check_Default_Map,COLOUR_TYPE);
 				END_CASE
 
 				CASE (HEXAGON_TOKEN)
@@ -3170,7 +3198,7 @@ NOTE: Do not add new keywords to this section.  Use 1.0 syntax only.
 					Pigment->Type = HEXAGON_PATTERN;
 					Pigment->Frequency = 0.0;
 					Destroy_Blend_Map(Pigment->Blend_Map);
-					Pigment->Blend_Map = Parse_Blend_List(3,const_cast<BLEND_MAP *>(&Hex_Default_Map),COLOUR_TYPE);
+					Pigment->Blend_Map = Parse_Blend_List(3,&Hex_Default_Map,COLOUR_TYPE);
 				END_CASE
 
 				CASE (SQUARE_TOKEN)
@@ -3178,7 +3206,7 @@ NOTE: Do not add new keywords to this section.  Use 1.0 syntax only.
 					Pigment->Type = SQUARE_PATTERN;
 					Pigment->Frequency = 0.0;
 					Destroy_Blend_Map(Pigment->Blend_Map);
-					Pigment->Blend_Map = Parse_Blend_List(4,const_cast<BLEND_MAP *>(&Square_Default_Map),COLOUR_TYPE);
+					Pigment->Blend_Map = Parse_Blend_List(4,&Square_Default_Map,COLOUR_TYPE);
 				END_CASE
 
 				CASE (TRIANGULAR_TOKEN)
@@ -3186,7 +3214,7 @@ NOTE: Do not add new keywords to this section.  Use 1.0 syntax only.
 					Pigment->Type = TRIANGULAR_PATTERN;
 					Pigment->Frequency = 0.0;
 					Destroy_Blend_Map(Pigment->Blend_Map);
-					Pigment->Blend_Map = Parse_Blend_List(6,const_cast<BLEND_MAP *>(&Triangular_Default_Map),COLOUR_TYPE);
+					Pigment->Blend_Map = Parse_Blend_List(6,&Triangular_Default_Map,COLOUR_TYPE);
 				END_CASE
 
 				CASE (IMAGE_MAP_TOKEN)
@@ -3350,7 +3378,7 @@ NOTE: Do not add new keywords to this section.  Use 1.0 syntax only.
 					Warn_State(Token.Token_Id, FINISH_TOKEN);
 					Finish->Roughness = Parse_Float ();
 					if (Finish->Roughness != 0.0)
-					Finish->Roughness = 1.0/Finish->Roughness; /* CEY 12/92 */
+						Finish->Roughness = 1.0/Finish->Roughness; /* CEY 12/92 */
 					else
 						Warning(0, "Zero roughness used.");
 				END_CASE
@@ -3552,14 +3580,14 @@ void Parser::Parse_Media(vector<Media>& medialist)
 
 		OTHERWISE
 			UNGET
-				/* with version 3.5+, the default media method is now 3 */
-				if(sceneData->languageVersion >= 350)
-				{
-					IMedia->Intervals = 1;
-					IMedia->Min_Samples = 10;
-					IMedia->Max_Samples = 10;
-					IMedia->Sample_Method = 3;
-				}
+			/* with version 3.5+, the default media method is now 3 */
+			if(sceneData->languageVersion >= 350)
+			{
+				IMedia->Intervals = 1;
+				IMedia->Min_Samples = 10;
+				IMedia->Max_Samples = 10;
+				IMedia->Sample_Method = 3;
+			}
 			EXIT
 		END_CASE
 	END_EXPECT

@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/math/vector.h $
- * $Revision: #11 $
- * $Change: 5091 $
- * $DateTime: 2010/08/06 11:17:18 $
+ * $Revision: #12 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -406,7 +406,7 @@ inline void VHalf(VECTOR a, const VECTOR b, const VECTOR c)
 }
 
 // Calculate the sum of the sqares of the components of a vector.  (the square of its length)
-inline DBL VSumSqr(VECTOR a)
+inline DBL VSumSqr(const VECTOR a)
 {
 	return a[X] * a[X] + a[Y] * a[Y] + a[Z] * a[Z];
 }

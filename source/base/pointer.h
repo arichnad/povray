@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/pointer.h $
- * $Revision: #8 $
- * $Change: 4715 $
- * $DateTime: 2009/02/21 10:00:39 $
- * $Author: chrisc $
+ * $Revision: #9 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -98,6 +98,8 @@
 namespace pov_base
 {
 
+// TODO FIXME - the Pointer class should be replaced by one of the boost/std smart pointers
+
 template<class X> class Pointer
 {
 	public:
@@ -140,12 +142,17 @@ template<class X> class Pointer
 			return *ptr;
 		}
 
-		X *operator->() const
+		const X *operator->() const
 		{
 			return ptr;
 		}
 
-		X *get() const
+		X *operator->()
+		{
+			return ptr;
+		}
+
+		const X *get() const
 		{
 			return ptr;
 		}
@@ -164,12 +171,12 @@ template<class X> class Pointer
 			ptr = p;
 		}
 
-		bool operator==(void *p)
+		bool operator==(const void *p) const
 		{
 			return (ptr == p);
 		}
 
-		bool operator!=(void *p)
+		bool operator!=(const void *p) const
 		{
 			return (ptr != p);
 		}

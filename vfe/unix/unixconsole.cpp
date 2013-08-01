@@ -21,10 +21,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/vfe/unix/unixconsole.cpp $
- * $Revision: #47 $
- * $Change: 5460 $
- * $DateTime: 2011/07/15 04:26:22 $
- * $Author: jgrimbert $
+ * $Revision: #48 $
+ * $Change: 5661 $
+ * $DateTime: 2012/06/11 06:36:10 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -538,7 +538,7 @@ int main (int argc, char **argv)
 		fprintf(stderr,"\nProblem with option setting\n");
 		for(int loony=0;loony<argc_copy;loony++)
 		{
-      fprintf(stderr,"%s%c",argv_copy[loony],loony+1<argc_copy?' ':'\n');
+			fprintf(stderr,"%s%c",argv_copy[loony],loony+1<argc_copy?' ':'\n');
 		}
 		ErrorExit(session);
 	}

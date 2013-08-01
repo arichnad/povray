@@ -1,5 +1,5 @@
 /*******************************************************************************
- * subsurface.h
+ * subsurface.cpp
  *
  * This module implements subsurface light transport.
  *
@@ -24,9 +24,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/lighting/subsurface.cpp $
- * $Revision: #3 $
- * $Change: 5424 $
- * $DateTime: 2011/03/19 15:47:39 $
+ * $Revision: #6 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -108,7 +108,7 @@ namespace pov
 inline double DiffuseReflectance(double A, double alphaPrime)
 {
 	double root = sqrt(3*(1-alphaPrime));
-	return (alphaPrime/2) * ( 1 + exp(-(4/3)*A*root) ) * exp(-root);
+	return (alphaPrime/2) * ( 1 + exp(-(4.0/3.0)*A*root) ) * exp(-root);
 }
 
 
@@ -163,7 +163,7 @@ double SubsurfaceInterior::PrecomputedReducedAlbedo::operator()(double diffuseRe
 	return (1-p)*reducedAlbedo[i0] + p*reducedAlbedo[i1];
 }
 
-DblRGBColour SubsurfaceInterior::GetReducedAlbedo(const RGBColour& diffuseReflectance)
+DblRGBColour SubsurfaceInterior::GetReducedAlbedo(const RGBColour& diffuseReflectance) const
 {
 	return DblRGBColour(((const PrecomputedReducedAlbedo&)precomputedReducedAlbedo)(diffuseReflectance.red()),
 	                    ((const PrecomputedReducedAlbedo&)precomputedReducedAlbedo)(diffuseReflectance.green()),

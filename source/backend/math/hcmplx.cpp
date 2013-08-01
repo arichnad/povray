@@ -24,9 +24,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/math/hcmplx.cpp $
- * $Revision: #19 $
- * $Change: 5091 $
- * $DateTime: 2010/08/06 11:17:18 $
+ * $Revision: #20 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -318,7 +318,7 @@ int Iteration_HCompl(const VECTOR IPoint, const Fractal *HCompl, DBL **IterStack
 *
 ******************************************************************************/
 
-int D_Iteration_HCompl(VECTOR IPoint, const Fractal *HCompl, const VECTOR& Direction, DBL *Dist, DBL **IterStack)
+int D_Iteration_HCompl(const VECTOR IPoint, const Fractal *HCompl, const VECTOR& Direction, DBL *Dist, DBL **IterStack)
 {
 	int i;
 	DBL yz, xw;
@@ -480,7 +480,7 @@ void Normal_Calc_HCompl(VECTOR Result, int N_Max, const Fractal *, DBL **IterSta
 *
 ******************************************************************************/
 
-int F_Bound_HCompl(Ray & ray, const Fractal *fractal, DBL *Depth_Min, DBL  *Depth_Max)
+int F_Bound_HCompl(const Ray & ray, const Fractal *fractal, DBL *Depth_Min, DBL  *Depth_Max)
 {
 	return (Sphere::Intersect(ray, fractal->Center, fractal->Radius_Squared, Depth_Min, Depth_Max));
 }
@@ -573,7 +573,7 @@ int Iteration_HCompl_z3(const VECTOR IPoint, const Fractal *HCompl, DBL **IterSt
 *
 ******************************************************************************/
 
-int D_Iteration_HCompl_z3(VECTOR IPoint, const Fractal *HCompl, const VECTOR& Direction, DBL *Dist, DBL **IterStack)
+int D_Iteration_HCompl_z3(const VECTOR IPoint, const Fractal *HCompl, const VECTOR& Direction, DBL *Dist, DBL **IterStack)
 {
 	int i;
 	DBL xx, yy, zz, ww;
@@ -726,7 +726,7 @@ void Normal_Calc_HCompl_z3(VECTOR Result, int N_Max, const Fractal *, DBL **Iter
 *
 ******************************************************************************/
 
-int F_Bound_HCompl_z3(Ray &ray, const Fractal *fractal, DBL *Depth_Min, DBL *Depth_Max)
+int F_Bound_HCompl_z3(const Ray &ray, const Fractal *fractal, DBL *Depth_Min, DBL *Depth_Max)
 {
 	return F_Bound_HCompl(ray, fractal, Depth_Min, Depth_Max);
 }
@@ -814,7 +814,7 @@ int Iteration_HCompl_Reciprocal(const VECTOR IPoint, const Fractal *HCompl, DBL 
 *
 ******************************************************************************/
 
-int D_Iteration_HCompl_Reciprocal(VECTOR IPoint, const Fractal *HCompl, const VECTOR& Direction, DBL *Dist, DBL **IterStack)
+int D_Iteration_HCompl_Reciprocal(const VECTOR IPoint, const Fractal *HCompl, const VECTOR& Direction, DBL *Dist, DBL **IterStack)
 {
 	int i;
 	DBL xx, yy, zz, ww;
@@ -961,7 +961,7 @@ void Normal_Calc_HCompl_Reciprocal(VECTOR Result, int N_Max, const Fractal *, DB
 *
 ******************************************************************************/
 
-int F_Bound_HCompl_Reciprocal(Ray &ray, const Fractal *fractal, DBL *Depth_Min, DBL  *Depth_Max)
+int F_Bound_HCompl_Reciprocal(const Ray &ray, const Fractal *fractal, DBL *Depth_Min, DBL  *Depth_Max)
 {
 	return F_Bound_HCompl(ray, fractal, Depth_Min, Depth_Max);
 }
@@ -1049,7 +1049,7 @@ int Iteration_HCompl_Func(const VECTOR IPoint, const Fractal *HCompl, DBL **Iter
 *
 ******************************************************************************/
 
-int D_Iteration_HCompl_Func(VECTOR IPoint, const Fractal *HCompl, const VECTOR& Direction, DBL *Dist, DBL **IterStack)
+int D_Iteration_HCompl_Func(const VECTOR IPoint, const Fractal *HCompl, const VECTOR& Direction, DBL *Dist, DBL **IterStack)
 {
 	int i;
 	DBL xx, yy, zz, ww;
@@ -1194,7 +1194,7 @@ void Normal_Calc_HCompl_Func(VECTOR Result, int N_Max, const Fractal *fractal, D
 *
 ******************************************************************************/
 
-int F_Bound_HCompl_Func(Ray &ray, const Fractal *fractal, DBL *Depth_Min, DBL  *Depth_Max)
+int F_Bound_HCompl_Func(const Ray &ray, const Fractal *fractal, DBL *Depth_Min, DBL  *Depth_Max)
 {
 	return F_Bound_HCompl(ray, fractal, Depth_Min, Depth_Max);
 }
@@ -1220,7 +1220,7 @@ int F_Bound_HCompl_Func(Ray &ray, const Fractal *fractal, DBL *Depth_Min, DBL  *
 *
 ******************************************************************************/
 
-void Complex_Mult (CMPLX *target, CMPLX *source1, const CMPLX *source2)
+void Complex_Mult (CMPLX *target, const CMPLX *source1, const CMPLX *source2)
 {
 	DBL tmpx;
 	tmpx = source1->x * source2->x - source1->y * source2->y;
@@ -1228,7 +1228,7 @@ void Complex_Mult (CMPLX *target, CMPLX *source1, const CMPLX *source2)
 	target->x = tmpx;
 }
 
-void Complex_Div (CMPLX *target, CMPLX *source1, CMPLX *source2)
+void Complex_Div (CMPLX *target, const CMPLX *source1, const CMPLX *source2)
 {
 	DBL mod,tmpx,yxmod,yymod;
 	mod = Sqr(source2->x) + Sqr(source2->y);
@@ -1241,7 +1241,7 @@ void Complex_Div (CMPLX *target, CMPLX *source1, CMPLX *source2)
 	target->x = tmpx;
 } /* End Complex_Mult() */
 
-void Complex_Exp (CMPLX *target, CMPLX *source, const CMPLX *)
+void Complex_Exp (CMPLX *target, const CMPLX *source, const CMPLX *)
 {
 	DBL expx;
 	expx = exp(source->x);
@@ -1249,33 +1249,33 @@ void Complex_Exp (CMPLX *target, CMPLX *source, const CMPLX *)
 	target->y = expx * sin(source->y);
 } /* End Complex_Exp() */
 
-void Complex_Sin (CMPLX *target, CMPLX *source, const CMPLX *)
+void Complex_Sin (CMPLX *target, const CMPLX *source, const CMPLX *)
 {
 	target->x = sin(source->x) * cosh(source->y);
 	target->y = cos(source->x) * sinh(source->y);
 } /* End Complex_Sin() */
 
-void Complex_Sinh (CMPLX *target, CMPLX *source, const CMPLX *)
+void Complex_Sinh (CMPLX *target, const CMPLX *source, const CMPLX *)
 {
 	target->x = sinh(source->x) * cos(source->y);
 	target->y = cosh(source->x) * sin(source->y);
 } /* End Complex_Sinh() */
 
 
-void Complex_Cos (CMPLX *target, CMPLX *source, const CMPLX *)
+void Complex_Cos (CMPLX *target, const CMPLX *source, const CMPLX *)
 {
 	target->x = cos(source->x) * cosh(source->y);
 	target->y = -sin(source->x) * sinh(source->y);
 } /* End Complex_Cos() */
 
-void Complex_Cosh (CMPLX *target, CMPLX *source, const CMPLX *)
+void Complex_Cosh (CMPLX *target, const CMPLX *source, const CMPLX *)
 {
 	target->x = cosh(source->x) * cos(source->y);
 	target->y = sinh(source->x) * sin(source->y);
 } /* End Complex_Cosh() */
 
 
-void Complex_Ln (CMPLX *target, CMPLX *source, const CMPLX *)
+void Complex_Ln (CMPLX *target, const CMPLX *source, const CMPLX *)
 {
 	DBL mod,zx,zy;
 	mod = sqrt(source->x * source->x + source->y * source->y);
@@ -1286,7 +1286,7 @@ void Complex_Ln (CMPLX *target, CMPLX *source, const CMPLX *)
 	target->y = zy;
 } /* End Complex_Ln() */
 
-void Complex_Sqrt(CMPLX *target, CMPLX *source)
+void Complex_Sqrt(CMPLX *target, const CMPLX *source)
 {
 	DBL mag;
 	DBL theta;
@@ -1305,7 +1305,7 @@ void Complex_Sqrt(CMPLX *target, CMPLX *source)
 } /* End Complex_Sqrt() */
 
 /* rz=Arcsin(z)=-i*Log{i*z+sqrt(1-z*z)} */
-void Complex_ASin(CMPLX *target, CMPLX *source, const CMPLX *)
+void Complex_ASin(CMPLX *target, const CMPLX *source, const CMPLX *)
 {
 	CMPLX tempz1,tempz2;
 
@@ -1321,7 +1321,7 @@ void Complex_ASin(CMPLX *target, CMPLX *source, const CMPLX *)
 } /* End Complex_ASin() */
 
 
-void Complex_ACos(CMPLX *target, CMPLX *source, const CMPLX *)
+void Complex_ACos(CMPLX *target, const CMPLX *source, const CMPLX *)
 {
 	CMPLX temp;
 
@@ -1335,7 +1335,7 @@ void Complex_ACos(CMPLX *target, CMPLX *source, const CMPLX *)
 	target->x = temp.y;  target->y = -temp.x;
 } /* End Complex_ACos() */
 
-void Complex_ASinh(CMPLX *target, CMPLX *source, const CMPLX *)
+void Complex_ASinh(CMPLX *target, const CMPLX *source, const CMPLX *)
 {
 	CMPLX temp;
 
@@ -1347,7 +1347,7 @@ void Complex_ASinh(CMPLX *target, CMPLX *source, const CMPLX *)
 } /* End Complex_ASinh */
 
 /* rz=Arccosh(z)=Log(z+sqrt(z*z-1)} */
-void Complex_ACosh (CMPLX *target, CMPLX *source, const CMPLX *)
+void Complex_ACosh (CMPLX *target, const CMPLX *source, const CMPLX *)
 {
 	CMPLX tempz;
 	Complex_Mult(&tempz, source, source);
@@ -1358,7 +1358,7 @@ void Complex_ACosh (CMPLX *target, CMPLX *source, const CMPLX *)
 } /* End Complex_ACosh() */
 
 /* rz=Arctanh(z)=1/2*Log{(1+z)/(1-z)} */
-void Complex_ATanh(CMPLX *target, CMPLX *source, const CMPLX *)
+void Complex_ATanh(CMPLX *target, const CMPLX *source, const CMPLX *)
 {
 	CMPLX temp0,temp1,temp2;
 
@@ -1393,7 +1393,7 @@ void Complex_ATanh(CMPLX *target, CMPLX *source, const CMPLX *)
 } /* End Complex_ATanh() */
 
 /* rz=Arctan(z)=i/2*Log{(1-i*z)/(1+i*z)} */
-void Complex_ATan(CMPLX *target, CMPLX *source, const CMPLX *)
+void Complex_ATan(CMPLX *target, const CMPLX *source, const CMPLX *)
 {
 	CMPLX temp0,temp1,temp2,temp3;
 	if( source->x == 0.0 && source->y == 0.0)
@@ -1419,7 +1419,7 @@ void Complex_ATan(CMPLX *target, CMPLX *source, const CMPLX *)
 	}
 } /* End Complex_ATanz() */
 
-void Complex_Tan(CMPLX *target, CMPLX *source, const CMPLX *)
+void Complex_Tan(CMPLX *target, const CMPLX *source, const CMPLX *)
 {
 	DBL x, y, sinx, cosx, sinhy, coshy, denom;
 	x = 2 * source->x;
@@ -1433,7 +1433,7 @@ void Complex_Tan(CMPLX *target, CMPLX *source, const CMPLX *)
 	target->y = sinhy/denom;
 } /* End Complex_Tan() */
 
-void Complex_Tanh(CMPLX *target, CMPLX *source, const CMPLX *)
+void Complex_Tanh(CMPLX *target, const CMPLX *source, const CMPLX *)
 {
 	DBL x, y, siny, cosy, sinhx, coshx, denom;
 	x = 2 * source->x;
@@ -1448,7 +1448,7 @@ void Complex_Tanh(CMPLX *target, CMPLX *source, const CMPLX *)
 } /* End Complex_Tanh() */
 
 
-void Complex_Pwr (CMPLX *target, CMPLX *source1, const CMPLX *source2)
+void Complex_Pwr (CMPLX *target, const CMPLX *source1, const CMPLX *source2)
 {
 	CMPLX cLog, t;
 	DBL e2x;

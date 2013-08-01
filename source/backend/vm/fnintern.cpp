@@ -27,9 +27,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/vm/fnintern.cpp $
- * $Revision: #20 $
- * $Change: 5091 $
- * $DateTime: 2010/08/06 11:17:18 $
+ * $Revision: #21 $
+ * $Change: 5745 $
+ * $DateTime: 2013/01/21 11:29:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -509,8 +509,8 @@ DBL f_enneper(FPUContext *ctx, DBL *ptr, unsigned int) // 18
 	DBL r, r2,x2=PARAM_X*PARAM_X, y2=PARAM_Y*PARAM_Y, z2=PARAM_Z*PARAM_Z;
 	if (fabs(PARAM_Z)<0.2)
 		PARAM_Z=0.2;
-	r =((y2-x2)/(2*PARAM_Z)+2*z2/9+2/3);
-	r2=((y2-x2)/(4*PARAM_Z)-(1/4)*(x2+y2+(8/9)*z2)+2/9);
+	r =((y2-x2)/(2*PARAM_Z)+2*z2/9+2/3);                  // TODO FIXME - was this supposed to be 2.0/3.0 ??
+	r2=((y2-x2)/(4*PARAM_Z)-(1/4)*(x2+y2+(8/9)*z2)+2/9);  // TODO FIXME - was this supposed to be 1.0/4.0, 8.0/9.0 and 2.0/9.0 respectively ??
 	r=-( r*r*r -6*r2*r2) ;
 	return( min(10., max(PARAM(0)*r,-10.)) );
 }

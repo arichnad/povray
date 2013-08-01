@@ -20,9 +20,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/render/tracetask.cpp $
- * $Revision: #97 $
- * $Change: 5482 $
- * $DateTime: 2011/08/25 20:25:02 $
+ * $Revision: #98 $
+ * $Change: 5745 $
+ * $DateTime: 2013/01/21 11:29:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -287,7 +287,7 @@ TraceTask::TraceTask(ViewData *vd, unsigned int tm, DBL js, DBL aat, unsigned in
 	highReproducibility(hr),
 	media(GetViewDataPtr(), &trace, &photonGatherer),
 	radiosity(vd->GetSceneData(), GetViewDataPtr(),
-	          vd->GetSceneData()->radiositySettings, vd->GetRadiosityCache(), cooperate, RadiosityFunction::FINAL_TRACE, Vector3d(vd->GetCamera().Location)),
+	          vd->GetSceneData()->radiositySettings, vd->GetRadiosityCache(), cooperate, final, Vector3d(vd->GetCamera().Location)),
 	photonGatherer(&vd->GetSceneData()->mediaPhotonMap, vd->GetSceneData()->photonSettings)
 {
 #ifdef PROFILE_INTERSECTIONS

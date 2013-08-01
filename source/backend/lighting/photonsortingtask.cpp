@@ -24,10 +24,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/lighting/photonsortingtask.cpp $
- * $Revision: #14 $
- * $Change: 5468 $
- * $DateTime: 2011/08/14 12:25:36 $
- * $Author: jgrimbert $
+ * $Revision: #16 $
+ * $Change: 5783 $
+ * $DateTime: 2013/02/04 10:34:35 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -129,7 +129,7 @@ namespace pov
       3) compute gather options
       4) clean up memory (delete the non-merged maps and delete the strategy)
 */
-PhotonSortingTask::PhotonSortingTask(ViewData *vd, vector<PhotonMap*> surfaceMaps, vector<PhotonMap*> mediaMaps, PhotonShootingStrategy* strategy) :
+PhotonSortingTask::PhotonSortingTask(ViewData *vd, const vector<PhotonMap*>& surfaceMaps, const vector<PhotonMap*>& mediaMaps, PhotonShootingStrategy* strategy) :
 	RenderTask(vd),
 	surfaceMaps(surfaceMaps),
 	mediaMaps(mediaMaps),
@@ -288,15 +288,17 @@ int PhotonSortingTask::save()
 	FILE *f;
 	int i;
 	size_t err;
+	int numph;
 
 	f = fopen(GetSceneData()->photonSettings.fileName, "wb");
 	if (!f) return 0;
 
 	/* caustic photons */
-	fwrite(&GetSceneData()->surfacePhotonMap.numPhotons, sizeof(GetSceneData()->surfacePhotonMap.numPhotons),1,f);
-	if (GetSceneData()->surfacePhotonMap.numPhotons>0 && GetSceneData()->surfacePhotonMap.head)
+	numph = GetSceneData()->surfacePhotonMap.numPhotons;
+	fwrite(&numph, sizeof(numph),1,f);
+	if (numph>0 && GetSceneData()->surfacePhotonMap.head)
 	{
-		for(i=0; i<GetSceneData()->surfacePhotonMap.numPhotons; i++)
+		for(i=0; i<numph; i++)
 		{
 			ph = &(PHOTON_AMF(GetSceneData()->surfacePhotonMap.head, i));
 			err = fwrite(ph, sizeof(Photon), 1, f);
@@ -316,10 +318,11 @@ int PhotonSortingTask::save()
 
 #ifdef GLOBAL_PHOTONS
 	/* global photons */
-	fwrite(&globalPhotonMap.numPhotons, sizeof(globalPhotonMap.numPhotons),1,f);
-	if (globalPhotonMap.numPhotons>0 && globalPhotonMap.head)
+	numph = globalPhotonMap.numPhotons;
+	fwrite(&numph, sizeof(numph),1,f);
+	if (numph>0 && globalPhotonMap.head)
 	{
-		for(i=0; i<globalPhotonMap.numPhotons; i++)
+		for(i=0; i<numph; i++)
 		{
 			ph = &(PHOTON_AMF(globalPhotonMap.head, i));
 			err = fwrite(ph, sizeof(Photon), 1, f);
@@ -339,10 +342,11 @@ int PhotonSortingTask::save()
 #endif
 
 	/* media photons */
-	fwrite(&GetSceneData()->mediaPhotonMap.numPhotons, sizeof(GetSceneData()->mediaPhotonMap.numPhotons),1,f);
-	if (GetSceneData()->mediaPhotonMap.numPhotons>0 && GetSceneData()->mediaPhotonMap.head)
+	numph = GetSceneData()->mediaPhotonMap.numPhotons;
+	fwrite(&numph, sizeof(numph),1,f);
+	if (numph>0 && GetSceneData()->mediaPhotonMap.head)
 	{
-		for(i=0; i<GetSceneData()->mediaPhotonMap.numPhotons; i++)
+		for(i=0; i<numph; i++)
 		{
 			ph = &(PHOTON_AMF(GetSceneData()->mediaPhotonMap.head, i));
 			err = fwrite(ph, sizeof(Photon), 1, f);

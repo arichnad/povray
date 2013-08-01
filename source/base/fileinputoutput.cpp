@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/fileinputoutput.cpp $
- * $Revision: #32 $
- * $Change: 5094 $
- * $DateTime: 2010/08/07 06:03:14 $
- * $Author: clipka $
+ * $Revision: #34 $
+ * $Change: 5719 $
+ * $DateTime: 2012/10/06 10:35:30 $
+ * $Author: jgrimbert $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -102,8 +102,15 @@
 #include "base/platformbase.h"
 #include "base/pointer.h"
 
+// All the builtin fonts must be declared here
+#include "base/font/crystal.h"
+#include "base/font/cyrvetic.h"
+#include "base/font/povlogo.h"
+#include "base/font/timrom.h"
+
 // this must be the last file included
 #include "base/povdebug.h"
+
 
 namespace pov_base
 {
@@ -231,7 +238,7 @@ IOBase& IOBase::read(void *buffer, size_t count)
 	return *this;
 }
 
-IOBase& IOBase::write(void *buffer, size_t count)
+IOBase& IOBase::write(const void *buffer, size_t count)
 {
 	if(!fail && count > 0)
 		fail = fwrite(buffer, count, 1, f) != 1;
@@ -261,14 +268,14 @@ IStream::~IStream()
 int IStream::Read_Short(void)
 {
 	short result;
-	read((char *) &result, sizeof(short));
+	read(&result, sizeof(short));
 	return result;
 }
 
 int IStream::Read_Int(void)
 {
 	int result;
-	read((char *) &result, sizeof(int));
+	read(&result, sizeof(int));
 	return result;
 }
 
@@ -315,6 +322,44 @@ IStream& IStream::getline(char *s, size_t buflen)
 	}
 
 	return *this;
+}
+
+/* 
+ * Default to povlogo.ttf (0)
+ * 1 : TimeRoman (timrom.ttf), Serif
+ * 2 : Cyrvetita (cyrvetic.ttf), Sans-Serif
+ * 3 : Crystal (crystal.ttf), monospace sans serif
+ *
+ * To add a font, check first its license 
+ */
+IMemStream::IMemStream(const int font_id):IStream(POV_File_Font_TTF)
+{
+  switch(font_id)
+	{
+		case 1:
+			start = &font_timrom[0];
+			size = sizeof(font_timrom);
+			break;
+		case 2:
+			start = &font_cyrvetic[0];
+			size = sizeof(font_cyrvetic);
+			break;
+		case 3:
+			start = &font_crystal[0];
+			size = sizeof(font_crystal);
+			break;
+		default:
+			start = &font_povlogo[0];
+			size = sizeof(font_povlogo);
+			break;
+	}
+  pos = 0;
+  fail= false;
+}
+
+IMemStream::~IMemStream()
+{
+// [jg] more to do here  (?)
 }
 
 OStream::OStream(const unsigned int stype) : IOBase(output, stype)
@@ -427,5 +472,76 @@ POV_LONG GetFileLength(const Path& p)
 
 	return result;
 }
+IOBase& IMemStream::read(void *buffer, size_t count)
+{
+	if ((!fail)&&(pos+count<= size))
+	{
+		memcpy(buffer,&start[pos],count);
+		pos+= count;
+	}
+	else
+	{
+		fail = true;
+	}
+	return *this;
+}
+int IMemStream::Read_Byte()
+{
+	int v;
+	if (fail)
+	{
+		v = EOF;
+	} 
+	else
+	{
+		v = start[pos++];
+		fail = !(pos<size);
+	}
+	return v;
+}
 
+IStream& IMemStream::UnRead_Byte(int c)
+{
+  pos--;
+	fail = !(pos<size);
+  return *this;
+}
+IStream& IMemStream::getline(char *s,size_t buflen)
+{
+ // Not needed for font
+	return *this;
+}
+POV_LONG IMemStream::tellg()
+{
+  return pos;
+}
+
+IOBase& IMemStream::seekg(POV_LONG posi, unsigned int whence)
+{
+	switch(whence)
+	{
+		case seek_set:
+			pos = posi;
+			break;
+		case seek_cur:
+			pos += posi;
+			break;
+		case seek_end:
+			pos = size - posi;
+			break;
+	}
+	fail = !(pos<size);
+  return *this;
+}
+bool IMemStream::open(const UCS2String &name, unsigned int Flags)
+{
+ // Not needed for font
+	return true;
+}
+
+bool IMemStream::close()
+{
+ // Not needed for font
+	return true;
+}
 }

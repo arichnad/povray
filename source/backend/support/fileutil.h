@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/support/fileutil.h $
- * $Revision: #11 $
- * $Change: 5009 $
- * $DateTime: 2010/06/05 10:39:30 $
- * $Author: chrisc $
+ * $Revision: #12 $
+ * $Change: 5719 $
+ * $DateTime: 2012/10/06 10:35:30 $
+ * $Author: jgrimbert $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -105,6 +105,7 @@ namespace pov
 using namespace pov_base;
 
 IStream *Locate_File(Parser *p, shared_ptr<SceneData>& sd, const UCS2String& filename, unsigned int stype, UCS2String& buffer, bool err_flag = false);
+IMemStream *Internal_Font_File(const int font_id, UCS2String& buffer);
 
 }
 

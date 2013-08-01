@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/fileinputoutput.h $
- * $Revision: #31 $
- * $Change: 5094 $
- * $DateTime: 2010/08/07 06:03:14 $
+ * $Revision: #36 $
+ * $Change: 5784 $
+ * $DateTime: 2013/02/04 13:06:24 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -148,7 +148,7 @@ enum
 #define POV_FILE_EXTENSIONS_PER_TYPE 4
 typedef struct
 {
-	char *ext[POV_FILE_EXTENSIONS_PER_TYPE];
+	const char *ext[POV_FILE_EXTENSIONS_PER_TYPE];
 } POV_File_Extensions;
 
 class IOBase
@@ -163,18 +163,18 @@ class IOBase
 
 		virtual bool open(const UCS2String& name, unsigned int Flags = 0);
 		virtual bool close();
-		IOBase& read(void *buffer, size_t count);
-		IOBase& write(void *buffer, size_t count);
-		IOBase& seekg(POV_LONG pos, unsigned int whence = seek_set);
+		virtual IOBase& read(void *buffer, size_t count);
+		IOBase& write(const void *buffer, size_t count);
+		virtual IOBase& seekg(POV_LONG pos, unsigned int whence = seek_set);
 
-		inline unsigned int gettype() { return(filetype); }
-		inline unsigned int getdirection() { return(direction); }
+		inline unsigned int gettype() const { return(filetype); }
+		inline unsigned int getdirection() const { return(direction); }
 		inline bool eof() { return(fail ? true : feof(f) != 0); }
-		inline POV_LONG tellg() { return(f == NULL ? -1 : ftell(f)); }
+		virtual inline POV_LONG tellg() { return(f == NULL ? -1 : ftell(f)); }
 		inline IOBase& clearstate() { if(f != NULL) fail = false; return *this; }
-		inline const UCS2 *Name() { return(filename.c_str()); }
+		inline const UCS2 *Name() const { return(filename.c_str()); }
 
-		inline operator void *() const { return(fail ? 0 :(void *) this); }
+		inline operator const void *() const { return(fail ? 0 :reinterpret_cast<const void *>(this)); }
 		inline bool operator!() const { return(fail); }
 	protected:
 		bool fail;
@@ -191,7 +191,7 @@ class IStream : public IOBase
 		IStream(const unsigned int Type);
 		virtual ~IStream();
 
-		inline int Read_Byte() { return(fail ? EOF : fgetc(f)); }
+		virtual inline int Read_Byte() { return(fail ? EOF : fgetc(f)); }
 		int Read_Short();
 		int Read_Int();
 		inline IStream& Read_Byte(char& c) { c =(char) Read_Byte(); return *this; }
@@ -207,9 +207,32 @@ class IStream : public IOBase
 		inline IStream& operator>>(unsigned int& n) { read(&n, sizeof(n)); return *this; }
 		inline IStream& operator>>(unsigned short& n) { read(&n, sizeof(n)); return *this; }
 		inline IStream& operator>>(unsigned char& n) { read(&n, sizeof(n)); return *this; }
-		IStream& UnRead_Byte(int c);
-		IStream& getline(char *s, size_t buflen);
+		virtual IStream& UnRead_Byte(int c);
+		virtual IStream& getline(char *s, size_t buflen);
 		IStream& ignore(POV_LONG count) { seekg(count, seek_cur); return *this; }
+};
+
+/*
+ * Fake a file from a compiled array of char, for Input only 
+ * Used for built-in fonts support.
+ */
+class IMemStream : public IStream
+{
+	public:
+		IMemStream(const int id);
+		virtual ~IMemStream();
+		virtual int Read_Byte(); 
+		virtual IStream& UnRead_Byte(int c);
+		virtual IStream& getline(char *s, size_t buflen);
+		virtual POV_LONG tellg(); 
+		virtual IOBase& read(void *buffer, size_t count);
+		virtual IOBase& seekg(POV_LONG pos, unsigned int whence = seek_set);
+		virtual bool open(const UCS2String& name, unsigned int Flags = 0);
+		virtual bool close();
+	protected:
+		size_t size;
+		size_t pos;
+		const unsigned char * start;
 };
 
 class OStream : public IOBase
@@ -225,8 +248,8 @@ class OStream : public IOBase
 		inline OStream& Write_Int(unsigned int data) { write(&data, sizeof(data)); return *this; }
 		inline OStream& flush(void) { IOBase::flush(); return *this; }
 
-		inline OStream& operator<<(const char *s) { write((void *)s, (size_t) strlen(s)); return *this; }
-		inline OStream& operator<<(unsigned char *s) { return operator<<((char *) s); }
+		inline OStream& operator<<(const char *s) { write(reinterpret_cast<const void *>(s), (size_t) strlen(s)); return *this; }
+		inline OStream& operator<<(const unsigned char *s) { return operator<<(reinterpret_cast<const char *>(s)); }
 		inline OStream& operator<<(char c) { return(Write_Byte(c)); }
 		inline OStream& operator<<(unsigned char c) { return operator <<((char) c); }
 		inline OStream& operator<<(short n) { return(Write_Short(n)); }

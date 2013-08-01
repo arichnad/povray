@@ -23,9 +23,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/vfe/vfe.cpp $
- * $Revision: #40 $
- * $Change: 5385 $
- * $DateTime: 2011/01/17 07:14:45 $
+ * $Revision: #44 $
+ * $Change: 5763 $
+ * $DateTime: 2013/01/28 19:26:46 $
  * $Author: chrisc $
  *******************************************************************************/
 
@@ -181,12 +181,12 @@ class ParseWarningDetails : public POVMSMessageDetails
     virtual ~ParseWarningDetails () {} ;
 
   public:
-    POVMSMessageDetails::File ;
-    POVMSMessageDetails::UCS2File ;
-    POVMSMessageDetails::Message ;
-    POVMSMessageDetails::Line ;
-    POVMSMessageDetails::Col ;
-    POVMSMessageDetails::Offset ;
+    using POVMSMessageDetails::File ;
+    using POVMSMessageDetails::UCS2File ;
+    using POVMSMessageDetails::Message ;
+    using POVMSMessageDetails::Line ;
+    using POVMSMessageDetails::Col ;
+    using POVMSMessageDetails::Offset ;
 } ;
 
 class ParseErrorDetails : public POVMSMessageDetails
@@ -196,12 +196,12 @@ class ParseErrorDetails : public POVMSMessageDetails
     virtual ~ParseErrorDetails () {} ;
 
   public:
-    POVMSMessageDetails::File ;
-    POVMSMessageDetails::UCS2File ;
-    POVMSMessageDetails::Message ;
-    POVMSMessageDetails::Line ;
-    POVMSMessageDetails::Col ;
-    POVMSMessageDetails::Offset ;
+    using POVMSMessageDetails::File ;
+    using POVMSMessageDetails::UCS2File ;
+    using POVMSMessageDetails::Message ;
+    using POVMSMessageDetails::Line ;
+    using POVMSMessageDetails::Col ;
+    using POVMSMessageDetails::Offset ;
 } ;
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -823,7 +823,8 @@ bool VirtualFrontEnd::Stop()
 
       case kParsing:
       case kPausedParsing:
-        renderFrontend.StopParser(sceneId);
+        // the parser could be already in a finished state, even if it accepted a pause earlier
+        try { renderFrontend.StopParser(sceneId); } catch (pov_base::Exception&) { }
         m_Session->SetFailed();
         state = kStopping;
         result = true;
@@ -839,7 +840,8 @@ bool VirtualFrontEnd::Stop()
         }
         else
         {
-          renderFrontend.StopRender(viewId);
+          // the renderer could be already in a finished state, even if it accepted a pause earlier
+          try { renderFrontend.StopRender(viewId); } catch (pov_base::Exception&) { }
           state = kStopping;
         }
         result = true;
@@ -888,6 +890,9 @@ bool VirtualFrontEnd::Pause()
         renderFrontend.PauseRender(viewId);
         state = kPausedRendering;
         return true;
+
+      default:
+        break;
     }
   }
   catch (pov_base::Exception&)
@@ -908,7 +913,8 @@ bool VirtualFrontEnd::Resume()
         return true;
 
       case kPausedParsing:
-        renderFrontend.ResumeParser(sceneId);
+        if (renderFrontend.GetSceneState(sceneId) == SceneData::Scene_Paused)
+          renderFrontend.ResumeParser(sceneId);
         state = kParsing;
         return true;
 
@@ -919,9 +925,13 @@ bool VirtualFrontEnd::Resume()
           m_PausedAfterFrame = false;
           return true;
         }
-        renderFrontend.ResumeRender(viewId);
+        if (renderFrontend.GetViewState(viewId) == ViewData::View_Paused)
+          renderFrontend.ResumeRender(viewId);
         state = kRendering;
         return true;
+
+      default:
+        break;
     }
   }
   catch (pov_base::Exception&)
@@ -1102,8 +1112,12 @@ State VirtualFrontEnd::Process()
       return state = kParsing;
 
     case kParsing:
+    case kPausedParsing:
       switch(renderFrontend.GetSceneState(sceneId))
       {
+        case SceneData::Scene_Paused:
+          return state = kPausedParsing;
+
         case SceneData::Scene_Failed:
           m_Session->SetFailed();
           return state = kStopped;
@@ -1112,6 +1126,14 @@ State VirtualFrontEnd::Process()
           return state = kStopping;
 
         case SceneData::Scene_Ready:
+          if (state == kPausedParsing)
+          {
+            // it's possible for the parser to transition to Scene_Ready after a successful pause request.
+            // this typically happens if the request comes in very close to the end of a parse, since the
+            // task thread only checks the pause state intermittently. we don't start the renderer in this
+            // case.
+            return state;
+          }
           try { viewId = renderFrontend.CreateView(sceneId, options, imageProcessing, boost::bind(&vfe::VirtualFrontEnd::CreateDisplay, this, _1, _2, _3)); }
           catch(pov_base::Exception& e)
           {
@@ -1130,6 +1152,16 @@ State VirtualFrontEnd::Process()
               // the file has already been rendered, so we skip it.
               m_Session->AppendStatusMessage ("File already rendered and continue requested; skipping.") ;
               m_Session->AppendStreamMessage (vfeSession::mInformation, "File already rendered and continue requested; skipping.") ;
+
+              /* [JG] the block here is a duplicate of actions done after
+               * the post frame shellout (that won't be reached because
+               * the image was already there). 
+               */
+              try { renderFrontend.CloseView(viewId); }
+              catch (pov_base::Exception&) { /* Ignore any error here! */ }
+              try { renderFrontend.CloseScene(sceneId); }
+              catch (pov_base::Exception&) { /* Ignore any error here! */ }
+
               if ((animationProcessing != NULL) && (animationProcessing->MoreFrames() == true))
               {
                 animationProcessing->ComputeNextFrame();
@@ -1163,8 +1195,12 @@ State VirtualFrontEnd::Process()
       return kParsing;
 
     case kRendering:
+    case kPausedRendering:
       switch(renderFrontend.GetViewState(viewId))
       {
+        case ViewData::View_Paused:
+          return state = kPausedRendering;
+
         case ViewData::View_Failed:
           m_Session->SetFailed();
           return state = kStopped;
@@ -1173,6 +1209,11 @@ State VirtualFrontEnd::Process()
           return state = kStopping;
 
         case ViewData::View_Rendered:
+          if (state == kPausedRendering)
+          {
+            // it's possible for the renderer to transition to View_Rendered after a successful pause request.
+            return kPausedRendering;
+          }
           try
           {
             if (animationProcessing != NULL)
@@ -1249,6 +1290,9 @@ State VirtualFrontEnd::Process()
         }
         return state = kStopped;
       }
+      /* [JG] the actions hereafter should be also done 
+       * when the image already existed: tidy up the data before next frame or stop
+       */
       try { renderFrontend.CloseView(viewId); }
       catch (pov_base::Exception&) { /* Ignore any error here! */ }
       try { renderFrontend.CloseScene(sceneId); }
@@ -1268,6 +1312,14 @@ State VirtualFrontEnd::Process()
         return state = kPostShelloutPause;
       }
       return state = kStarting;
+
+    case kPostSceneShellout:
+      if (shelloutProcessing->ShelloutRunning())
+        return state;
+      return state = kDone;
+
+    case kPostShelloutPause:
+      break;
 
     case kStopping:
       if (renderFrontend.GetSceneState(sceneId) == SceneData::Scene_Ready || renderFrontend.GetSceneState(sceneId) == SceneData::Scene_Failed)
@@ -1312,11 +1364,6 @@ State VirtualFrontEnd::Process()
         }
       }
 
-      return state = kDone;
-
-    case kPostSceneShellout:
-      if (shelloutProcessing->ShelloutRunning())
-        return state;
       return state = kDone;
 
     case kDone:

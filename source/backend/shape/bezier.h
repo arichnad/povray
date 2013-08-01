@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/bezier.h $
- * $Revision: #17 $
- * $Change: 5091 $
- * $DateTime: 2010/08/06 11:17:18 $
+ * $Revision: #18 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -176,18 +176,18 @@ class BicubicPatch : public ObjectBase
 		bool intersect_subpatch(const Ray&, const VECTOR [3], const DBL [3], const DBL [3], DBL *, VECTOR, VECTOR, DBL *, DBL *) const;
 		static void find_average(int, const VECTOR *, VECTOR, DBL *);
 		static bool spherical_bounds_check(const Ray &, const VECTOR, DBL);
-		int intersect_bicubic_patch0(const Ray& , IStack&, TraceThreadData *);
+		int intersect_bicubic_patch0(const Ray& , IStack&);
 		static DBL point_plane_distance(const VECTOR, const VECTOR, DBL);
 		static DBL determine_subpatch_flatness(const VECTOR(*)[4][4]);
 		bool flat_enough(const VECTOR(*)[4][4]) const;
 		static void bezier_bounding_sphere(const VECTOR(*)[4][4], VECTOR, DBL *);
-		int bezier_subpatch_intersect(const Ray &, const VECTOR(*)[4][4], DBL, DBL, DBL, DBL, IStack&, TraceThreadData *);
+		int bezier_subpatch_intersect(const Ray &, const VECTOR(*)[4][4], DBL, DBL, DBL, DBL, IStack&);
 		static void bezier_split_left_right(const VECTOR(*)[4][4], VECTOR(*)[4][4], VECTOR(*)[4][4]);
 		static void bezier_split_up_down(const VECTOR(*)[4][4], VECTOR(*)[4][4], VECTOR(*)[4][4]);
-		int bezier_subdivider(const Ray &, const VECTOR(*)[4][4], DBL, DBL, DBL, DBL, int, IStack&, TraceThreadData *);
+		int bezier_subdivider(const Ray &, const VECTOR(*)[4][4], DBL, DBL, DBL, DBL, int, IStack&);
 		static void bezier_tree_deleter(BEZIER_NODE *Node);
 		BEZIER_NODE *bezier_tree_builder(const VECTOR(*Patch)[4][4], DBL u0, DBL u1, DBL v0, DBL v1, int depth, int& max_depth_reached);
-		int bezier_tree_walker(const Ray &, const BEZIER_NODE *, IStack&, TraceThreadData *);
+		int bezier_tree_walker(const Ray &, const BEZIER_NODE *, IStack&);
 		static BEZIER_NODE *create_new_bezier_node(void);
 		static BEZIER_VERTICES *create_bezier_vertex_block(void);
 		static BEZIER_CHILDREN *create_bezier_child_block(void);

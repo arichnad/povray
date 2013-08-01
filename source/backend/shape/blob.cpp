@@ -27,9 +27,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/blob.cpp $
- * $Revision: #44 $
- * $Change: 5410 $
- * $DateTime: 2011/02/24 16:46:18 $
+ * $Revision: #46 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -321,7 +321,7 @@ bool Blob::All_Intersections(const Ray& ray, IStack& Depth_Stack, TraceThreadDat
 	}
 
 	/* Get the intervals along the ray where each component has an effect. */
-	Blob_Interval_Struct* intervals = (Blob_Interval_Struct *) Thread->Blob_Intervals;
+	Blob_Interval_Struct* intervals = Thread->Blob_Intervals;
 	if ((cnt = determine_influences(P, D, depthTolerance, intervals, Thread)) == 0)
 	{
 		/* Ray doesn't hit any of the component elements. */
@@ -1319,7 +1319,7 @@ int Blob::determine_influences(const VECTOR P, const VECTOR  D, DBL mindist, Blo
 	DBL b, t, t0, t1;
 	VECTOR V1;
 	BSPHERE_TREE *Tree;
-	BSPHERE_TREE **Queue = (BSPHERE_TREE **) Thread->Blob_Queue;
+	BSPHERE_TREE **Queue = reinterpret_cast<BSPHERE_TREE **>(Thread->Blob_Queue);
 
 	cnt = 0;
 
@@ -1353,9 +1353,9 @@ int Blob::determine_influences(const VECTOR P, const VECTOR  D, DBL mindist, Blo
 			{
 				/* Test element. */
 
-				if (intersect_element(P, D, (Blob_Element *)Tree->Node, mindist, &t0, &t1, Thread))
+				if (intersect_element(P, D, reinterpret_cast<Blob_Element *>(Tree->Node), mindist, &t0, &t1, Thread))
 				{
-					insert_hit((Blob_Element *)Tree->Node, t0, t1, intervals, &cnt);
+					insert_hit(reinterpret_cast<Blob_Element *>(Tree->Node), t0, t1, intervals, &cnt);
 				}
 			}
 			else
@@ -1379,7 +1379,7 @@ int Blob::determine_influences(const VECTOR P, const VECTOR  D, DBL mindist, Blo
 #endif
 
 						if (insert_node(Tree->Node[i], &size, Thread))
-							Queue = (BSPHERE_TREE **) Thread->Blob_Queue ;
+							Queue = reinterpret_cast<BSPHERE_TREE **>(Thread->Blob_Queue);
 					}
 				}
 			}
@@ -1553,7 +1553,7 @@ DBL Blob::calculate_field_value(const VECTOR P, TraceThreadData *Thread) const
 	DBL density, rad2;
 	VECTOR V1;
 	BSPHERE_TREE *Tree;
-	BSPHERE_TREE **Queue = (BSPHERE_TREE **) Thread->Blob_Queue;
+	BSPHERE_TREE **Queue = reinterpret_cast<BSPHERE_TREE **>(Thread->Blob_Queue);
 
 	density = 0.0;
 
@@ -1582,7 +1582,7 @@ DBL Blob::calculate_field_value(const VECTOR P, TraceThreadData *Thread) const
 
 			if (Tree->Entries <= 0)
 			{
-				density += calculate_element_field((Blob_Element *)Tree->Node, P);
+				density += calculate_element_field(reinterpret_cast<Blob_Element *>(Tree->Node), P);
 			}
 			else
 			{
@@ -1598,7 +1598,7 @@ DBL Blob::calculate_field_value(const VECTOR P, TraceThreadData *Thread) const
 
 					if (rad2 <= Tree->Node[i]->r2)
 						if (insert_node(Tree->Node[i], &size, Thread))
-							Queue = (BSPHERE_TREE **) Thread->Blob_Queue ;
+							Queue = reinterpret_cast<BSPHERE_TREE **>(Thread->Blob_Queue);
 				}
 			}
 		}
@@ -1848,7 +1848,7 @@ void Blob::Normal(VECTOR Result, Intersection *Inter, TraceThreadData *Thread) c
 	DBL dist, val;
 	VECTOR New_Point, V1;
 	BSPHERE_TREE *Tree;
-	BSPHERE_TREE **Queue = (BSPHERE_TREE **) Thread->Blob_Queue;
+	BSPHERE_TREE **Queue = reinterpret_cast<BSPHERE_TREE **>(Thread->Blob_Queue);
 
 	/* Transform the point into the blob space. */
 	getLocalIPoint(New_Point, Inter);
@@ -1882,7 +1882,7 @@ void Blob::Normal(VECTOR Result, Intersection *Inter, TraceThreadData *Thread) c
 
 			if (Tree->Entries <= 0)
 			{
-				element_normal(Result, New_Point, (Blob_Element *)Tree->Node);
+				element_normal(Result, New_Point, reinterpret_cast<Blob_Element *>(Tree->Node));
 			}
 			else
 			{
@@ -1898,7 +1898,7 @@ void Blob::Normal(VECTOR Result, Intersection *Inter, TraceThreadData *Thread) c
 
 					if (dist <= Tree->Node[i]->r2)
 						if (insert_node(Tree->Node[i], &size, Thread))
-							Queue = (BSPHERE_TREE **) Thread->Blob_Queue ;
+							Queue = reinterpret_cast<BSPHERE_TREE **>(Thread->Blob_Queue);
 				}
 			}
 		}
@@ -2208,7 +2208,7 @@ ObjectPtr Blob::Copy()
 	*New = *this;
 	New->Trans = Copy_Transform(Trans);
 	New->Data = Data->AcquireReference () ;
-	New->Element_Texture = (TEXTURE **)POV_MALLOC(New->Data->Number_Of_Components*sizeof(TEXTURE *), "blob texture list");
+	New->Element_Texture = reinterpret_cast<TEXTURE **>(POV_MALLOC(New->Data->Number_Of_Components*sizeof(TEXTURE *), "blob texture list"));
 	for (i = 0; i < New->Data->Number_Of_Components; i++)
 		New->Element_Texture[i] = Copy_Textures(Element_Texture[i]);
 	return (New);
@@ -2682,12 +2682,12 @@ int Blob::Make_Blob(DBL threshold, Blob_List_Struct *BlobList, int npoints, Trac
 	{
 		POV_FREE(Thread->Blob_Coefficients);
 		Thread->Blob_Coefficient_Count = count * 7;
-		Thread->Blob_Coefficients = (DBL *)POV_MALLOC(sizeof(DBL) * Thread->Blob_Coefficient_Count, "Blob Coefficients");
+		Thread->Blob_Coefficients = reinterpret_cast<DBL *>(POV_MALLOC(sizeof(DBL) * Thread->Blob_Coefficient_Count, "Blob Coefficients"));
 	}
 
 	if (Data->Number_Of_Components * 2 >= Thread->Blob_Interval_Count)
 	{
-		delete[] (Blob_Interval_Struct *) Thread->Blob_Intervals;
+		delete[] Thread->Blob_Intervals;
 		Thread->Blob_Interval_Count = Data->Number_Of_Components * 5 / 2;
 		Thread->Blob_Intervals = new Blob_Interval_Struct [Thread->Blob_Interval_Count];
 	}
@@ -2795,16 +2795,16 @@ void Blob::build_bounding_hierarchy()
 	 * Now allocate an array to hold references to these elements.
 	 */
 
-	Elements = (BSPHERE_TREE **)POV_MALLOC(maxelements*sizeof(BSPHERE_TREE *), "blob bounding hierarchy");
+	Elements = reinterpret_cast<BSPHERE_TREE **>(POV_MALLOC(maxelements*sizeof(BSPHERE_TREE *), "blob bounding hierarchy"));
 
 	/* Init list with blob elements. */
 
 	for (i = 0; i < nElem; i++)
 	{
-		Elements[i] = (BSPHERE_TREE *)POV_MALLOC(sizeof(BSPHERE_TREE), "blob bounding hierarchy");
+		Elements[i] = reinterpret_cast<BSPHERE_TREE *>(POV_MALLOC(sizeof(BSPHERE_TREE), "blob bounding hierarchy"));
 
 		Elements[i]->Entries = 0;
-		Elements[i]->Node    = (BSPHERE_TREE **)&Data->Entry[i];
+		Elements[i]->Node    = reinterpret_cast<BSPHERE_TREE **>(&Data->Entry[i]);
 
 		get_element_bounding_sphere(&Data->Entry[i], Elements[i]->C, &Elements[i]->r2);
 	}
@@ -2858,7 +2858,7 @@ void Blob::Determine_Textures(Intersection *isect, bool hitinside, WeightedTextu
 	Blob_Element *Element;
 	BSPHERE_TREE *Tree;
 	size_t firstinserted = textures.size();
-	BSPHERE_TREE **Queue = (BSPHERE_TREE **) Thread->Blob_Queue;
+	BSPHERE_TREE **Queue = reinterpret_cast<BSPHERE_TREE **>(Thread->Blob_Queue);
 
 	/* Transform the point into the blob space. */
 	getLocalIPoint(P, isect);
@@ -2889,7 +2889,7 @@ void Blob::Determine_Textures(Intersection *isect, bool hitinside, WeightedTextu
 
 			if (Tree->Entries <= 0)
 			{
-				determine_element_texture((Blob_Element *)Tree->Node, Element_Texture[((Blob_Element *)Tree->Node)->index], P, textures);
+				determine_element_texture(reinterpret_cast<Blob_Element *>(Tree->Node), Element_Texture[((Blob_Element *)Tree->Node)->index], P, textures);
 			}
 			else
 			{
@@ -2905,7 +2905,7 @@ void Blob::Determine_Textures(Intersection *isect, bool hitinside, WeightedTextu
 
 					if (rad2 <= Tree->Node[i]->r2)
 						if (insert_node(Tree->Node[i], &size, Thread))
-							Queue = (BSPHERE_TREE **) Thread->Blob_Queue ;
+							Queue = reinterpret_cast<BSPHERE_TREE **>(Thread->Blob_Queue);
 				}
 			}
 		}
@@ -2997,7 +2997,7 @@ void Blob::determine_element_texture(const Blob_Element *Element, TEXTURE *Eleme
 *
 ******************************************************************************/
 
-void Blob::Translate_Blob_Element(Blob_Element *Element, VECTOR Vector)
+void Blob::Translate_Blob_Element(Blob_Element *Element, const VECTOR Vector)
 {
 	TRANSFORM Trans;
 
@@ -3051,7 +3051,7 @@ void Blob::Translate_Blob_Element(Blob_Element *Element, VECTOR Vector)
 *
 ******************************************************************************/
 
-void Blob::Rotate_Blob_Element(Blob_Element *Element, VECTOR Vector)
+void Blob::Rotate_Blob_Element(Blob_Element *Element, const VECTOR Vector)
 {
 	TRANSFORM Trans;
 
@@ -3105,7 +3105,7 @@ void Blob::Rotate_Blob_Element(Blob_Element *Element, VECTOR Vector)
 *
 ******************************************************************************/
 
-void Blob::Scale_Blob_Element(Blob_Element *Element, VECTOR Vector)
+void Blob::Scale_Blob_Element(Blob_Element *Element, const VECTOR Vector)
 {
 	TRANSFORM Trans;
 
@@ -3174,7 +3174,7 @@ void Blob::Scale_Blob_Element(Blob_Element *Element, VECTOR Vector)
 *
 ******************************************************************************/
 
-void Blob::Transform_Blob_Element(Blob_Element *Element, TRANSFORM *Trans)
+void Blob::Transform_Blob_Element(Blob_Element *Element, const TRANSFORM *Trans)
 {
 	if (Element->Trans == NULL)
 	{
@@ -3258,13 +3258,13 @@ bool Blob::insert_node(BSPHERE_TREE *Node, unsigned int *size, TraceThreadData *
 {
 	/* Resize queue if necessary. */
 	bool rval = false ;
-	BSPHERE_TREE **Queue = (BSPHERE_TREE **) Thread->Blob_Queue;
+	BSPHERE_TREE **Queue = reinterpret_cast<BSPHERE_TREE **>(Thread->Blob_Queue);
 
 	if (*size >= Thread->Max_Blob_Queue_Size)
 	{
 		Thread->Max_Blob_Queue_Size = (*size + 1) * 3 / 2;
-		Queue = (BSPHERE_TREE **)POV_REALLOC(Queue, Thread->Max_Blob_Queue_Size*sizeof(BSPHERE_TREE *), "blob queue");
-		Thread->Blob_Queue = (void **) Queue;
+		Queue = reinterpret_cast<BSPHERE_TREE **>(POV_REALLOC(Queue, Thread->Max_Blob_Queue_Size*sizeof(BSPHERE_TREE *), "blob queue"));
+		Thread->Blob_Queue = reinterpret_cast<void **>(Queue);
 		rval = true ;
 	}
 
@@ -3324,7 +3324,7 @@ void Blob::Create_Blob_Element_Texture_List(Blob_List_Struct *BlobList, int npoi
 	Data = new Blob_Data (count) ;
 
 	/* Allocate memory for list. */
-	et = Element_Texture = (TEXTURE **)POV_CALLOC(count,sizeof(TEXTURE *), "blob texture list");
+	et = Element_Texture = reinterpret_cast<TEXTURE **>(POV_CALLOC(count,sizeof(TEXTURE *), "blob texture list"));
 	for (i = 0, bl = BlobList; i < npoints; i++, bl = bl->next)
 	{
 		/*

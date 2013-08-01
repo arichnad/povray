@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/lighting/radiosity.cpp $
- * $Revision: #56 $
- * $Change: 5438 $
- * $DateTime: 2011/05/19 10:42:31 $
+ * $Revision: #57 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -329,7 +329,7 @@ RadiosityRecursionSettings* SceneRadiositySettings::GetRecursionSettings(bool fi
 }
 
 RadiosityFunction::RadiosityFunction(shared_ptr<SceneData> sd, TraceThreadData *td, const SceneRadiositySettings& rs,
-                                     RadiosityCache& rc, Trace::CooperateFunctor& cf, bool ft, Vector3d camera) :
+                                     RadiosityCache& rc, Trace::CooperateFunctor& cf, bool ft, const Vector3d& camera) :
 	threadData(td),
 	trace(sd, td, GetRadiosityQualityFlags(rs, QUALITY_9), cf, media, *this), // TODO FIXME - we can only use hard-coded QUALITY_9 because Radiosity happens to be disabled at lower settings!
 	media(td, &trace, &photonGatherer),

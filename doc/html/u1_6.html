@@ -77,7 +77,7 @@
 <h3>1.6.1 Special Command-Line Options</h3>
 <p>POV-Ray for Unix supports several special command-line options not recognized by other versions.  They follow the standards for programs that run under the X Window System.</p>
 
-<p class="Note"><strong>Note:</strong> See the section <a href="u1_7.html#u1_7_2">Known Bugs</a> for more information about a problem with the X11 windows system.</p>
+<p class="Note"><strong>Note:</strong> See the section <a href="u1_7.html#u1_7_1">Known Bugs</a> for more information about a problem with the X11 windows system.</p>
 
 <dl>
 <dt><code>-display &lt;display_name&gt;</code></dt>
@@ -114,11 +114,11 @@
 <a name="u1_6_2"></a>
 <div class="content-level-h3" contains="Benchmark Rendering Mode" id="u1_6_2">
 <h3>1.6.2 Benchmark Rendering Mode</h3>
-<p>
-POV-Ray for Unix has a builtin version of the standard benchmark scene. To run this scene use the <code>-benchmark</code> command line option:</p>
+<p>POV-Ray for Unix has a <em>built-in</em> version of the standard benchmark scene. In version 3.7 the <em>built-in</em> benchmark mode has been further modified to run without accessing <em>any</em> other distribution files, so now benchmarking can now be done with <em>just</em> the compiled executable.</p>
+<p>To run this scene use the <code>--benchmark</code> command line option:</p>
 
 <pre>
-povray -benchmark
+povray --benchmark
 </pre>
 
 <p>Note that running the benchmark takes some time, on a 3 GHz AMD x2 250 processor with 4GB ram, about 12 minutes. There will be no image or file output from this render. For more information on the standard POV-Ray benchmark have a look at the <a href="http://www.povray.org/download/benchmark.php">Benchmarking with POV-Ray</a> page.</p>

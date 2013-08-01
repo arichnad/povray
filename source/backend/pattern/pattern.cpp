@@ -23,9 +23,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/pattern/pattern.cpp $
- * $Revision: #57 $
- * $Change: 5582 $
- * $DateTime: 2011/12/05 12:17:53 $
+ * $Revision: #58 $
+ * $Change: 5625 $
+ * $DateTime: 2012/03/10 21:41:16 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -455,7 +455,7 @@ void Copy_TPat_Fields (TPATTERN *New, const TPATTERN *Old)
 	{
 		if(Old->Vals.Object != NULL)
 		{
-			New->Vals.Object = (ObjectPtr)Copy_Object(Old->Vals.Object);
+			New->Vals.Object = reinterpret_cast<ObjectPtr>(Copy_Object(Old->Vals.Object));
 		}
 	}
 
@@ -463,7 +463,7 @@ void Copy_TPat_Fields (TPATTERN *New, const TPATTERN *Old)
 	{
 		if (Old->Vals.Function.Fn != NULL)
 		{
-			New->Vals.Function.Fn = (void *)Parser::Copy_Function( Old->Vals.Function.vm, (FUNCTION_PTR)(Old->Vals.Function.Fn) );
+			New->Vals.Function.Fn = reinterpret_cast<void *>(Parser::Copy_Function( Old->Vals.Function.vm, (FUNCTION_PTR)(Old->Vals.Function.Fn) ));
 		}
 	}
 }
@@ -509,7 +509,7 @@ void Destroy_TPat_Fields(TPATTERN *Tpat)
 	{
 		if(Tpat->Vals.Object != NULL)
 		{
-			Destroy_Object((ObjectPtr )Tpat->Vals.Object);
+			Destroy_Object(reinterpret_cast<ObjectPtr>(Tpat->Vals.Object));
 		}
 	}
 
@@ -553,7 +553,7 @@ TURB *Create_Turb()
 {
 	TURB *New;
 
-	New = (TURB *)POV_MALLOC(sizeof(TURB),"turbulence struct");
+	New = reinterpret_cast<TURB *>(POV_MALLOC(sizeof(TURB),"turbulence struct"));
 
 	Make_Vector(New->Turbulence, 0.0, 0.0, 0.0);
 
@@ -716,7 +716,7 @@ void Transform_Tpattern(TPATTERN *Tpattern, const TRANSFORM *Trans)
 			}
 		}
 
-		Compose_Transforms (&( ((TRANS *)(Tpattern->Warps))->Trans), Trans);
+		Compose_Transforms (&( (reinterpret_cast<TRANS *>(Tpattern->Warps))->Trans), Trans);
 	}
 }
 
@@ -739,7 +739,7 @@ void Transform_Tpattern(TPATTERN *Tpattern, const TRANSFORM *Trans)
 *
 ******************************************************************************/
 
-void Search_Blend_Map (DBL value, const BLEND_MAP *Blend_Map, BLEND_MAP_ENTRY **Prev, BLEND_MAP_ENTRY **Cur)
+void Search_Blend_Map (DBL value, const BLEND_MAP *Blend_Map, const BLEND_MAP_ENTRY **Prev, const BLEND_MAP_ENTRY **Cur)
 {
 	BLEND_MAP_ENTRY *P, *C;
 	int Max_Ent=Blend_Map->Number_Of_Entries-1;
@@ -805,7 +805,7 @@ static const TURB *Search_For_Turb(const WARP *Warps)
 		}
 	}
 
-	return ((const TURB *)Temp);
+	return (reinterpret_cast<const TURB *>(Temp));
 }
 
 /* Tiling & Pavement */
@@ -5986,7 +5986,7 @@ static DBL function_pattern (const VECTOR EPoint, const TPATTERN *TPat, TraceThr
 	ctx->SetLocal(Y, EPoint[Y]);
 	ctx->SetLocal(Z, EPoint[Z]);
 
-	value = POVFPU_Run(ctx, *((const FUNCTION*)(TPat->Vals.Function.Fn)));
+	value = POVFPU_Run(ctx, *(reinterpret_cast<const FUNCTION*>(TPat->Vals.Function.Fn)));
 
 	return ((value > 1.0) ? fmod(value, 1.0) : value);
 }
@@ -8663,11 +8663,11 @@ DENSITY_FILE *Create_Density_File()
 {
 	DENSITY_FILE *New;
 
-	New = (DENSITY_FILE *)POV_MALLOC(sizeof(DENSITY_FILE), "density file");
+	New = reinterpret_cast<DENSITY_FILE *>(POV_MALLOC(sizeof(DENSITY_FILE), "density file"));
 
 	New->Interpolation = NO_INTERPOLATION;
 
-	New->Data = (DENSITY_FILE_DATA *)POV_MALLOC(sizeof(DENSITY_FILE_DATA), "density file data");
+	New->Data = reinterpret_cast<DENSITY_FILE_DATA *>(POV_MALLOC(sizeof(DENSITY_FILE_DATA), "density file data"));
 
 	New->Data->References = 1;
 
@@ -8719,7 +8719,7 @@ DENSITY_FILE *Copy_Density_File(DENSITY_FILE *Old)
 
 	if (Old != NULL)
 	{
-		New = (DENSITY_FILE *)POV_MALLOC(sizeof(DENSITY_FILE), "density file");
+		New = reinterpret_cast<DENSITY_FILE *>(POV_MALLOC(sizeof(DENSITY_FILE), "density file"));
 
 		*New = *Old;
 
@@ -8812,7 +8812,7 @@ void Read_Density_File(IStream *file, DENSITY_FILE *df)
 		{
 			df->Data->Type = 4;
 
-			unsigned int *map = (unsigned int *)POV_MALLOC(sx * sy * sz * sizeof(unsigned int), "media density file data 32 bit");
+			unsigned int *map = reinterpret_cast<unsigned int *>(POV_MALLOC(sx * sy * sz * sizeof(unsigned int), "media density file data 32 bit"));
 
 			for (z = 0; z < sz; z++)
 			{
@@ -8829,7 +8829,7 @@ void Read_Density_File(IStream *file, DENSITY_FILE *df)
 		{
 			df->Data->Type = 2;
 
-			unsigned short *map = (unsigned short *)POV_MALLOC(sx * sy * sz * sizeof(unsigned short), "media density file data 16 bit");
+			unsigned short *map = reinterpret_cast<unsigned short *>(POV_MALLOC(sx * sy * sz * sizeof(unsigned short), "media density file data 16 bit"));
 
 			for (z = 0; z < sz; z++)
 			{
@@ -8846,12 +8846,12 @@ void Read_Density_File(IStream *file, DENSITY_FILE *df)
 		{
 			df->Data->Type = 1;
 
-			unsigned char *map = (unsigned char *)POV_MALLOC(sx * sy * sz * sizeof(unsigned char), "media density file data 8 bit");
+			unsigned char *map = reinterpret_cast<unsigned char *>(POV_MALLOC(sx * sy * sz * sizeof(unsigned char), "media density file data 8 bit"));
 
 			for (z = 0; z < sz; z++)
 			{
 				for (y = 0; y < sy; y++)
-					file->read((char *)(&(map[z * sy * sx + y * sx])), sizeof(unsigned char) * sx);
+					file->read(&(map[z * sy * sx + y * sx]), sizeof(unsigned char) * sx);
 			}
 
 			df->Data->Density8 = map;

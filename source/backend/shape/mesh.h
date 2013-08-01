@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/mesh.h $
- * $Revision: #26 $
- * $Change: 5128 $
- * $DateTime: 2010/08/30 15:57:31 $
- * $Author: chrisc $
+ * $Revision: #28 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -126,7 +126,7 @@ struct Mesh_Data_Struct
 	SNGL_VECT *Normals, *Vertices; /* Arrays of normals and vertices.   */
 	UV_VECT *UVCoords;             /* Array of UV coordinates           */
 	MESH_TRIANGLE *Triangles;      /* Array of triangles.               */
-	const BBOX_TREE *Tree;         /* Bounding box tree for mesh.       */
+	BBOX_TREE *Tree;               /* Bounding box tree for mesh.       */
 	VECTOR Inside_Vect;            /* vector to use to test 'inside'    */
 };
 
@@ -189,13 +189,13 @@ class Mesh : public ObjectBase
 		void Create_Mesh_Hash_Tables();
 		bool Compute_Mesh_Triangle(MESH_TRIANGLE *Triangle, int Smooth, VECTOR P1, VECTOR P2, VECTOR P3, VECTOR S_Normal);
 		void Build_Mesh_BBox_Tree();
-		bool Degenerate(VECTOR P1, VECTOR P2, VECTOR P3);
+		bool Degenerate(const VECTOR P1, const VECTOR P2, const VECTOR P3);
 		void Init_Mesh_Triangle(MESH_TRIANGLE *Triangle);
 		void Destroy_Mesh_Hash_Tables();
-		int Mesh_Hash_Vertex(int *Number_Of_Vertices, int *Max_Vertices, SNGL_VECT **Vertices, VECTOR Vertex);
-		int Mesh_Hash_Normal(int *Number_Of_Normals, int *Max_Normals, SNGL_VECT **Normals, VECTOR Normal);
+		int Mesh_Hash_Vertex(int *Number_Of_Vertices, int *Max_Vertices, SNGL_VECT **Vertices, const VECTOR Vertex);
+		int Mesh_Hash_Normal(int *Number_Of_Normals, int *Max_Normals, SNGL_VECT **Normals, const VECTOR Normal);
 		int Mesh_Hash_Texture(int *Number_Of_Textures, int *Max_Textures, TEXTURE ***Textures, TEXTURE *Texture);
-		int Mesh_Hash_UV(int *Number, int *Max, UV_VECT **Elements, UV_VECT aPoint);
+		int Mesh_Hash_UV(int *Number, int *Max, UV_VECT **Elements, const UV_VECT aPoint);
 		void Smooth_Mesh_Normal(VECTOR Result, const MESH_TRIANGLE *Triangle, const VECTOR IPoint) const;
 
 		void Determine_Textures(Intersection *, bool, WeightedTextureVector&, TraceThreadData *);
@@ -208,11 +208,11 @@ class Mesh : public ObjectBase
 		bool test_hit(const MESH_TRIANGLE *Triangle, const Ray& OrigRay, DBL Depth, DBL len, IStack& Depth_Stack, TraceThreadData *Thread);
 		void get_triangle_bbox(const MESH_TRIANGLE *Triangle, BBOX *BBox) const;
 		bool intersect_bbox_tree(const Ray& ray, const Ray& Orig_Ray, DBL len, IStack& Depth_Stack, TraceThreadData *Thread);
-		bool inside_bbox_tree(Ray& ray, TraceThreadData *Thread) const;
+		bool inside_bbox_tree(const Ray& ray, TraceThreadData *Thread) const;
 		void get_triangle_vertices(const MESH_TRIANGLE *Triangle, VECTOR P1, VECTOR P2, VECTOR P3) const;
 		void get_triangle_normals(const MESH_TRIANGLE *Triangle, VECTOR N1, VECTOR N2, VECTOR N3) const;
 		void get_triangle_uvcoords(const MESH_TRIANGLE *Triangle, UV_VECT U1, UV_VECT U2, UV_VECT U3) const;
-		static int mesh_hash(HASH_TABLE **Hash_Table, int *Number, int *Max, SNGL_VECT **Elements, VECTOR aPoint);
+		static int mesh_hash(HASH_TABLE **Hash_Table, int *Number, int *Max, SNGL_VECT **Elements, const VECTOR aPoint);
 
 private:
 		// these are used temporarily during parsing and are destroyed

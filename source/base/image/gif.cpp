@@ -25,9 +25,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/image/gif.cpp $
- * $Revision: #22 $
- * $Change: 5303 $
- * $DateTime: 2010/12/27 14:22:56 $
+ * $Revision: #23 $
+ * $Change: 5625 $
+ * $DateTime: 2012/03/10 21:41:16 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -148,7 +148,7 @@ Image *Read (IStream *file, const Image::ReadOptions& options, bool IsPOTFile)
 		throw POV_EXCEPTION(kFileDataErr, "Cannot read GIF file header");
 
 	/* Use updated GIF specs. */
-	if (memcmp ((char *) buffer, "GIF", 3) != 0)
+	if (memcmp (buffer, "GIF", 3) != 0)
 		throw POV_EXCEPTION(kFileDataErr, "File is not in GIF format");
 
 	if (buffer[3] != '8' || (buffer[4] != '7' && buffer[4] != '9') || buffer[5] < 'A' || buffer[5] > 'z')

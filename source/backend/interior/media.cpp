@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/interior/media.cpp $
- * $Revision: #40 $
- * $Change: 5401 $
- * $DateTime: 2011/02/08 21:06:55 $
+ * $Revision: #42 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -417,7 +417,8 @@ void MediaFunction::ComputeMedia(MediaVector& medias, const Ray& ray, Intersecti
 }
 
 void MediaFunction::ComputeMediaRegularSampling(MediaVector& medias, LightSourceEntryVector& lights, MediaIntervalVector& mediaintervals,
-                                                const Ray& ray, Media *IMedia, int minsamples, bool ignore_photons, bool use_scattering, bool all_constant_and_light_ray, Trace::TraceTicket& ticket)
+                                                const Ray& ray, const Media *IMedia, int minsamples, bool ignore_photons, bool use_scattering, bool all_constant_and_light_ray,
+                                                Trace::TraceTicket& ticket)
 {
 	int j;
 	DBL n;
@@ -485,7 +486,8 @@ void MediaFunction::ComputeMediaRegularSampling(MediaVector& medias, LightSource
 }
 
 void MediaFunction::ComputeMediaAdaptiveSampling(MediaVector& medias, LightSourceEntryVector& lights, MediaIntervalVector& mediaintervals,
-                                                 const Ray& ray, Media *IMedia, DBL aa_threshold, int minsamples, bool ignore_photons, bool use_scattering, Trace::TraceTicket& ticket)
+                                                 const Ray& ray, const Media *IMedia, DBL aa_threshold, int minsamples, bool ignore_photons, bool use_scattering,
+                                                 Trace::TraceTicket& ticket)
 {
 	// adaptive sampling
 	int sampleCount; // internal count for samples to take
@@ -589,7 +591,7 @@ void MediaFunction::ComputeMediaColour(MediaIntervalVector& mediaintervals, Colo
 	colour.transm() *= Od.greyscale();
 }
 
-void MediaFunction::ComputeMediaSampleInterval(LitIntervalVector& litintervals, MediaIntervalVector& mediaintervals, Media *media)
+void MediaFunction::ComputeMediaSampleInterval(LitIntervalVector& litintervals, MediaIntervalVector& mediaintervals, const Media *media)
 {
 	size_t i, j, n, r, remaining, intervals;
 	DBL delta, sum, weight;
@@ -660,7 +662,7 @@ void MediaFunction::ComputeMediaSampleInterval(LitIntervalVector& litintervals, 
 	}
 }
 
-void MediaFunction::ComputeMediaLightInterval(LightSourceEntryVector& lights, LitIntervalVector& litintervals, const Ray& ray, Intersection& isect)
+void MediaFunction::ComputeMediaLightInterval(LightSourceEntryVector& lights, LitIntervalVector& litintervals, const Ray& ray, const Intersection& isect)
 {
 	if(isect.Object != NULL)
 	{
@@ -769,7 +771,7 @@ void MediaFunction::ComputeMediaLightInterval(LightSourceEntryVector& lights, Li
 	}
 }
 
-void MediaFunction::ComputeOneMediaLightInterval(LightSource *light, LightSourceEntryVector&lights, const Ray& ray, Intersection& isect)
+void MediaFunction::ComputeOneMediaLightInterval(LightSource *light, LightSourceEntryVector&lights, const Ray& ray, const Intersection& isect)
 {
 	LightSourceEntry lse;
 	DBL t1 = 0.0, t2 = 0.0;
@@ -807,7 +809,7 @@ void MediaFunction::ComputeOneMediaLightInterval(LightSource *light, LightSource
 	}
 }
 
-bool MediaFunction::ComputeSpotLightInterval(const Ray &ray, LightSource *Light, DBL *d1, DBL *d2)
+bool MediaFunction::ComputeSpotLightInterval(const Ray &ray, const LightSource *Light, DBL *d1, DBL *d2)
 {
 	int viewpoint_is_in_cone;
 	DBL a, b, c, d, m, l, l1, l2, t, t1, t2, k1, k2, k3, k4;
@@ -919,7 +921,7 @@ bool MediaFunction::ComputeSpotLightInterval(const Ray &ray, LightSource *Light,
 	return false;
 }
 
-bool MediaFunction::ComputeCylinderLightInterval(const Ray &ray, LightSource *Light, DBL *d1, DBL *d2)
+bool MediaFunction::ComputeCylinderLightInterval(const Ray &ray, const LightSource *Light, DBL *d1, DBL *d2)
 {
 	DBL a, b, c, d, l1, l2, t, t1, t2, k1, k2, k3, k4;
 	VECTOR V1;
@@ -1091,7 +1093,7 @@ void MediaFunction::ComputeOneMediaSample(MediaVector& medias, LightSourceEntryV
 		mediainterval.te2 += Sqr(Emission);
 	}
 
-	 mediainterval.samples++;
+	mediainterval.samples++;
 }
 
 void MediaFunction::ComputeOneMediaSampleRecursive(MediaVector& medias, LightSourceEntryVector& lights, MediaInterval& mediainterval, const Ray& ray,

@@ -20,10 +20,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/pov_err.cpp $
- * $Revision: #20 $
- * $Change: 5230 $
- * $DateTime: 2010/12/03 19:54:28 $
- * $Author: jholsenback $
+ * $Revision: #21 $
+ * $Change: 5672 $
+ * $DateTime: 2012/06/18 18:28:59 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -226,6 +226,9 @@ std::string Exception::lookup_code(int err, const char *file, unsigned int line)
 				return "Uncategorized error.";
 			sprintf(str, "Uncategorized error thrown at %s line %d.", file, line);
 			return std::string(str);
+
+		case kNumericalLimitErr:
+			return "A POV-Ray internal numerical limit was reached.";
 	}
 
 	// default

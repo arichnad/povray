@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/image/openexr.cpp $
- * $Revision: #28 $
- * $Change: 5510 $
- * $DateTime: 2011/11/11 19:02:11 $
+ * $Revision: #30 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -107,10 +107,10 @@
 
 #ifdef NON_UNIX_OPENEXR_HEADERS
 
-#include "ImfRgbaFile.h"
-#include "ImfStringAttribute.h"
-#include "ImfMatrixAttribute.h"
-#include "ImfArray.h"
+#include <ImfRgbaFile.h>
+#include <ImfStringAttribute.h>
+#include <ImfMatrixAttribute.h>
+#include <ImfArray.h>
 
 #else
 
@@ -156,11 +156,11 @@ class POV_EXR_OStream : public Imf::OStream
 		POV_EXR_OStream(pov_base::OStream& pov_stream) : Imf::OStream(UCS2toASCIIString(pov_stream.Name()).c_str()), os(pov_stream) { }
 		virtual ~POV_EXR_OStream() { }
 
-		const char *fileName() { return UCS2toASCIIString(os.Name()).c_str(); }
+		const char *fileName() const { return UCS2toASCIIString(os.Name()).c_str(); }
 
 		void write(const char *c, int n)
 		{
-			if(os.write((void *) c, n) == false)
+			if(os.write(c, n) == false)
 				throw POV_EXCEPTION(kFileDataErr, "Error while writing EXR output");
 		}
 
@@ -196,7 +196,7 @@ class POV_EXR_IStream : public Imf::IStream
 
 		virtual ~POV_EXR_IStream() { }
 
-		const char *fileName(void) { return UCS2toASCIIString(is.Name()).c_str(); }
+		const char *fileName(void) const { return UCS2toASCIIString(is.Name()).c_str(); }
 		void clear(void) { is.clearstate(); }
 
 		bool read(char *c, int n)

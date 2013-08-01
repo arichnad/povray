@@ -24,9 +24,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/lighting/subsurface.h $
- * $Revision: #2 $
- * $Change: 5409 $
- * $DateTime: 2011/02/22 14:58:18 $
+ * $Revision: #3 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -97,18 +97,24 @@
 
 #include <boost/version.hpp>
 #if BOOST_VERSION >= 103800 // flyweight is unavailable prior to boost 1.38
+#define HAVE_BOOST_FLYWEIGHT 1
+#else
+#define HAVE_BOOST_FLYWEIGHT 0
+#endif
+
+#if HAVE_BOOST_FLYWEIGHT
 #include <boost/flyweight.hpp>
 #include <boost/flyweight/key_value.hpp>
-#endif // BOOST_VERSION
+#endif // HAVE_BOOST_FLYWEIGHT
 
 namespace pov
 {
 
 //using namespace pov_base;
-#if BOOST_VERSION >= 103800 // flyweight is unavailable prior to boost 1.38
+#if HAVE_BOOST_FLYWEIGHT
 using boost::flyweights::flyweight;
 using boost::flyweights::key_value;
-#endif // BOOST_VERSION
+#endif // HAVE_BOOST_FLYWEIGHT
 
 /// Class storing SSLT data precomputed based on index of refraction.
 class SubsurfaceInterior {
@@ -116,7 +122,7 @@ class SubsurfaceInterior {
 	public:
 
 		SubsurfaceInterior(double ior);
-		DblRGBColour GetReducedAlbedo(const RGBColour& diffuseReflectance);
+		DblRGBColour GetReducedAlbedo(const RGBColour& diffuseReflectance) const;
 
 	protected:
 
@@ -129,12 +135,12 @@ class SubsurfaceInterior {
 			double operator()(double diffuseReflectance) const;
 		};
 
-#if BOOST_VERSION >= 103800 // flyweight is unavailable prior to boost 1.38
+#if HAVE_BOOST_FLYWEIGHT
 		flyweight<key_value<double,PrecomputedReducedAlbedo> > precomputedReducedAlbedo;
-#else // BOOST_VERSION
+#else // HAVE_BOOST_FLYWEIGHT
 		// TODO - if flyweight is unavailable, we're currently resorting to a simple but memory-hungry fallback solution
 		PrecomputedReducedAlbedo precomputedReducedAlbedo;
-#endif // BOOST_VERSION
+#endif // HAVE_BOOST_FLYWEIGHT
 };
 
 /// Approximation to the Fresnel diffuse reflectance.

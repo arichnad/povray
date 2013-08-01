@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/lighting/radiosity.h $
- * $Revision: #37 $
- * $Change: 5428 $
- * $DateTime: 2011/03/20 07:34:04 $
+ * $Revision: #38 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -315,7 +315,7 @@ class RadiosityFunction : public Trace::RadiosityFunctor
 		//      pts     - number of the current pretrace step (PRETRACE_FIRST to PRETRACE_MAX, or FINAL_TRACE for main render)
 		//      camera  - position of the camera
 		RadiosityFunction(shared_ptr<SceneData> sd, TraceThreadData *td,
-		                  const SceneRadiositySettings& rs, RadiosityCache& rc, Trace::CooperateFunctor& cf, bool ft, Vector3d camera);
+		                  const SceneRadiositySettings& rs, RadiosityCache& rc, Trace::CooperateFunctor& cf, bool ft, const Vector3d& camera);
 		virtual ~RadiosityFunction();
 
 		// looks up the ambient value for a certain point

@@ -20,9 +20,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/lighting/photonsortingtask.h $
- * $Revision: #8 $
- * $Change: 5088 $
- * $DateTime: 2010/08/05 17:08:44 $
+ * $Revision: #9 $
+ * $Change: 5783 $
+ * $DateTime: 2013/02/04 10:34:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -115,7 +115,7 @@ class PhotonSortingTask : public RenderTask
 		vector<PhotonMap*> mediaMaps;
 		PhotonShootingStrategy* strategy;
 
-		PhotonSortingTask(ViewData *vd, vector<PhotonMap*> surfaceMaps, vector<PhotonMap*> mediaMaps, PhotonShootingStrategy* strategy);
+		PhotonSortingTask(ViewData *vd, const vector<PhotonMap*>& surfaceMaps, const vector<PhotonMap*>& mediaMaps, PhotonShootingStrategy* strategy);
 		~PhotonSortingTask();
 
 		void Run();

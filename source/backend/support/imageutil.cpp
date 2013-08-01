@@ -23,9 +23,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/support/imageutil.cpp $
- * $Revision: #33 $
- * $Change: 5400 $
- * $DateTime: 2011/02/08 14:32:42 $
+ * $Revision: #34 $
+ * $Change: 5678 $
+ * $DateTime: 2012/06/21 18:32:57 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -946,7 +946,7 @@ static int planar_image_map(const VECTOR EPoint, const ImageData *image, DBL *u,
 *
 ******************************************************************************/
 
-static int map_pos(const VECTOR EPoint, const TPATTERN *TPattern, DBL *xcoor, DBL  *ycoor)
+static int map_pos(const VECTOR EPoint, const TPATTERN *TPattern, DBL *xcoor, DBL *ycoor)
 {
 	const ImageData *image = TPattern->Vals.image;
 
@@ -981,36 +981,18 @@ static int map_pos(const VECTOR EPoint, const TPATTERN *TPattern, DBL *xcoor, DB
 	*xcoor += image->Offset[U] + EPSILON;
 	*ycoor += image->Offset[V] + EPSILON;
 
-	DBL xx=(*xcoor)/(DBL)(image->iwidth);
-	DBL yy=(*ycoor)/(DBL)(image->iheight);
-
 	if(image->Once_Flag)
 	{
-		if((xx>1.0) || (yy>1.0) || (xx<0.0) || (yy<0.0))
+		if((*xcoor >= image->iwidth) || (*ycoor >= image->iheight) || (*xcoor < 0.0) || (*ycoor <0.0))
 			return (1);
 	}
 
-	*xcoor -= ((int)xx)*image->iwidth;
-	*ycoor -= ((int)yy)*image->iheight;
+	*xcoor = wrap( *xcoor, (DBL)(image->iwidth));
+	*ycoor = wrap(-*ycoor, (DBL)(image->iheight)); // (Compensate for y coordinates on the images being upsidedown)
 
-	// Compensate for y coordinates on the images being upsidedown
-
-	*ycoor = (DBL)image->iheight - *ycoor;
-
-	if(*xcoor < 0.0)
-		*xcoor += (DBL)image->iwidth;
-	else if(*xcoor >= (DBL)image->iwidth)
-		*xcoor -= (DBL)image->iwidth;
-
-	if(*ycoor < 0.0)
-		*ycoor += (DBL)image->iheight;
-	else if(*ycoor >= (DBL)image->iheight)
-		*ycoor -= (DBL)image->iheight;
-
-	if((*xcoor >= (DBL)image->iwidth) ||
-	   (*ycoor >= (DBL)image->iheight) ||
-	   (*xcoor < 0.0) || (*ycoor < 0.0))
-		throw POV_EXCEPTION_STRING("Picture index out of range.");
+	// sanity check; this should never kick in, unless wrap() has an implementation error.
+	assert ((*xcoor >= 0.0) && (*xcoor < (DBL)image->iwidth));
+	assert ((*ycoor >= 0.0) && (*ycoor < (DBL)image->iheight));
 
 	return (0);
 }
@@ -1064,18 +1046,13 @@ static void no_interpolation(const ImageData *image, DBL xcoor, DBL ycoor, Colou
 		// image is to be repeated, so when taking samples for interpolation
 		// have coordinates wrap around
 
-		while(xcoor < 0.0)
-			xcoor += (DBL)image->iwidth;
-		while(xcoor >= (DBL)image->iwidth)
-			xcoor -= (DBL)image->iwidth;
+		ixcoor = (int)wrap(xcoor, (DBL)image->iwidth);
+		iycoor = (int)wrap(ycoor, (DBL)image->iheight);
 
-		while(ycoor < 0.0)
-			ycoor += (DBL)image->iheight;
-		while(ycoor >= (DBL)image->iheight)
-			ycoor -= (DBL)image->iheight;
-
-		ixcoor = (int)xcoor;
-		iycoor = (int)ycoor;
+		// sanity check; this should never kick in, unless wrap() has an implementation error,
+		// or there exists any positive int n such that (int)a < n does not hold true for all double a < (double)n
+		assert ((ixcoor >= 0) && (ixcoor < image->iwidth));
+		assert ((iycoor >= 0) && (iycoor < image->iheight));
 	}
 
 	image->data->GetRGBFTValue(ixcoor, iycoor, colour, premul);

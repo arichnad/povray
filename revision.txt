@@ -5,6 +5,446 @@
 # are optional (if using a shell you may want to omit them).
 #----------------------------------------------------------------------------
 
+-----------------------------------
+Changes between 3.7.RC6 and 3.7.RC7
+-----------------------------------
+
+Change 5795 on 2013/02/10 by chrisc@x8
+
+    add Append_File INI option (same as +GP)
+
+Change 5792 on 2013/02/09 by chrisc@x8
+
+    follow up to #5786: write banner to stream each time we open for append,
+    unless the stream is debug. without this it's often difficult to determine
+    where a new render starts. we don't do this for the debug stream as we
+    presume the user wants to format it as they see fit
+
+Change 5791 on 2013/02/09 by chrisc@x8
+
+    add Jerome Grimbert to contributing developer list
+
+Change 5789 on 2013/02/07 by chrisc@x8
+
+    update to insert menu from Friedrich Lohmueller
+
+Change 5788 on 2013/02/06 by clipka@cli-pc-7
+
+    addendum to change #5786
+
+Change 5787 on 2013/02/06 by clipka@cli-pc-7
+
+    fixed a portability issue of change #5784
+
+Change 5786 on 2013/02/06 by thorsten@thorsten-pc-2012
+
+    add +GP option, which allows users to append streamed console to
+    existing console stream output file(s). Further, this option is now
+    forced-on internally for the second frame of an animation,so output streams
+    are appended. This has the side effect that the command-line option can
+    be used to append all animation output to an existing file as well
+
+Change 5784 on 2013/02/04 by clipka@cli-pc-7
+
+    some minor code sanitizing
+
+Change 5783 on 2013/02/04 by clipka@cli-pc-7
+
+    added even more const modifiers to the code
+
+Change 5782 on 2013/02/03 by clipka@cli-pc-7
+
+    upgraded zlib to version 1.2.7 windows VS
+
+Change 5778 on 2013/02/02 by clipka@cli-pc-7
+
+    addendum to change #5777
+
+Change 5777 on 2013/02/02 by clipka@cli-pc-7
+
+    upgraded libpng and libjpeg to versions 1.5.14 and 9 respectively in
+    windows VS
+
+Change 5774 on 2013/02/02 by jholsenback@linux-c2bm
+
+    conditionally filter indexentry tags from the unx and mac doc-sets, leaving
+    them in the windows docs, as they are required to produce searchable
+    index in chm file
+
+Change 5773 on 2013/02/01 by chrisc@x8
+
+    fix a few minor UI issues
+
+Change 5772 on 2013/02/01 by jholsenback@linux-c2bm
+
+    update changes/revision file for RC7
+
+Change 5771 on 2013/02/01 by clipka@cli-pc-7
+
+    fix for FS#270: render abort-continue (+C) sometimes skips blocks
+
+Change 5770 on 2013/01/30 by clipka@cli-pc-7
+
+    added plenty of const modifiers to the code; kicked out a few unused
+    parameters and one piece of unused code
+
+Change 5769 on 2013/01/30 by clipka@cli-pc-7
+
+    a few signedness fixes in image handling code
+
+Change 5768 on 2013/01/29 by clipka@cli-pc-7
+
+    updated copyright information for some 3rd party libraries
+
+Change 5767 on 2013/01/29 by jholsenback@linux-c2bm
+
+    bump version to RC7 so unix build packages get branded properly
+
+Change 5766 on 2013/01/29 by jholsenback@linux-c2bm
+
+    updated changes/revision files
+
+Change 5764 on 2013/01/29 by clipka@cli-pc-7
+
+    a few whitespace fixes in revision.txt
+
+Change 5763 on 2013/01/28 by chrisc@x8
+
+    fix a long-standing bug where pressing 'pause' during a parse or render
+    could sometimes put the frontend/backend sync into an unrecoverable state.
+
+    the root cause was the fact that even if a call to the backend's pause
+    method succeeds (e.g. the backend state correctly transitions to
+    SceneData::Scene_Paused in the case of the parser), it is still possible
+    for the task thread to move to Scene_Ready if the parser doesn't
+    call Task::Cooperate() before finishing. the frontend code has until now
+    assumed that if a call to e.g. RenderFrontend::PauseParser() succeeded,
+    the parser would stay paused until told to resume or stop.
+
+Change 5762 on 2013/01/28 by chrisc@x8
+
+    add the proportion of the image in X and Y directions to the pixel offset
+    displayed when the mouse hovers over the render window. e.g. if the mouse
+    is at X=25 Y=50 of a 200x200 pixel render, the window title will
+    show "25,50 [0.125,0.250]". this is to make it easier to work out
+    row/column values for entering into the command-line for partial renders.
+
+Change 5761 on 2013/01/28 by chrisc@x8
+
+    add new option to prevent the system from sleeping whilst a render is in
+    progress. by default this is selected.
+
+Change 5760 on 2013/01/28 by chrisc@x8
+
+    add an entry to the default tools menu to browse the sample scenes folder.
+
+Change 5758 on 2013/01/28 by chrisc@x8
+
+    add standard declares to the user keywords file.
+
+Change 5757 on 2013/01/28 by chrisc@x8
+
+    make the shortcuts placed on the desktop shorter, as windows usually hides
+    the end of them.
+
+Change 5755 on 2013/01/27 by chrisc@x8
+
+    Fix for FS#150: Windows file association problems
+    Fix for FS#224: Keyword Completion does not work for several names
+
+    Various fixes/improvements to the way Windows INSTALL works and how the
+    documents path is auto-detected if not specified
+
+Change 5754 on 2013/01/27 by chrisc@x8
+
+    Fix for FS#153: Error determining I/O permissions when using .ini file
+
+Change 5753 on 2013/01/27 by chrisc@x8
+
+    Fix for FS#232: illegal map_type usage reporting. Additionally parser also
+    now issues an error for invalid interpolate values as well
+
+Change 5751 on 2013/01/27 by chrisc@x8
+
+    Bump benchmark version to 2.01. This is to avoid comparison with the 2.00
+    used in various prior betas (primarily due to changes in the renderer
+    rather than the benchmark itself)
+
+Change 5750 on 2013/01/27 by clipka@cli-pc-7
+
+    Replaced access declarations (already deprecated in C++98,
+    dropped in C++11) with using declarations
+
+Change 5748 on 2013/01/25 by chrisc@x8
+
+    Adds a few more options to the editor tab right-click menu as suggested in FS#135
+
+Change 5747 on 2013/01/24 by chrisc@x8
+
+    Fix for FS#109: Debug_File no longer appends frame-by-frame debug data
+
+Change 5746 on 2013/01/22 by clipka@cli-pc-7
+
+    Fix for FS#267: Bug in "sor" primitive leads to random black
+    artifacts in radiosity scenes 
+
+Change 5745 on 2013/01/21 by clipka@cli-pc-7
+
+    Minor changes to address issues uncovered by static code analysis
+
+Change 5743 on 2013/01/20 by clipka@cli-pc-7
+
+    Fix for FS#266: command line options in ini files don't accept quoted
+    strings as parameters and other flaws found by means of static code
+    analysis, plus minor code changes to aid in static code analysis
+
+Change 5742 on 2013/01/19 by clipka@cli-pc-7
+
+    Addressing CID#967224: Coverity static software analysis
+
+Change 5741 on 2013/01/19 by clipka@cli-pc-7
+
+    Addressing CID#967248: Coverity static software analysis
+
+Change 5740 on 2013/01/19 by clipka@cli-pc-7
+
+    Addressing CID#967249: Coverity static software analysis
+
+Change 5739 on 2013/01/19 by clipka@cli-pc-7
+
+    Addressing CID#967420: Coverity static software analysis
+
+Change 5738 on 2013/01/11 by clipka@cli-pc-7
+
+    Partial fix for FS#265 supress clang compilation warnings
+
+Change 5732 on 2012/12/15 by clipka@cli-pc-7
+
+    Follow-up: hotfix for #5731
+
+Change 5731 on 2012/12/15 by clipka@cli-pc-7
+
+    Fixed a bug in file-backed image container found by code review
+
+Change 5730 on 2012/12/15 by clipka@cli-pc-7
+
+    Housekeeping: indentations and comments
+
+Change 5727 on 2012/11/12 by clipka@cli-pc-7
+
+    As a follow-up to change #5719: added new source files to VS10 project
+
+Change 5726 on 2012/11/12 by clipka@cli-pc-7
+
+    Update to change #5710, to avoid hard-coding the value for boost::TIME_UTC
+    aka boost::TIME_UTC_. Also renamed _TIME_UTC_ to POV_TIME_UTC for more
+    robustness against any future naming conflicts.
+
+Change 5725 on 2012/11/08 by clipka@cli-pc-7
+
+    Unknown command line options didn't always produce an error;
+    Also a fix for a minor flaw in string handling of INI settings
+
+Change 5724 on 2012/11/01 by jgrimbert@smpdirect
+
+    Fix for FS#257 (cannot find input file when resuming animation render)
+
+Change 5718 on 2012/09/17 by clipka@cli-pc-7
+
+    Fix a bug introduced with change #5665
+
+Change 5716 on 2012/09/04 by chrisc@x8
+
+    Assign .pov file association to POVWIN when installing.
+
+Change 5715 on 2012/09/04 by chrisc@x8
+
+    Fix for FS#238 (error during #read causes file to be kept open).
+
+Change 5714 on 2012/09/04 by chrisc@x8
+
+    Improve cloning of v3.6 INI and provide better defaults.
+
+Change 5713 on 2012/09/03 by chrisc@x8
+
+    Fix to handle filenames with a comma in them (crash report 419).
+
+Change 5712 on 2012/09/02 by chrisc@x8
+
+    Tweak the Windows setup file.
+
+Change 5711 on 2012/09/02 by chrisc@x8
+
+    Bump version to RC7.
+
+Change 5710 on 2012/09/02 by chrisc@x8
+
+    Fixed an issue caused by boost's change of TIME_UTC to TIME_UTC_.
+
+Change 5708 on 2012/08/18 by jgrimbert@smpdirect
+
+    Fix to get rid of the following compile warning on Linux variants:
+    shape/poly.cpp:188:3: warning: this decimal constant is unsigned only in
+    ISO C90 [enabled by default]
+
+Change 5703 on 2012/08/05 by chrisc@x8
+
+    Fix for benchmark thread vs CPU count.
+
+Change 5699 on 2012/07/17 by clipka@cli-pc-7
+
+    Fix for FS#249 (UTF-8 files with BOM not being accepted)
+
+Change 5696 on 2012/07/10 by clipka@cli-pc-7
+
+    Housekeeping (whitespace and comments)
+
+Change 5695 on 2012/07/10 by clipka@cli-pc-7
+
+    Fixed radiosity issues with "diffuse albedo" syntax
+
+Change 5694 on 2012/07/10 by clipka@cli-pc-7
+
+    Fix whitespace in screen.inc
+
+Change 5689 on 2012/07/02 by thorsten@thorsten-pc-2012
+
+    Adds back crand support.
+
+Change 5688 on 2012/06/28 by jholsenback@linux-c2bm
+
+    Addressing FS#247 set no_radiosity in Screen_Object()
+
+Change 5687 on 2012/06/27 by jgrimbert@smpdirect
+
+    Allow GD flag to work correctly (Fix FS#234): a typo.
+
+Change 5685 on 2012/06/25 by clipka@cli-pc-7
+
+    Follow up to #5678
+
+Change 5684 on 2012/06/25 by clipka@cli-pc-7
+
+    Update to #5678: workaround for fmod() apparently not conforming to C++
+    standard on some linux machines.
+
+Change 5678 on 2012/06/21 by clipka@cli-pc-7
+
+    Fix for FS#233 Picture index out of range. - Fatal error in renderer:
+    Uncategorized error.
+
+----------------------------------------
+Changes between 3.7.beta.RC5 and 3.7.RC6
+----------------------------------------
+
+Change 5674 on 2012/06/18 by jholsenback@linux-c2bm
+
+    Pick up last minute changes before release of RC6
+
+Change 5673 on 2012/06/18 by clipka@cli-pc-7
+
+    Follow up fix for #5672 to address compile problems on linux platform.
+
+Change 5672 on 2012/06/18 by clipka@cli-pc-7
+
+    Fixed some numeric overflow issues in image handling; also fixed some
+    other questionable code found along the way.
+
+Change 5667 on 2012/06/16 by jholsenback@linux-c2bm
+
+    Resync revsions/changes files.
+
+Change 5665 on 2012/06/15 by chrisc@x8
+
+    Potential fixes for a number of crash reports related to the editor,
+    particularly drag & drop actions, and a fix for the XP64 installer.
+
+Change 5663 on 2012/06/11 by clipka@cli-pc-7
+
+    A minor fix for radiosity adc_bail_out handling.
+
+Change 5662 on 2012/06/11 by clipka@cli-pc-7
+
+    More comments changes and whitespace cleanup, plus some trivial code cleanup.
+
+Change 5661 on 2012/06/11 by clipka@cli-pc-7
+
+    A few comments changes and whitespace cleanup.
+
+Change 5659 on 2012/06/10 by clipka@cli-pc-7
+
+    A follow up to change #5649 corrected a formatting issue with radiosity
+    statistics reporting.
+ 
+Change 5653 on 2012/05/23 by jholsenback@linux-c2bm
+
+    Fix for potential endless loop in CH2RGB macro
+
+Change 5651 on 2012/05/22 by jholsenback@linux-c2bm
+
+    Resync revsions/changes files.
+
+Change 5650 on 2012/05/20 by chrisc@x8
+
+    Fix merge issue from change #5387 which re-introduced a bug fixed earlier
+    on (most recent crash report #385, dump file #343).
+
+Change 5649 on 2012/05/20 by chrisc@x8
+
+    Fix divide-by-zero in stats code when radiosity query count is 0
+    (crash report #384, dump file #342)
+
+Change 5648 on 2012/05/16 by clipka@cli-pc-7
+
+    Additional fix associated with #5624 (colored transparent background)
+
+Change 5636 on 2012/05/02 by jholsenback@linux-c2bm
+
+    Resync revsions/changes files.
+
+Change 5635 on 2012/05/02 by jholsenback@linux-c2bm
+
+    Bump revision to RC6.
+
+Change 5632 on 2012/03/21 by clipka@cli-pc-7
+
+    Fix for FS#241: Photons not working correctly.
+
+Change 5625 on 2012/03/10 by clipka@cli-pc-7
+
+    Cleaned up various C-style casts:
+    - fixed some fishy ones
+    - removed some superfluous ones
+    - replaced with reinterpret_cast some that were accidently casting away
+      const qualifiers.
+    - replaced with const_cast some that were deliberately casting away
+      volatile qualifiers.
+    - replaced with reinterpret_cast all others I spotted in the same files.
+    - fixed some const qualifiers in function signatures.
+
+Change 5624 on 2012/03/08 by clipka@cli-pc-7
+
+    Fixed problems with colored transparent backgrounds.
+
+Change 5623 on 2012/03/07 by chrisc@x8
+
+    Updated setup script, plus a few improvements.
+
+Change 5622 on 2012/03/07 by chrisc@x8
+
+    Fixed the Windows help file searchable index. Note this is based on the
+    snapshot of the wiki documentation set taken for RC4.
+
+Change 5621 on 2012/03/03 by clipka@cli-pc-7
+
+    Fixes to VS10 (windows version) build process
+    - fixed ALL tiff project targets to build tiff config headers
+    - fixed Debug/x64 target to build OpenEXR to Float
+
+Change 5620 on 2012/02/28 by chrisc@x8
+
+    Insert menu (windows version) update from Friedrich Lohmller.
+
 ----------------------------------------
 Changes between 3.7.beta.RC4 and 3.7.RC5
 ----------------------------------------
@@ -2726,13 +3166,13 @@ Change 4906 on 2009/12/31 by chrisc@x8
 
   Fix FS#73 (Blend map cannot get 256 entries).
   
-  Thanks to Jérôme Grimbert for the proposed fix.
+  Thanks to J\E9r\F4me Grimbert for the proposed fix.
 
 Change 4905 on 2009/12/31 by chrisc@x8
 
   Fix FS#59 (Cone intersection test broken)
   
-  Implement suggested fix from Jérôme Grimbert.
+  Implement suggested fix from J\E9r\F4me Grimbert.
   NB this fix should be back-ported to 3.6.
 
 Change 4904 on 2009/12/31 by chrisc@x8

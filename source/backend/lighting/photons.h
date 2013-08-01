@@ -24,9 +24,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/lighting/photons.h $
- * $Revision: #28 $
- * $Change: 5569 $
- * $DateTime: 2011/12/01 09:21:57 $
+ * $Revision: #30 $
+ * $Change: 5783 $
+ * $DateTime: 2013/02/04 10:34:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -356,10 +356,10 @@ class PhotonMediaFunction : public MediaFunction
 	public:
 		PhotonMediaFunction(shared_ptr<SceneData> sd, TraceThreadData *td, Trace *t, PhotonGatherer *pg);
 
-		void ComputeMediaAndDepositPhotons(MediaVector& medias, const Ray& ray, Intersection& isect, Colour& colour, Trace::TraceTicket& ticket);
+		void ComputeMediaAndDepositPhotons(MediaVector& medias, const Ray& ray, const Intersection& isect, Colour& colour, Trace::TraceTicket& ticket);
 	protected:
 		void DepositMediaPhotons(Colour& colour, MediaVector& medias, LightSourceEntryVector& lights, MediaIntervalVector& mediaintervals,
-		                         const Ray& ray, Media *IMedia, int minsamples, bool ignore_photons, bool use_scattering, bool all_constant_and_light_ray, Trace::TraceTicket& ticket);
+		                         const Ray& ray, int minsamples, bool ignore_photons, bool use_scattering, bool all_constant_and_light_ray, Trace::TraceTicket& ticket);
 	private:
 		shared_ptr<SceneData> sceneData;
 
@@ -374,7 +374,7 @@ class PhotonTrace : public Trace
 
 		virtual DBL TraceRay(const Ray& ray, Colour& colour, COLC weight, Trace::TraceTicket& ticket, bool continuedRay, DBL maxDepth = 0.0);
 	protected:
-		virtual void ComputeLightedTexture(Colour& LightCol, TEXTURE *Texture, vector<TEXTURE *>& warps, const Vector3d& ipoint, const Vector3d& rawnormal, const Ray& ray, COLC weight, Intersection& isect, Trace::TraceTicket& ticket);
+		virtual void ComputeLightedTexture(Colour& LightCol, const TEXTURE *Texture, vector<const TEXTURE *>& warps, const Vector3d& ipoint, const Vector3d& rawnormal, const Ray& ray, COLC weight, Intersection& isect, Trace::TraceTicket& ticket);
 		bool ComputeRefractionForPhotons(const FINISH* finish, Interior *interior, const Vector3d& ipoint, const Ray& ray, const Vector3d& normal, const Vector3d& rawnormal, Colour& colour, COLC weight, Trace::TraceTicket& ticket);
 		bool TraceRefractionRayForPhotons(const FINISH* finish, const Vector3d& ipoint, const Ray& ray, Ray& nray, DBL ior, DBL n, const Vector3d& normal, const Vector3d& rawnormal, const Vector3d& localnormal, Colour& colour, COLC weight, Trace::TraceTicket& ticket);
 	private:
@@ -422,7 +422,7 @@ class LightTargetCombo
 		ShootingDirection shootingDirection;
 
 		int computeMergedFlags();
-		void computeAnglesAndDeltas(ViewThreadData* renderDataPtr, shared_ptr<SceneData> sceneData);
+		void computeAnglesAndDeltas(shared_ptr<SceneData> sceneData);
 };
 
 

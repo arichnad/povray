@@ -20,9 +20,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/scene/view.cpp $
- * $Revision: #149 $
- * $Change: 5428 $
- * $DateTime: 2011/03/20 07:34:04 $
+ * $Revision: #154 $
+ * $Change: 5726 $
+ * $DateTime: 2012/11/12 05:47:18 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -673,15 +673,15 @@ bool View::CheckCameraHollowObject(const VECTOR point, const BBOX_TREE *node)
 	{
 		// This is a node containing leaves to be checked.
 		for(int i = 0; i < node->Entries; i++)
-			if(CheckCameraHollowObject((double *) point, node->Node[i]))
+			if(CheckCameraHollowObject(point, node->Node[i]))
 				return true;
 	}
 	else
 	{
 		// This is a leaf so test contained object.
 		TraceThreadData threadData(viewData.GetSceneData());
-		ObjectPtr object = (ObjectPtr) node->Node;
-		if((object->interior != NULL) && (object->Inside((double *) point, &threadData)))
+		ObjectPtr object = reinterpret_cast<ObjectPtr>(node->Node);
+		if((object->interior != NULL) && (object->Inside(point, &threadData)))
 			return true;
 	}
 
@@ -705,7 +705,7 @@ bool View::CheckCameraHollowObject(const VECTOR point)
 
 		// test infinite objects
 		for(vector<ObjectPtr>::iterator object = sd->objects.begin() + sd->numberOfFiniteObjects; object != sd->objects.end(); object++)
-			if(((*object)->interior != NULL) && Inside_BBox(point, (*object)->BBox) && (*object)->Inside((double *) point, &threadData))
+			if(((*object)->interior != NULL) && Inside_BBox(point, (*object)->BBox) && (*object)->Inside(point, &threadData))
 				return true;
 	}
 	else if((sd->boundingMethod == 0) || (sd->boundingSlabs == NULL))
@@ -713,7 +713,7 @@ bool View::CheckCameraHollowObject(const VECTOR point)
 		TraceThreadData threadData(sd); // TODO: avoid the need to construct threadData
 		for(vector<ObjectPtr>::const_iterator object = viewData.GetSceneData()->objects.begin(); object != viewData.GetSceneData()->objects.end(); object++)
 			if((*object)->interior != NULL)
-				if((*object)->Inside((double *) point, &threadData))
+				if((*object)->Inside(point, &threadData))
 					return true;
 	}
 	else
@@ -1331,7 +1331,10 @@ void View::GetStatistics(POVMS_Object& renderStats)
 		id = kPOVAttrib_RadSamplesFR0 + recursion;
 		renderStats.SetLong(id, stats[IntStatsIndex(Radiosity_SamplesTaken_Final_R0 + recursion)]);
 		id = kPOVAttrib_RadWeightR0 + recursion;
-		renderStats.SetFloat(id, stats[FPStatsIndex(Radiosity_Weight_R0 + recursion)] / (double)queryCount);
+		if (queryCount > 0)
+			renderStats.SetFloat(id, stats[FPStatsIndex(Radiosity_Weight_R0 + recursion)] / (double)queryCount);
+		else
+			renderStats.SetFloat(id, 0.0);
 	}
 
 	// photon stats // TODO FIXME - move to photon pass? [trf]
@@ -1547,7 +1550,7 @@ const Camera *RTRData::CompletedFrame()
 	}
 
 	boost::xtime t;
-	boost::xtime_get (&t, boost::TIME_UTC);
+	boost::xtime_get (&t, POV_TIME_UTC);
 	t.sec += 3;
 
 	// this will cause us to wait until the other threads are done.

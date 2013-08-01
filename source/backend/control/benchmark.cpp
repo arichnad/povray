@@ -23,10 +23,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/control/benchmark.cpp $
- * $Revision: #26 $
- * $Change: 5310 $
- * $DateTime: 2010/12/28 10:33:59 $
- * $Author: jholsenback $
+ * $Revision: #29 $
+ * $Change: 5751 $
+ * $DateTime: 2013/01/27 17:56:41 $
+ * $Author: chrisc $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -108,7 +108,7 @@ char Benchmark_File [] =
 	// Persistence Of Vision Ray Tracer Scene Description File
 	//
 	// File:            benchmark.pov
-	// Benchmark Vers:  2.00 Scene File Version
+	// Benchmark Vers:  2.01 Scene File Version
 	// Desc:            POV-Ray benchmark scene
 	// Date:            October/November 2001
 	//
@@ -119,7 +119,7 @@ char Benchmark_File [] =
 	//
 	// ==================================================================
 	//
-	//    Standard POV-Ray benchmark version 2.00 Scene File Version
+	//    Standard POV-Ray benchmark version 2.01 Scene File Version
 	//
 	// This is the official POV-Ray benchmark scene.  It is designed
 	// to test a variety of POV-Ray features and should render in a
@@ -136,7 +136,7 @@ char Benchmark_File [] =
 	// make sure the differences are made clear when publishing them.
 	//
 	// When publishing results, be sure to quote the exact version of the
-	// benchmark scene used (2.00 Scene File Version), and the exact
+	// benchmark scene used (2.01 Scene File Version), and the exact
 	// version of POV-Ray.
 	//
 	// ==================================================================
@@ -150,6 +150,8 @@ char Benchmark_File [] =
 	// Jun. 2002   added photons pass_through to clouds (new ver is 1.02)
 	// Dec. 2010   made ready for v3.7 release (new ver is 2.00)
 	// Dec. 2010   last minute changes re: assumed_gamma (kept version the same)
+	// Oct. 2012   allow to run without installation (same ver : 2.00)
+	// Jan. 2013   change version to 2.01 to differentiate from beta.
 	//
 	// ==================================================================
 	//
@@ -252,9 +254,9 @@ char Benchmark_File [] =
 	"\n"
 	"#default { texture { finish { ambient 0 diffuse 1 }}}\n"
 	"\n"
-	"#include \"functions.inc\"\n"
-	"#include \"colors.inc\"\n"
-	"#include \"logo.inc\"\n"
+	"//#include \"functions.inc\"\n"
+	"//#include \"colors.inc\"\n"
+	"//#include \"logo.inc\"\n"
 	"\n"
 	"#declare use_radiosity = false;\n"
 	"\n"
@@ -358,6 +360,16 @@ char Benchmark_File [] =
 	"\n"
 	"//====================================================================================\n"
 	"\n"
+	"// Copied from functions.inc for Oct 2012\n"
+	"#declare f_ridged_mf = function { internal(59) }\n"
+	"// Parameters: x, y, z"
+	"  // Six extra parameters required:                          \n"
+	"  // 1. H \n"
+	"  // 2. Lacunarity \n"
+	"  // 3. octaves\n"
+	"  // 4. offset \n"
+	"  // 5. Gain \n"
+	"  // 6. noise\n"
 	"\n"
 	"#declare RMF = function{ f_ridged_mf(x, y, z, 0.07, 2.2,  7, 0.6, 0.9, 1)}\n"
 	"\n"
@@ -806,8 +818,8 @@ char Benchmark_File [] =
 	"\n"
 	"#declare POV_Text =\n"
 	"text {\n"
-	"   ttf\n"
-	"   \"timrom.ttf\"\n"
+	"   //ttf \"timrom.ttf\"\n"
+	"   internal 1\n"
 	"   \"POV-Ray\"\n"
 	"   0.25,0\n"
 	"   scale 0.3\n"
@@ -817,8 +829,8 @@ char Benchmark_File [] =
 	"\n"
 	"#declare Version_Text =\n"
 	"text {\n"
-	"   ttf\n"
-	"   \"timrom.ttf\"\n"
+	"   //ttf \"timrom.ttf\"\n"
+	"   internal 1\n"
 	"   \"Version 3.7\"\n"
 	"   0.25,0\n"
 	"   scale 0.3\n"
@@ -948,6 +960,26 @@ char Benchmark_File [] =
 	"\n"
 	"   translate Pos1\n"
 	"}\n"
+	"// Copied from logo.inc for Oct 2012\n"
+	"// The original version is made of various objects.\n"
+	"#declare Povray_Logo =\n"
+	"merge {\n"
+	"   sphere {2*y, 1}\n"
+	"   difference {\n"
+	"      cone {2*y, 1, -4*y, 0}\n"
+	"      sphere {2*y, 1.4 scale <1,1,2>}\n"
+	"   }\n"
+	"   difference {\n"
+	"      sphere {0, 1 scale <2.6, 2.2, 1>}\n"
+	"      sphere {0, 1 scale <2.3, 1.8, 2> translate <-0.35, 0, 0>}\n"
+	"      rotate z*30 translate 2*y\n"
+	"   }\n"
+	"   rotate <0, 0, -25>\n"
+	"   translate <-0.5,-0.35,0>\n"
+	"   scale 1/4\n"
+	"}\n"
+	"\n"
+	"\n"
 	"\n"
 	"object {\n"
 	"   Povray_Logo\n"
@@ -1060,8 +1092,8 @@ char Benchmark_File [] =
 	"\n"
 	"#declare Letter =\n"
 	"text {\n"
-	"   ttf\n"
-	"   \"timrom.ttf\"\n"
+	"   //ttf \"timrom.ttf\"\n"
+	"   internal 1\n"
 	"   \"X\"\n"
 	"   1,0\n"
 	"   scale <1/0.7,1/0.66,1>\n"
@@ -1412,7 +1444,7 @@ bool Write_Benchmark_File (const char *Scene_File_Name, const char *INI_File_Nam
 
 unsigned int Get_Benchmark_Version (void)
 {
-	return (0x0200) ;
+	return (0x0201) ;
 }
 
 }

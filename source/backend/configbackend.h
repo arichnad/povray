@@ -24,9 +24,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/configbackend.h $
- * $Revision: #16 $
- * $Change: 5490 $
- * $DateTime: 2011/09/14 16:28:15 $
+ * $Revision: #17 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -122,7 +122,7 @@
 #endif
 
 #ifndef POV_FREE
-	#define POV_FREE(ptr)               do { pov_free ((void *)(ptr), __FILE__, __LINE__); (ptr) = NULL; } while(false)
+	#define POV_FREE(ptr)               do { pov_free (static_cast<void *>(ptr), __FILE__, __LINE__); (ptr) = NULL; } while(false)
 #endif
 
 #ifndef POV_MEM_INIT

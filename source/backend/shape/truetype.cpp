@@ -24,9 +24,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/truetype.cpp $
- * $Revision: #36 $
- * $Change: 5433 $
- * $DateTime: 2011/04/11 09:35:21 $
+ * $Revision: #39 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -395,8 +395,8 @@ ULONG readULONG(IStream *infile, int line, const char *file);
 int compare_tag4(BYTE *ttf_tag, BYTE *known_tag);
 
 /* Internal TTF input routines */
-FontFileInfo *ProcessFontFile(const char *fontfilename, Parser *parser, shared_ptr<SceneData>& sceneData);
-FontFileInfo *OpenFontFile(const char *filename, Parser *parser, shared_ptr<SceneData>& sceneData);
+FontFileInfo *ProcessFontFile(const char *fontfilename, const int font_id, Parser *parser, shared_ptr<SceneData>& sceneData);
+FontFileInfo *OpenFontFile(const char *filename, const int font_id, Parser *parser, shared_ptr<SceneData>& sceneData);
 void ProcessHeadTable(FontFileInfo *ffile, int head_table_offset);
 void ProcessLocaTable(FontFileInfo *ffile, int loca_table_offset);
 void ProcessMaxpTable(FontFileInfo *ffile, int maxp_table_offset);
@@ -408,9 +408,9 @@ USHORT ProcessCharMap(FontFileInfo *ffile, unsigned int search_char);
 USHORT ProcessFormat0Glyph(FontFileInfo *ffile, unsigned int search_char);
 USHORT ProcessFormat4Glyph(FontFileInfo *ffile, unsigned int search_char);
 USHORT ProcessFormat6Glyph(FontFileInfo *ffile, unsigned int search_char);
-GlyphPtr ExtractGlyphInfo(FontFileInfo *ffile, unsigned int *glyph_index, unsigned int c);
-GlyphOutline *ExtractGlyphOutline(FontFileInfo *ffile, unsigned int *glyph_index, unsigned int c);
-GlyphPtr ConvertOutlineToGlyph(FontFileInfo *ffile, GlyphOutline *ttglyph);
+GlyphPtr ExtractGlyphInfo(FontFileInfo *ffile, unsigned int glyph_index, unsigned int c);
+GlyphOutline *ExtractGlyphOutline(FontFileInfo *ffile, unsigned int glyph_index, unsigned int c);
+GlyphPtr ConvertOutlineToGlyph(FontFileInfo *ffile, const GlyphOutline *ttglyph);
 
 /*
  * The following work as macros if sizeof(short) == 16 bits and
@@ -506,10 +506,11 @@ int compare_tag4(const BYTE *ttf_tag, const BYTE *known_tag)
 *
 * CHANGES
 *
-*   -
+*   Allow usage of built-in fonts via an additional parameter
+*   (triggered when filename is null) - Oct 2012 [JG]
 *
 ******************************************************************************/
-void TrueType::ProcessNewTTF(CSG *Object, const char *filename, UCS2 *text_string, DBL depth, VECTOR offset, Parser *parser, shared_ptr<SceneData>& sceneData)
+void TrueType::ProcessNewTTF(CSG *Object, const char *filename, const int font_id, const UCS2 *text_string, DBL depth, const VECTOR offset, Parser *parser, shared_ptr<SceneData>& sceneData)
 {
 	FontFileInfo *ffile;
 	VECTOR local_offset, total_offset;
@@ -525,7 +526,7 @@ void TrueType::ProcessNewTTF(CSG *Object, const char *filename, UCS2 *text_strin
 	TRANSFORM Trans;
 
 	/* Get general font info */
-	ffile = ProcessFontFile(filename, parser, sceneData);
+	ffile = ProcessFontFile(filename, font_id, parser, sceneData);
 
 	if((sceneData->languageVersion < 350) && (sceneData->stringEncoding == 0))
 	{
@@ -722,7 +723,14 @@ void TrueType::ProcessNewTTF(CSG *Object, const char *filename, UCS2 *text_strin
 	}
 
 #ifdef TTF_DEBUG
-	Debug_Info("TTF parsing of \"%s\" from %s complete\n", text_string, filename);
+	if (filename)
+	{
+		Debug_Info("TTF parsing of \"%s\" from %s complete\n", text_string, filename);
+	}
+	else
+	{
+		Debug_Info("TTF parsing of \"%s\" from builtin %d complete\n", text_string, font_id);
+	}
 #endif
 
 	/* Close the font file descriptor */
@@ -759,8 +767,10 @@ void TrueType::ProcessNewTTF(CSG *Object, const char *filename, UCS2 *text_strin
 *   Added tests for reading manditory tables/validity checks - Jan 1996 [AED]
 *   Reordered table parsing to avoid lots of file seeking - Jan 1996 [AED]
 *
+*   Added builtin fonts when fontfilename is nullptr - Oct 2012 [JG]
+*
 ******************************************************************************/
-FontFileInfo *ProcessFontFile(const char *fontfilename, Parser *parser, shared_ptr<SceneData>& sceneData)
+FontFileInfo *ProcessFontFile(const char *fontfilename, const int font_id, Parser *parser, shared_ptr<SceneData>& sceneData)
 {
 	unsigned i;
 	int head_table_offset = 0;
@@ -776,7 +786,7 @@ FontFileInfo *ProcessFontFile(const char *fontfilename, Parser *parser, shared_p
 
 	/* Open the font file */
 
-	ffile = OpenFontFile(fontfilename, parser, sceneData);
+	ffile = OpenFontFile(fontfilename, font_id, parser, sceneData);
 
 	/* We have already read all the header info, no need to do it again */
 
@@ -926,22 +936,25 @@ FontFileInfo *ProcessFontFile(const char *fontfilename, Parser *parser, shared_p
 *
 * CHANGES
 *
-*   -
+*   Added support for builtin fonts - Oct 2012 [JG]
 *
 ******************************************************************************/
-FontFileInfo *OpenFontFile(const char *asciifn, Parser *parser, shared_ptr<SceneData>& sceneData)
+FontFileInfo *OpenFontFile(const char *asciifn, const int font_id, Parser *parser, shared_ptr<SceneData>& sceneData)
 {
 	/* int i; */ /* tw, mtg */
-	FontFileInfo *fontlist;
+	FontFileInfo *fontlist = NULL;
 	UCS2String b, ign;
-	UCS2String filename(ASCIItoUCS2String(asciifn));
+	if (asciifn)
+	{
+		UCS2String filename(ASCIItoUCS2String(asciifn));
 
-	/* First look to see if we have already opened this font */
+		/* First look to see if we have already opened this font */
 
-	for(fontlist = sceneData->TTFonts; fontlist != NULL; fontlist = fontlist->next)
-		if(!parser->UCS2_strcmp(filename.c_str(), fontlist->filename))
-			break;
+		for(fontlist = sceneData->TTFonts; fontlist != NULL; fontlist = fontlist->next)
+			if(!parser->UCS2_strcmp(filename.c_str(), fontlist->filename))
+				break;
 
+	}
 	if(fontlist != NULL)
 	{
 		if(fontlist->fp == NULL)
@@ -969,9 +982,18 @@ FontFileInfo *OpenFontFile(const char *asciifn, Parser *parser, shared_ptr<Scene
 
 		fontlist = (FontFileInfo *)POV_CALLOC(1, sizeof(FontFileInfo), "FontFileInfo");
 
-		if((fontlist->fp = Locate_File(parser, sceneData, filename,POV_File_Font_TTF,b,true)) == NULL)
+		if (asciifn)
 		{
-			throw POV_EXCEPTION(kCannotOpenFileErr, "Cannot open font file.");
+			UCS2String filename(ASCIItoUCS2String(asciifn));
+
+			if((fontlist->fp = Locate_File(parser, sceneData, filename,POV_File_Font_TTF,b,true)) == NULL)
+			{
+				throw POV_EXCEPTION(kCannotOpenFileErr, "Cannot open font file.");
+			}
+		}
+		else
+		{
+			fontlist->fp = Internal_Font_File(font_id,b);
 		}
 
 		fontlist->filename = parser->UCS2_strdup(b.c_str());
@@ -1450,7 +1472,7 @@ GlyphPtr ProcessCharacter(FontFileInfo *ffile, unsigned int search_char, unsigne
 		}
 	}
 
-	glyph = ExtractGlyphInfo(ffile, glyph_index, search_char);
+	glyph = ExtractGlyphInfo(ffile, *glyph_index, search_char);
 
 	/* Add this glyph to the ones we already know about */
 
@@ -1860,7 +1882,7 @@ USHORT ProcessFormat6Glyph(FontFileInfo *ffile, unsigned int search_char)
 *   -
 *
 ******************************************************************************/
-GlyphPtr ExtractGlyphInfo(FontFileInfo *ffile, unsigned int *glyph_index, unsigned int c)
+GlyphPtr ExtractGlyphInfo(FontFileInfo *ffile, unsigned int glyph_index, unsigned int c)
 {
 	GlyphOutline *ttglyph;
 	GlyphPtr glyph;
@@ -1874,7 +1896,7 @@ GlyphPtr ExtractGlyphInfo(FontFileInfo *ffile, unsigned int *glyph_index, unsign
 
 	glyph = ConvertOutlineToGlyph(ffile, ttglyph);
 	glyph->c = c;
-	glyph->glyph_index = *glyph_index;
+	glyph->glyph_index = glyph_index;
 	glyph->myMetrics = ttglyph->myMetrics;
 
 	/* Free up outline information */
@@ -1992,7 +2014,7 @@ GlyphPtr ExtractGlyphInfo(FontFileInfo *ffile, unsigned int *glyph_index, unsign
 *   -
 *
 ******************************************************************************/
-GlyphOutline *ExtractGlyphOutline(FontFileInfo *ffile, unsigned int *glyph_index, unsigned int c)
+GlyphOutline *ExtractGlyphOutline(FontFileInfo *ffile, unsigned int glyph_index, unsigned int c)
 {
 	int i;
 	USHORT n;
@@ -2000,12 +2022,12 @@ GlyphOutline *ExtractGlyphOutline(FontFileInfo *ffile, unsigned int *glyph_index
 	GlyphOutline *ttglyph;
 
 	ttglyph = (GlyphOutline *)POV_CALLOC(1, sizeof(GlyphOutline), "ttf");
-	ttglyph->myMetrics = *glyph_index;
+	ttglyph->myMetrics = glyph_index;
 
 	/* Have to treat space characters differently */
 	if (c != ' ')
 	{
-		ffile->fp->seekg (ffile->glyf_table_offset+ffile->loca_table[*glyph_index]);
+		ffile->fp->seekg (ffile->glyf_table_offset+ffile->loca_table[glyph_index]);
 
 		ttglyph->header.numContours = READSHORT(ffile->fp);
 		ttglyph->header.xMin = READFWORD(ffile->fp);   /* These may be  */
@@ -2016,8 +2038,8 @@ GlyphOutline *ExtractGlyphOutline(FontFileInfo *ffile, unsigned int *glyph_index
 
 #ifdef TTF_DEBUG
 	Debug_Info("ttglyph->header:\n");
-	Debug_Info("glyph_index=%d\n", *glyph_index);
-	Debug_Info("loca_table[%d]=%d\n",*glyph_index,ffile->loca_table[*glyph_index]);
+	Debug_Info("glyph_index=%d\n", glyph_index);
+	Debug_Info("loca_table[%d]=%d\n",glyph_index,ffile->loca_table[glyph_index]);
 	Debug_Info("numContours=%d\n", (int)ttglyph->header.numContours);
 #endif
 
@@ -2293,7 +2315,7 @@ GlyphOutline *ExtractGlyphOutline(FontFileInfo *ffile, unsigned int *glyph_index
 			}
 
 			current_pos = ffile->fp->tellg () ;
-			sub_ttglyph = ExtractGlyphOutline(ffile, &sub_glyph_index, c);
+			sub_ttglyph = ExtractGlyphOutline(ffile, sub_glyph_index, c);
 			ffile->fp->seekg (current_pos) ;
 
 			if ((nc2 = sub_ttglyph->header.numContours) == 0)
@@ -2401,7 +2423,7 @@ GlyphOutline *ExtractGlyphOutline(FontFileInfo *ffile, unsigned int *glyph_index
 *   -
 *
 ******************************************************************************/
-GlyphPtr ConvertOutlineToGlyph(FontFileInfo *ffile, GlyphOutline *ttglyph)
+GlyphPtr ConvertOutlineToGlyph(FontFileInfo *ffile, const GlyphOutline *ttglyph)
 {
 	GlyphPtr glyph;
 	DBL *temp_x, *temp_y;

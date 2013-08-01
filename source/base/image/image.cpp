@@ -20,10 +20,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/image/image.cpp $
- * $Revision: #73 $
- * $Change: 5387 $
- * $DateTime: 2011/01/17 15:14:56 $
- * $Author: chrisc $
+ * $Revision: #80 $
+ * $Change: 5784 $
+ * $DateTime: 2013/02/04 13:06:24 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -113,6 +113,7 @@
 #include "base/image/openexr.h"
 #include "base/image/hdr.h"
 #include "base/platformbase.h"
+#include "base/safemath.h"
 
 #include "base/povmsgid.h"
 
@@ -134,23 +135,6 @@
 // this must be the last file included
 #include "base/povdebug.h"
 
-/* JG: Notice on resize( w * h ...ul...) : the parameter is expected to be 
- * a size_t (8 bytes on 64 bits in 2010), but w & h are unsigned int
- * (default size: 4 bytes also in 2010) so the computation is done on 4 bytes
- * then is promoted to 8. The issue is when overflow happens.
- * And it get worse when w * h * small hardcoded without qualifier: 
- * the small value is a signed int, so the computation is done as signed int
- * then promoted: in case of overflow, that can be a negative number, and
- * resize() with a negative size is very bad, as it destroy the object and
- * will crash on the first usage of an iterator (THERE IS NO OBJECT, so that's
- * just logical, you cannot have an iterator)
- *
- * so here you have some seemingly silly resize(1ul * w * h), 
- * but now you know why (and it will serve only with really big pictures, 
- * well, is 66000 x 66000 big ?)
- * (with *5ul, a 30500x30500 was posing issue to render)
- * (and yes, it's a bit BIG to hold in memory, not my fault)
- */
 namespace pov_base
 {
 
@@ -159,13 +143,13 @@ class BitMapImage : public Image
 {
 	public:
 		BitMapImage(unsigned int w, unsigned int h) :
-			Image(w, h, Bit_Map) { pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, Bit_Map) { pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		BitMapImage(unsigned int w, unsigned int h, const vector<RGBMapEntry>& m) :
-			Image(w, h, Bit_Map, m) { pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, Bit_Map, m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		BitMapImage(unsigned int w, unsigned int h, const vector<RGBAMapEntry>& m) :
-			Image(w, h, Bit_Map, m) { pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, Bit_Map, m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		BitMapImage(unsigned int w, unsigned int h, const vector<RGBFTMapEntry>& m) :
-			Image(w, h, Bit_Map, m) { pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, Bit_Map, m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		~BitMapImage() { }
 
 		bool IsOpaque() const
@@ -216,12 +200,12 @@ class BitMapImage : public Image
 		bool GetBitValue(unsigned int x, unsigned int y) const
 		{
 			CHECK_BOUNDS(x, y);
-			return pixels[x + y * width];
+			return pixels[x + y * size_t(width)];
 		}
 		float GetGrayValue(unsigned int x, unsigned int y) const
 		{
 			CHECK_BOUNDS(x, y);
-			if(pixels[x + y * width] == true)
+			if(pixels[x + y * size_t(width)] == true)
 				return 1.0f;
 			else
 				return 0.0f;
@@ -249,39 +233,39 @@ class BitMapImage : public Image
 		void SetBitValue(unsigned int x, unsigned int y, bool bit)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = bit;
+			pixels[x + y * size_t(width)] = bit;
 		}
 		void SetGrayValue(unsigned int x, unsigned int y, float gray)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = (gray != 0.0f);
+			pixels[x + y * size_t(width)] = (gray != 0.0f);
 		}
 		void SetGrayValue(unsigned int x, unsigned int y, unsigned int gray)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = (gray != 0);
+			pixels[x + y * size_t(width)] = (gray != 0);
 		}
 		void SetGrayAValue(unsigned int x, unsigned int y, float gray, float)
 		{
 			// TODO FIXME - [CLi] This ignores opacity information; other bit-based code doesn't.
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = (gray != 0.0f);
+			pixels[x + y * size_t(width)] = (gray != 0.0f);
 		}
 		void SetGrayAValue(unsigned int x, unsigned int y, unsigned int gray, unsigned int)
 		{
 			// TODO FIXME - [CLi] This ignores opacity information; other bit-based code doesn't.
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = (gray != 0);
+			pixels[x + y * size_t(width)] = (gray != 0);
 		}
 		void SetRGBValue(unsigned int x, unsigned int y, float red, float green, float blue)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = IS_NONZERO_RGB(red, green, blue);
+			pixels[x + y * size_t(width)] = IS_NONZERO_RGB(red, green, blue);
 		}
 		void SetRGBValue(unsigned int x, unsigned int y, unsigned int red, unsigned int green, unsigned int blue)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = IS_NONZERO_RGB_INT(red, green, blue);
+			pixels[x + y * size_t(width)] = IS_NONZERO_RGB_INT(red, green, blue);
 		}
 		void SetRGBAValue(unsigned int x, unsigned int y, float red, float green, float blue, float)
 		{
@@ -358,11 +342,11 @@ class ColourMapImage : public Image
 {
 	public:
 		ColourMapImage(unsigned int w, unsigned int h, const vector<RGBMapEntry>& m) :
-			Image(w, h, Colour_Map, m) { pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, Colour_Map, m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		ColourMapImage(unsigned int w, unsigned int h, const vector<RGBAMapEntry>& m) :
-			Image(w, h, Colour_Map, m) { pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, Colour_Map, m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		ColourMapImage(unsigned int w, unsigned int h, const vector<RGBFTMapEntry>& m) :
-			Image(w, h, Colour_Map, m) { pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, Colour_Map, m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		~ColourMapImage() { }
 
 		bool IsOpaque() const
@@ -510,7 +494,7 @@ class ColourMapImage : public Image
 		void GetRGBValue(unsigned int x, unsigned int y, float& red, float& green, float& blue) const
 		{
 			CHECK_BOUNDS(x, y);
-			MapEntry e(colormap[pixels[x + y * width]]);
+			MapEntry e(colormap[pixels[x + y * size_t(width)]]);
 			red = e.red;
 			green = e.green;
 			blue = e.blue;
@@ -518,7 +502,7 @@ class ColourMapImage : public Image
 		void GetRGBAValue(unsigned int x, unsigned int y, float& red, float& green, float& blue, float& alpha) const
 		{
 			CHECK_BOUNDS(x, y);
-			MapEntry e(colormap[pixels[x + y * width]]);
+			MapEntry e(colormap[pixels[x + y * size_t(width)]]);
 			red = e.red;
 			green = e.green;
 			blue = e.blue;
@@ -538,7 +522,7 @@ class ColourMapImage : public Image
 		void GetRGBFTValue(unsigned int x, unsigned int y, float& red, float& green, float& blue, float& filter, float& transm) const
 		{
 			CHECK_BOUNDS(x, y);
-			MapEntry e(colormap[pixels[x + y * width]]);
+			MapEntry e(colormap[pixels[x + y * size_t(width)]]);
 			red = e.red;
 			green = e.green;
 			blue = e.blue;
@@ -560,70 +544,70 @@ class ColourMapImage : public Image
 		unsigned char GetIndexedValue(unsigned int x, unsigned int y)
 		{
 			CHECK_BOUNDS(x, y);
-			return pixels[x + y * width];
+			return pixels[x + y * size_t(width)];
 		}
 
 		void SetBitValue(unsigned int x, unsigned int y, bool bit)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = Bit2Map(bit);
+			pixels[x + y * size_t(width)] = Bit2Map(bit);
 		}
 		void SetGrayValue(unsigned int x, unsigned int y, float gray)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = Gray2Map(gray);
+			pixels[x + y * size_t(width)] = Gray2Map(gray);
 		}
 		void SetGrayValue(unsigned int x, unsigned int y, unsigned int gray)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = Gray2Map(float(gray) / 255.0);
+			pixels[x + y * size_t(width)] = Gray2Map(float(gray) / 255.0);
 		}
 		void SetGrayAValue(unsigned int x, unsigned int y, float gray, float alpha)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = GrayA2Map(gray, alpha);
+			pixels[x + y * size_t(width)] = GrayA2Map(gray, alpha);
 		}
 		void SetGrayAValue(unsigned int x, unsigned int y, unsigned int gray, unsigned int alpha)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = GrayA2Map(float(gray) / 255.0, float(alpha) / 255.0);
+			pixels[x + y * size_t(width)] = GrayA2Map(float(gray) / 255.0, float(alpha) / 255.0);
 		}
 		void SetRGBValue(unsigned int x, unsigned int y, float red, float green, float blue)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = RGB2Map(red, green, blue);
+			pixels[x + y * size_t(width)] = RGB2Map(red, green, blue);
 		}
 		void SetRGBValue(unsigned int x, unsigned int y, unsigned int red, unsigned int green, unsigned int blue)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = RGB2Map(float(red) / 255.0, float(green) / 255.0, float(blue) / 255.0);
+			pixels[x + y * size_t(width)] = RGB2Map(float(red) / 255.0, float(green) / 255.0, float(blue) / 255.0);
 		}
 		void SetRGBAValue(unsigned int x, unsigned int y, float red, float green, float blue, float alpha)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = RGBA2Map(red, green, blue, alpha);
+			pixels[x + y * size_t(width)] = RGBA2Map(red, green, blue, alpha);
 		}
 		void SetRGBAValue(unsigned int x, unsigned int y, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = RGBA2Map(float(red) / 255.0, float(green) / 255.0, float(blue) / 255.0, float(alpha) / 255.0);
+			pixels[x + y * size_t(width)] = RGBA2Map(float(red) / 255.0, float(green) / 255.0, float(blue) / 255.0, float(alpha) / 255.0);
 		}
 		void SetRGBFTValue(unsigned int x, unsigned int y, float red, float green, float blue, float filter, float transm)
 		{
 			CHECK_BOUNDS(x, y);
 			// [CLi 2009-09] this was dividing by 255 - which I presume to have been a bug.
-			pixels[x + y * width] = RGBFT2Map(red, green, blue, filter, transm);
+			pixels[x + y * size_t(width)] = RGBFT2Map(red, green, blue, filter, transm);
 		}
 		void SetRGBFTValue(unsigned int x, unsigned int y, const Colour& col)
 		{
 			CHECK_BOUNDS(x, y);
 			// [CLi 2009-09] this was dividing by 255 - which I presume to have been a bug.
-			pixels[x + y * width] = RGBFT2Map(col.red(), col.green(), col.blue(), col.filter(), col.transm());
+			pixels[x + y * size_t(width)] = RGBFT2Map(col.red(), col.green(), col.blue(), col.filter(), col.transm());
 		}
 		void SetIndexedValue(unsigned int x, unsigned int y, unsigned char index)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = index;
+			pixels[x + y * size_t(width)] = index;
 		}
 
 		void FillBitValue(bool bit)
@@ -817,13 +801,13 @@ class GrayImage : public Image
 {
 	public:
 		GrayImage(unsigned int w, unsigned int h) :
-			Image(w, h, ImageDataType(IDT)) { pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT)) { pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		GrayImage(unsigned int w, unsigned int h, const vector<RGBMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m) { pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		GrayImage(unsigned int w, unsigned int h, const vector<RGBAMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m) { pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		GrayImage(unsigned int w, unsigned int h, const vector<RGBFTMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m) { pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		~GrayImage() { }
 
 		bool IsOpaque() const
@@ -874,17 +858,17 @@ class GrayImage : public Image
 		bool GetBitValue(unsigned int x, unsigned int y) const
 		{
 			CHECK_BOUNDS(x, y);
-			return (pixels[x + y * width] != 0);
+			return (pixels[x + y * size_t(width)] != 0);
 		}
 		float GetGrayValue(unsigned int x, unsigned int y) const
 		{
 			CHECK_BOUNDS(x, y);
-			return float(pixels[x + y * width]) / float(TMAX);
+			return float(pixels[x + y * size_t(width)]) / float(TMAX);
 		}
 		void GetGrayAValue(unsigned int x, unsigned int y, float& gray, float& alpha) const
 		{
 			CHECK_BOUNDS(x, y);
-			gray = float(pixels[x + y * width]) / float(TMAX);
+			gray = float(pixels[x + y * size_t(width)]) / float(TMAX);
 			alpha = ALPHA_OPAQUE;
 		}
 		void GetRGBValue(unsigned int x, unsigned int y, float& red, float& green, float& blue) const
@@ -904,7 +888,7 @@ class GrayImage : public Image
 		unsigned char GetIndexedValue(unsigned int x, unsigned int y)
 		{
 			CHECK_BOUNDS(x, y);
-			return (unsigned char)(int(pixels[x + y * width]) / ((TMAX + 1) >> 8));
+			return (unsigned char)(int(pixels[x + y * size_t(width)]) / ((TMAX + 1) >> 8));
 		}
 
 		void SetBitValue(unsigned int x, unsigned int y, bool bit)
@@ -917,22 +901,22 @@ class GrayImage : public Image
 		void SetGrayValue(unsigned int x, unsigned int y, float gray)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = T(gray * float(TMAX));
+			pixels[x + y * size_t(width)] = T(gray * float(TMAX));
 		}
 		void SetGrayValue(unsigned int x, unsigned int y, unsigned int gray)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = T(gray);
+			pixels[x + y * size_t(width)] = T(gray);
 		}
 		void SetGrayAValue(unsigned int x, unsigned int y, float gray, float)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = T(gray * float(TMAX));
+			pixels[x + y * size_t(width)] = T(gray * float(TMAX));
 		}
 		void SetGrayAValue(unsigned int x, unsigned int y, unsigned int gray, unsigned int)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = T(gray);
+			pixels[x + y * size_t(width)] = T(gray);
 		}
 		void SetRGBValue(unsigned int x, unsigned int y, float red, float green, float blue)
 		{
@@ -1015,13 +999,13 @@ class GrayAImage : public Image
 {
 	public:
 		GrayAImage(unsigned int w, unsigned int h) :
-			Image(w, h, ImageDataType(IDT)) { pixels.resize(w * h * 2ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT)) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 2u)); FillBitValue(false); }
 		GrayAImage(unsigned int w, unsigned int h, const vector<RGBMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m) { pixels.resize(w * h * 2ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 2u)); FillBitValue(false); }
 		GrayAImage(unsigned int w, unsigned int h, const vector<RGBAMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m) { pixels.resize(w * h * 2ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 2u)); FillBitValue(false); }
 		GrayAImage(unsigned int w, unsigned int h, const vector<RGBFTMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m) { pixels.resize(w * h * 2ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 2u)); FillBitValue(false); }
 		~GrayAImage() { }
 
 		bool IsOpaque() const
@@ -1079,18 +1063,18 @@ class GrayAImage : public Image
 		{
 			// TODO FIXME - [CLi] This ignores opacity information; other bit-based code doesn't.
 			CHECK_BOUNDS(x, y);
-			return (pixels[(x + y * width) * 2] != 0);
+			return (pixels[(x + y * size_t(width)) * 2] != 0);
 		}
 		float GetGrayValue(unsigned int x, unsigned int y) const
 		{
 			CHECK_BOUNDS(x, y);
-			return float(pixels[(x + y * width) * 2]) / float(TMAX);
+			return float(pixels[(x + y * size_t(width)) * 2]) / float(TMAX);
 		}
 		void GetGrayAValue(unsigned int x, unsigned int y, float& gray, float& alpha) const
 		{
 			CHECK_BOUNDS(x, y);
-			gray = float(pixels[(x + y * width) * 2]) / float(TMAX);
-			alpha = float(pixels[(x + y * width) * 2 + 1]) / float(TMAX);
+			gray  = float(pixels[(x + y * size_t(width)) * 2])     / float(TMAX);
+			alpha = float(pixels[(x + y * size_t(width)) * 2 + 1]) / float(TMAX);
 		}
 		void GetRGBValue(unsigned int x, unsigned int y, float& red, float& green, float& blue) const
 		{
@@ -1127,14 +1111,14 @@ class GrayAImage : public Image
 		void SetGrayAValue(unsigned int x, unsigned int y, float gray, float alpha)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 2] = T(gray * float(TMAX));
-			pixels[(x + y * width) * 2 + 1] = T(alpha * float(TMAX));
+			pixels[(x + y * size_t(width)) * 2]     = T(gray * float(TMAX));
+			pixels[(x + y * size_t(width)) * 2 + 1] = T(alpha * float(TMAX));
 		}
 		void SetGrayAValue(unsigned int x, unsigned int y, unsigned int gray, unsigned int alpha)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 2] = gray;
-			pixels[(x + y * width) * 2 + 1] = alpha;
+			pixels[(x + y * size_t(width)) * 2]     = gray;
+			pixels[(x + y * size_t(width)) * 2 + 1] = alpha;
 		}
 		void SetRGBValue(unsigned int x, unsigned int y, float red, float green, float blue)
 		{
@@ -1150,6 +1134,7 @@ class GrayAImage : public Image
 		}
 		void SetRGBAValue(unsigned int x, unsigned int y, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha)
 		{
+			// TODO FIXME - this unnecessarily converts alpha from int to float, requiring it to be converted back to int
 			SetGrayAValue(x, y, RGB2Gray(float(red) / float(TMAX), float(green) / float(TMAX), float(blue) / float(TMAX)), float(alpha) / float(TMAX));
 		}
 		void SetRGBFTValue(unsigned int x, unsigned int y, float red, float green, float blue, float filter, float transm)
@@ -1210,6 +1195,7 @@ class GrayAImage : public Image
 		}
 		void FillRGBAValue(unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha)
 		{
+			// TODO FIXME - this unnecessarily converts alpha from int to float, requiring it to be converted back to int
 			FillGrayAValue(RGB2Gray(float(red) / float(TMAX), float(green) / float(TMAX), float(blue) / float(TMAX)), float(alpha) / float(TMAX));
 		}
 		void FillRGBFTValue(float red, float green, float blue, float filter, float transm)
@@ -1229,13 +1215,13 @@ class RGBImage : public Image
 {
 	public:
 		RGBImage(unsigned int w, unsigned int h) :
-			Image(w, h, ImageDataType(IDT)) { pixels.resize(w * h * 3ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT)) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 3u)); FillBitValue(false); }
 		RGBImage(unsigned int w, unsigned int h, const vector<RGBMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m) { pixels.resize(w * h * 3ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 3u)); FillBitValue(false); }
 		RGBImage(unsigned int w, unsigned int h, const vector<RGBAMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m) { pixels.resize(w * h * 3ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 3u)); FillBitValue(false); }
 		RGBImage(unsigned int w, unsigned int h, const vector<RGBFTMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m) { pixels.resize(w * h * 3ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 3u)); FillBitValue(false); }
 		~RGBImage() { }
 
 		bool IsOpaque() const
@@ -1303,9 +1289,9 @@ class RGBImage : public Image
 		void GetRGBValue(unsigned int x, unsigned int y, float& red, float& green, float& blue) const
 		{
 			CHECK_BOUNDS(x, y);
-			red = float(pixels[(x + y * width) * 3]) / float(TMAX);
-			green = float(pixels[(x + y * width) * 3 + 1]) / float(TMAX);
-			blue = float(pixels[(x + y * width) * 3 + 2]) / float(TMAX);
+			red   = float(pixels[(x + y * size_t(width)) * 3])     / float(TMAX);
+			green = float(pixels[(x + y * size_t(width)) * 3 + 1]) / float(TMAX);
+			blue  = float(pixels[(x + y * size_t(width)) * 3 + 2]) / float(TMAX);
 		}
 		void GetRGBAValue(unsigned int x, unsigned int y, float& red, float& green, float& blue, float& alpha) const
 		{
@@ -1332,31 +1318,37 @@ class RGBImage : public Image
 		void SetGrayValue(unsigned int x, unsigned int y, unsigned int gray)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = gray;
+			pixels[x + y * size_t(width) * 3]     =
+			pixels[x + y * size_t(width) * 3 + 1] =
+			pixels[x + y * size_t(width) * 3 + 2] = gray;
 		}
 		void SetGrayAValue(unsigned int x, unsigned int y, float gray, float)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = T(gray * float(TMAX));
+			pixels[x + y * size_t(width) * 3]     =
+			pixels[x + y * size_t(width) * 3 + 1] =
+			pixels[x + y * size_t(width) * 3 + 2] = T(gray * float(TMAX));
 		}
 		void SetGrayAValue(unsigned int x, unsigned int y, unsigned int gray, unsigned int)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = gray;
+			pixels[x + y * size_t(width) * 3]     =
+			pixels[x + y * size_t(width) * 3 + 1] =
+			pixels[x + y * size_t(width) * 3 + 2] = gray;
 		}
 		void SetRGBValue(unsigned int x, unsigned int y, float red, float green, float blue)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 3] = T(red * float(TMAX));
-			pixels[(x + y * width) * 3 + 1] = T(green * float(TMAX));
-			pixels[(x + y * width) * 3 + 2] = T(blue * float(TMAX));
+			pixels[(x + y * size_t(width)) * 3]     = T(red   * float(TMAX));
+			pixels[(x + y * size_t(width)) * 3 + 1] = T(green * float(TMAX));
+			pixels[(x + y * size_t(width)) * 3 + 2] = T(blue  * float(TMAX));
 		}
 		void SetRGBValue(unsigned int x, unsigned int y, unsigned int red, unsigned int green, unsigned int blue)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 3] = T(red);
-			pixels[(x + y * width) * 3 + 1] = T(green);
-			pixels[(x + y * width) * 3 + 2] = T(blue);
+			pixels[(x + y * size_t(width)) * 3]     = T(red);
+			pixels[(x + y * size_t(width)) * 3 + 1] = T(green);
+			pixels[(x + y * size_t(width)) * 3 + 2] = T(blue);
 		}
 		void SetRGBAValue(unsigned int x, unsigned int y, float red, float green, float blue, float)
 		{
@@ -1447,13 +1439,13 @@ class RGBAImage : public Image
 {
 	public:
 		RGBAImage(unsigned int w, unsigned int h) :
-			Image(w, h, ImageDataType(IDT)) { pixels.resize(w * h * 4ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT)) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 4u)); FillBitValue(false); }
 		RGBAImage(unsigned int w, unsigned int h, const vector<RGBMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m) { pixels.resize(w * h * 4ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 4u)); FillBitValue(false); }
 		RGBAImage(unsigned int w, unsigned int h, const vector<RGBAMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m) { pixels.resize(w * h * 4ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 4u)); FillBitValue(false); }
 		RGBAImage(unsigned int w, unsigned int h, const vector<RGBFTMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m) { pixels.resize(w * h * 4ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 4u)); FillBitValue(false); }
 		~RGBAImage() { }
 
 		bool IsOpaque() const
@@ -1534,10 +1526,10 @@ class RGBAImage : public Image
 		void GetRGBAValue(unsigned int x, unsigned int y, float& red, float& green, float& blue, float& alpha) const
 		{
 			CHECK_BOUNDS(x, y);
-			red = float(pixels[(x + y * width) * 4]) / float(TMAX);
-			green = float(pixels[(x + y * width) * 4 + 1]) / float(TMAX);
-			blue = float(pixels[(x + y * width) * 4 + 2]) / float(TMAX);
-			alpha = float(pixels[(x + y * width) * 4 + 3]) / float(TMAX);
+			red   = float(pixels[(x + y * size_t(width)) * 4])     / float(TMAX);
+			green = float(pixels[(x + y * size_t(width)) * 4 + 1]) / float(TMAX);
+			blue  = float(pixels[(x + y * size_t(width)) * 4 + 2]) / float(TMAX);
+			alpha = float(pixels[(x + y * size_t(width)) * 4 + 3]) / float(TMAX);
 		}
 		void GetRGBFTValue(unsigned int x, unsigned int y, float& red, float& green, float& blue, float& filter, float& transm) const
 		{
@@ -1580,18 +1572,18 @@ class RGBAImage : public Image
 		void SetRGBAValue(unsigned int x, unsigned int y, float red, float green, float blue, float alpha)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 4] = T(red * float(TMAX));
-			pixels[(x + y * width) * 4 + 1] = T(green * float(TMAX));
-			pixels[(x + y * width) * 4 + 2] = T(blue * float(TMAX));
-			pixels[(x + y * width) * 4 + 3] = T(alpha * float(TMAX));
+			pixels[(x + y * size_t(width)) * 4]     = T(red   * float(TMAX));
+			pixels[(x + y * size_t(width)) * 4 + 1] = T(green * float(TMAX));
+			pixels[(x + y * size_t(width)) * 4 + 2] = T(blue  * float(TMAX));
+			pixels[(x + y * size_t(width)) * 4 + 3] = T(alpha * float(TMAX));
 		}
 		void SetRGBAValue(unsigned int x, unsigned int y, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 4] = T(red);
-			pixels[(x + y * width) * 4 + 1] = T(green);
-			pixels[(x + y * width) * 4 + 2] = T(blue);
-			pixels[(x + y * width) * 4 + 3] = T(alpha);
+			pixels[(x + y * size_t(width)) * 4]     = T(red);
+			pixels[(x + y * size_t(width)) * 4 + 1] = T(green);
+			pixels[(x + y * size_t(width)) * 4 + 2] = T(blue);
+			pixels[(x + y * size_t(width)) * 4 + 3] = T(alpha);
 		}
 		void SetRGBFTValue(unsigned int x, unsigned int y, float red, float green, float blue, float filter, float transm)
 		{
@@ -1600,10 +1592,10 @@ class RGBAImage : public Image
 		void SetRGBFTValue(unsigned int x, unsigned int y, const Colour& col)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 4] = T(col.red());
-			pixels[(x + y * width) * 4 + 1] = T(col.green());
-			pixels[(x + y * width) * 4 + 2] = T(col.blue());
-			pixels[(x + y * width) * 4 + 3] = T(col.FTtoA());
+			pixels[(x + y * size_t(width)) * 4]     = T(col.red());
+			pixels[(x + y * size_t(width)) * 4 + 1] = T(col.green());
+			pixels[(x + y * size_t(width)) * 4 + 2] = T(col.blue());
+			pixels[(x + y * size_t(width)) * 4 + 3] = T(col.FTtoA());
 		}
 
 		void FillBitValue(bool bit)
@@ -1682,13 +1674,13 @@ class RGBFTImage : public Image
 {
 	public:
 		RGBFTImage(unsigned int w, unsigned int h) :
-			Image(w, h, RGBFT_Float) { pixels.resize(w * h * 5ul); FillBitValue(false); }
+			Image(w, h, RGBFT_Float) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 5u)); FillBitValue(false); }
 		RGBFTImage(unsigned int w, unsigned int h, const vector<RGBMapEntry>& m) :
-			Image(w, h, RGBFT_Float, m) { pixels.resize(w * h * 5ul); FillBitValue(false); }
+			Image(w, h, RGBFT_Float, m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 5u)); FillBitValue(false); }
 		RGBFTImage(unsigned int w, unsigned int h, const vector<RGBAMapEntry>& m) :
-			Image(w, h, RGBFT_Float, m) { pixels.resize(w * h * 5ul); FillBitValue(false); }
+			Image(w, h, RGBFT_Float, m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 5u)); FillBitValue(false); }
 		RGBFTImage(unsigned int w, unsigned int h, const vector<RGBFTMapEntry>& m) :
-			Image(w, h, RGBFT_Float, m) { pixels.resize(w * h * 5ul); FillBitValue(false); }
+			Image(w, h, RGBFT_Float, m) { pixels.resize(SafeUnsignedProduct<size_t>(w, h, 5u)); FillBitValue(false); }
 		~RGBFTImage() { }
 
 		bool IsOpaque() const
@@ -1775,11 +1767,11 @@ class RGBFTImage : public Image
 		void GetRGBFTValue(unsigned int x, unsigned int y, float& red, float& green, float& blue, float& filter, float& transm) const
 		{
 			CHECK_BOUNDS(x, y);
-			red = pixels[(x + y * width) * 5];
-			green = pixels[(x + y * width) * 5 + 1];
-			blue = pixels[(x + y * width) * 5 + 2];
-			filter = pixels[(x + y * width) * 5 + 3];
-			transm = pixels[(x + y * width) * 5 + 4];
+			red    = pixels[(x + y * size_t(width)) * 5];
+			green  = pixels[(x + y * size_t(width)) * 5 + 1];
+			blue   = pixels[(x + y * size_t(width)) * 5 + 2];
+			filter = pixels[(x + y * size_t(width)) * 5 + 3];
+			transm = pixels[(x + y * size_t(width)) * 5 + 4];
 		}
 
 		void SetBitValue(unsigned int x, unsigned int y, bool bit)
@@ -1833,20 +1825,20 @@ class RGBFTImage : public Image
 		void SetRGBFTValue(unsigned int x, unsigned int y, float red, float green, float blue, float filter, float transm)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 5] = red;
-			pixels[(x + y * width) * 5 + 1] = green;
-			pixels[(x + y * width) * 5 + 2] = blue;
-			pixels[(x + y * width) * 5 + 3] = filter;
-			pixels[(x + y * width) * 5 + 4] = transm;
+			pixels[(x + y * size_t(width)) * 5]     = red;
+			pixels[(x + y * size_t(width)) * 5 + 1] = green;
+			pixels[(x + y * size_t(width)) * 5 + 2] = blue;
+			pixels[(x + y * size_t(width)) * 5 + 3] = filter;
+			pixels[(x + y * size_t(width)) * 5 + 4] = transm;
 		}
 		void SetRGBFTValue(unsigned int x, unsigned int y, const Colour& col)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 5] = col.red();
-			pixels[(x + y * width) * 5 + 1] = col.green();
-			pixels[(x + y * width) * 5 + 2] = col.blue();
-			pixels[(x + y * width) * 5 + 3] = col.filter();
-			pixels[(x + y * width) * 5 + 4] = col.transm();
+			pixels[(x + y * size_t(width)) * 5]     = col.red();
+			pixels[(x + y * size_t(width)) * 5 + 1] = col.green();
+			pixels[(x + y * size_t(width)) * 5 + 2] = col.blue();
+			pixels[(x + y * size_t(width)) * 5 + 3] = col.filter();
+			pixels[(x + y * size_t(width)) * 5 + 4] = col.transm();
 		}
 
 		void FillBitValue(bool bit)
@@ -1920,13 +1912,13 @@ class NonlinearGrayImage : public Image
 {
 	public:
 		NonlinearGrayImage(unsigned int w, unsigned int h) :
-			Image(w, h, ImageDataType(IDT)), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT)), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		NonlinearGrayImage(unsigned int w, unsigned int h, const vector<RGBMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		NonlinearGrayImage(unsigned int w, unsigned int h, const vector<RGBAMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		NonlinearGrayImage(unsigned int w, unsigned int h, const vector<RGBFTMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(1ul * w * h); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h)); FillBitValue(false); }
 		~NonlinearGrayImage() { }
 
 		bool IsOpaque() const
@@ -1981,17 +1973,17 @@ class NonlinearGrayImage : public Image
 		bool GetBitValue(unsigned int x, unsigned int y) const
 		{
 			CHECK_BOUNDS(x, y);
-			return (pixels[x + y * width] != 0);
+			return (pixels[x + y * size_t(width)] != 0);
 		}
 		float GetGrayValue(unsigned int x, unsigned int y) const
 		{
 			CHECK_BOUNDS(x, y);
-			return gammaLUT[pixels[x + y * width]];
+			return gammaLUT[pixels[x + y * size_t(width)]];
 		}
 		void GetGrayAValue(unsigned int x, unsigned int y, float& gray, float& alpha) const
 		{
 			CHECK_BOUNDS(x, y);
-			gray = gammaLUT[pixels[x + y * width]];
+			gray = gammaLUT[pixels[x + y * size_t(width)]];
 			alpha = ALPHA_OPAQUE;
 		}
 		void GetRGBValue(unsigned int x, unsigned int y, float& red, float& green, float& blue) const
@@ -2011,7 +2003,7 @@ class NonlinearGrayImage : public Image
 		unsigned char GetIndexedValue(unsigned int x, unsigned int y)
 		{
 			CHECK_BOUNDS(x, y);
-			return (unsigned char)(int(pixels[x + y * width]) / ((TMAX + 1) >> 8));
+			return (unsigned char)(int(pixels[x + y * size_t(width)]) / ((TMAX + 1) >> 8));
 		}
 
 		void SetBitValue(unsigned int x, unsigned int y, bool bit)
@@ -2024,22 +2016,22 @@ class NonlinearGrayImage : public Image
 		void SetGrayValue(unsigned int x, unsigned int y, float gray)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = IntEncode(gamma, gray, TMAX);
+			pixels[x + y * size_t(width)] = IntEncode(gamma, gray, TMAX);
 		}
 		void SetGrayValue(unsigned int x, unsigned int y, unsigned int gray)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = T(gray);
+			pixels[x + y * size_t(width)] = T(gray);
 		}
 		void SetGrayAValue(unsigned int x, unsigned int y, float gray, float)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = IntEncode(gamma, gray, TMAX);
+			pixels[x + y * size_t(width)] = IntEncode(gamma, gray, TMAX);
 		}
 		void SetGrayAValue(unsigned int x, unsigned int y, unsigned int gray, unsigned int)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = T(gray);
+			pixels[x + y * size_t(width)] = T(gray);
 		}
 		void SetRGBValue(unsigned int x, unsigned int y, float red, float green, float blue)
 		{
@@ -2124,13 +2116,13 @@ class NonlinearGrayAImage : public Image
 {
 	public:
 		NonlinearGrayAImage(unsigned int w, unsigned int h) :
-			Image(w, h, ImageDataType(IDT)), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(w * h * 2ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT)), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h, 2u)); FillBitValue(false); }
 		NonlinearGrayAImage(unsigned int w, unsigned int h, const vector<RGBMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(w * h * 2ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h, 2u)); FillBitValue(false); }
 		NonlinearGrayAImage(unsigned int w, unsigned int h, const vector<RGBAMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(w * h * 2ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h, 2u)); FillBitValue(false); }
 		NonlinearGrayAImage(unsigned int w, unsigned int h, const vector<RGBFTMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(w * h * 2ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h, 2u)); FillBitValue(false); }
 		~NonlinearGrayAImage() { }
 
 		bool IsOpaque() const
@@ -2192,18 +2184,18 @@ class NonlinearGrayAImage : public Image
 		{
 			// TODO FIXME - [CLi] This ignores opacity information; other bit-based code doesn't.
 			CHECK_BOUNDS(x, y);
-			return (pixels[(x + y * width) * 2] != 0);
+			return (pixels[(x + y * size_t(width)) * 2] != 0);
 		}
 		float GetGrayValue(unsigned int x, unsigned int y) const
 		{
 			CHECK_BOUNDS(x, y);
-			return gammaLUT[pixels[(x + y * width) * 2]];
+			return gammaLUT[pixels[(x + y * size_t(width)) * 2]];
 		}
 		void GetGrayAValue(unsigned int x, unsigned int y, float& gray, float& alpha) const
 		{
 			CHECK_BOUNDS(x, y);
-			gray = gammaLUT[pixels[(x + y * width) * 2]];
-			alpha = pixels[(x + y * width) * 2 + 1] / float(TMAX);
+			gray  = gammaLUT[pixels[(x + y * size_t(width)) * 2]];
+			alpha =          pixels[(x + y * size_t(width)) * 2 + 1] / float(TMAX);
 		}
 		void GetRGBValue(unsigned int x, unsigned int y, float& red, float& green, float& blue) const
 		{
@@ -2240,14 +2232,14 @@ class NonlinearGrayAImage : public Image
 		void SetGrayAValue(unsigned int x, unsigned int y, float gray, float alpha)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 2] = IntEncode(gamma, gray, TMAX);
-			pixels[(x + y * width) * 2 + 1] = T(alpha * float(TMAX));
+			pixels[(x + y * size_t(width)) * 2]     = IntEncode(gamma, gray, TMAX);
+			pixels[(x + y * size_t(width)) * 2 + 1] = T(alpha * float(TMAX));
 		}
 		void SetGrayAValue(unsigned int x, unsigned int y, unsigned int gray, unsigned int alpha)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 2] = gray;
-			pixels[(x + y * width) * 2 + 1] = alpha;
+			pixels[(x + y * size_t(width)) * 2]     = gray;
+			pixels[(x + y * size_t(width)) * 2 + 1] = alpha;
 		}
 		void SetRGBValue(unsigned int x, unsigned int y, float red, float green, float blue)
 		{
@@ -2265,6 +2257,7 @@ class NonlinearGrayAImage : public Image
 		void SetRGBAValue(unsigned int x, unsigned int y, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha)
 		{
 			// not really pretty here, but we're doing color math, so we need to decode and re-encode
+			// TODO FIXME - this unnecessarily converts alpha from int to float, requiring it to be converted back to int
 			SetGrayAValue(x, y, RGB2Gray(gammaLUT[red], gammaLUT[green], gammaLUT[blue]), float(alpha) / float(TMAX));
 		}
 		void SetRGBFTValue(unsigned int x, unsigned int y, float red, float green, float blue, float filter, float transm)
@@ -2327,6 +2320,7 @@ class NonlinearGrayAImage : public Image
 		void FillRGBAValue(unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha)
 		{
 			// not really pretty here, but we're doing color math, so we need to decode and re-encode
+			// TODO FIXME - this unnecessarily converts alpha from int to float, requiring it to be converted back to int
 			FillGrayAValue(RGB2Gray(gammaLUT[red], gammaLUT[green], gammaLUT[blue]), float(alpha) / float(TMAX));
 		}
 		void FillRGBFTValue(float red, float green, float blue, float filter, float transm)
@@ -2348,13 +2342,13 @@ class NonlinearRGBImage : public Image
 {
 	public:
 		NonlinearRGBImage(unsigned int w, unsigned int h) :
-			Image(w, h, ImageDataType(IDT)), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(w * h * 3ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT)), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h, 3u)); FillBitValue(false); }
 		NonlinearRGBImage(unsigned int w, unsigned int h, const vector<RGBMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(w * h * 3ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h, 3u)); FillBitValue(false); }
 		NonlinearRGBImage(unsigned int w, unsigned int h, const vector<RGBAMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(w * h * 3ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h, 3u)); FillBitValue(false); }
 		NonlinearRGBImage(unsigned int w, unsigned int h, const vector<RGBFTMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(w * h * 3ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h, 3u)); FillBitValue(false); }
 		~NonlinearRGBImage() { }
 
 		bool IsOpaque() const
@@ -2426,9 +2420,9 @@ class NonlinearRGBImage : public Image
 		void GetRGBValue(unsigned int x, unsigned int y, float& red, float& green, float& blue) const
 		{
 			CHECK_BOUNDS(x, y);
-			red = gammaLUT[pixels[(x + y * width) * 3]];
-			green = gammaLUT[pixels[(x + y * width) * 3 + 1]];
-			blue = gammaLUT[pixels[(x + y * width) * 3 + 2]];
+			red   = gammaLUT[pixels[(x + y * size_t(width)) * 3]];
+			green = gammaLUT[pixels[(x + y * size_t(width)) * 3 + 1]];
+			blue  = gammaLUT[pixels[(x + y * size_t(width)) * 3 + 2]];
 		}
 		void GetRGBAValue(unsigned int x, unsigned int y, float& red, float& green, float& blue, float& alpha) const
 		{
@@ -2455,31 +2449,37 @@ class NonlinearRGBImage : public Image
 		void SetGrayValue(unsigned int x, unsigned int y, unsigned int gray)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = gray;
+			pixels[x + y * size_t(width) * 3]     =
+			pixels[x + y * size_t(width) * 3 + 1] =
+			pixels[x + y * size_t(width) * 3 + 2] = gray;
 		}
 		void SetGrayAValue(unsigned int x, unsigned int y, float gray, float)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = IntEncode(gamma, gray, TMAX);
+			pixels[x + y * size_t(width) * 3]     =
+			pixels[x + y * size_t(width) * 3 + 1] =
+			pixels[x + y * size_t(width) * 3 + 2] = IntEncode(gamma, gray, TMAX);
 		}
 		void SetGrayAValue(unsigned int x, unsigned int y, unsigned int gray, unsigned int)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[x + y * width] = gray;
+			pixels[x + y * size_t(width) * 3]     =
+			pixels[x + y * size_t(width) * 3 + 1] =
+			pixels[x + y * size_t(width) * 3 + 2] = gray;
 		}
 		void SetRGBValue(unsigned int x, unsigned int y, float red, float green, float blue)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 3] = IntEncode(gamma, red, TMAX);
-			pixels[(x + y * width) * 3 + 1] = IntEncode(gamma, green, TMAX);
-			pixels[(x + y * width) * 3 + 2] = IntEncode(gamma, blue, TMAX);
+			pixels[(x + y * size_t(width)) * 3]     = IntEncode(gamma, red,   TMAX);
+			pixels[(x + y * size_t(width)) * 3 + 1] = IntEncode(gamma, green, TMAX);
+			pixels[(x + y * size_t(width)) * 3 + 2] = IntEncode(gamma, blue,  TMAX);
 		}
 		void SetRGBValue(unsigned int x, unsigned int y, unsigned int red, unsigned int green, unsigned int blue)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 3] = T(red);
-			pixels[(x + y * width) * 3 + 1] = T(green);
-			pixels[(x + y * width) * 3 + 2] = T(blue);
+			pixels[(x + y * size_t(width)) * 3]     = T(red);
+			pixels[(x + y * size_t(width)) * 3 + 1] = T(green);
+			pixels[(x + y * size_t(width)) * 3 + 2] = T(blue);
 		}
 		void SetRGBAValue(unsigned int x, unsigned int y, float red, float green, float blue, float)
 		{
@@ -2572,13 +2572,13 @@ class NonlinearRGBAImage : public Image
 {
 	public:
 		NonlinearRGBAImage(unsigned int w, unsigned int h) :
-			Image(w, h, ImageDataType(IDT)), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(w * h * 4ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT)), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h, 4u)); FillBitValue(false); }
 		NonlinearRGBAImage(unsigned int w, unsigned int h, const vector<RGBMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(w * h * 4ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h, 4u)); FillBitValue(false); }
 		NonlinearRGBAImage(unsigned int w, unsigned int h, const vector<RGBAMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(w * h * 4ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h, 4u)); FillBitValue(false); }
 		NonlinearRGBAImage(unsigned int w, unsigned int h, const vector<RGBFTMapEntry>& m) :
-			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(w * h * 4ul); FillBitValue(false); }
+			Image(w, h, ImageDataType(IDT), m), gamma(NeutralGammaCurve::Get()) { gammaLUT = gamma->GetLookupTable(TMAX); pixels.resize(SafeUnsignedProduct<size_t>(w, h, 4u)); FillBitValue(false); }
 		~NonlinearRGBAImage() { }
 
 		bool IsOpaque() const
@@ -2663,10 +2663,10 @@ class NonlinearRGBAImage : public Image
 		void GetRGBAValue(unsigned int x, unsigned int y, float& red, float& green, float& blue, float& alpha) const
 		{
 			CHECK_BOUNDS(x, y);
-			red = gammaLUT[pixels[(x + y * width) * 4]];
-			green = gammaLUT[pixels[(x + y * width) * 4 + 1]];
-			blue = gammaLUT[pixels[(x + y * width) * 4 + 2]];
-			alpha = float(pixels[(x + y * width) * 4 + 3]) / float(TMAX);
+			red   = gammaLUT[pixels[(x + y * size_t(width)) * 4]];
+			green = gammaLUT[pixels[(x + y * size_t(width)) * 4 + 1]];
+			blue  = gammaLUT[pixels[(x + y * size_t(width)) * 4 + 2]];
+			alpha =    float(pixels[(x + y * size_t(width)) * 4 + 3]) / float(TMAX);
 		}
 		void GetRGBFTValue(unsigned int x, unsigned int y, float& red, float& green, float& blue, float& filter, float& transm) const
 		{
@@ -2709,18 +2709,18 @@ class NonlinearRGBAImage : public Image
 		void SetRGBAValue(unsigned int x, unsigned int y, float red, float green, float blue, float alpha)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 4] = T(IntEncode(gamma, red, TMAX));
-			pixels[(x + y * width) * 4 + 1] = T(IntEncode(gamma, green, TMAX));
-			pixels[(x + y * width) * 4 + 2] = T(IntEncode(gamma, blue, TMAX));
-			pixels[(x + y * width) * 4 + 3] = T(IntEncode(alpha, TMAX));
+			pixels[(x + y * size_t(width)) * 4]     = T(IntEncode(gamma, red,   TMAX));
+			pixels[(x + y * size_t(width)) * 4 + 1] = T(IntEncode(gamma, green, TMAX));
+			pixels[(x + y * size_t(width)) * 4 + 2] = T(IntEncode(gamma, blue,  TMAX));
+			pixels[(x + y * size_t(width)) * 4 + 3] = T(IntEncode(       alpha, TMAX));
 		}
 		void SetRGBAValue(unsigned int x, unsigned int y, unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 4] = T(red);
-			pixels[(x + y * width) * 4 + 1] = T(green);
-			pixels[(x + y * width) * 4 + 2] = T(blue);
-			pixels[(x + y * width) * 4 + 3] = T(alpha);
+			pixels[(x + y * size_t(width)) * 4]     = T(red);
+			pixels[(x + y * size_t(width)) * 4 + 1] = T(green);
+			pixels[(x + y * size_t(width)) * 4 + 2] = T(blue);
+			pixels[(x + y * size_t(width)) * 4 + 3] = T(alpha);
 		}
 		void SetRGBFTValue(unsigned int x, unsigned int y, float red, float green, float blue, float filter, float transm)
 		{
@@ -2729,10 +2729,10 @@ class NonlinearRGBAImage : public Image
 		void SetRGBFTValue(unsigned int x, unsigned int y, const Colour& col)
 		{
 			CHECK_BOUNDS(x, y);
-			pixels[(x + y * width) * 4] = T(col.red());
-			pixels[(x + y * width) * 4 + 1] = T(col.green());
-			pixels[(x + y * width) * 4 + 2] = T(col.blue());
-			pixels[(x + y * width) * 4 + 3] = T(col.FTtoA());
+			pixels[(x + y * size_t(width)) * 4]     = T(col.red());
+			pixels[(x + y * size_t(width)) * 4 + 1] = T(col.green());
+			pixels[(x + y * size_t(width)) * 4 + 2] = T(col.blue());
+			pixels[(x + y * size_t(width)) * 4 + 3] = T(col.FTtoA());
 		}
 
 		void FillBitValue(bool bit)
@@ -2873,23 +2873,25 @@ class FileBackedPixelContainer
 			m_Buffer.resize(m_Blocksize);
 			// write extra data to create the big file and help 3rd party reader
 			POV_LONG pos;
-			pos = (m_Width*m_Height);
+			// NB: The following use of SafeUnsignedProduct also safeguards later coputations of
+			// pixel positions within the file, as long as x and y coordinates are sane
+			pos = SafeUnsignedProduct<POV_LONG>(m_Width, m_Height);
 			if ( pos% m_Blocksize)
 			{ /* issue: the block would overlap the end of file */
 				pos /= m_Blocksize;
 				pos++;
-				pos *= m_Blocksize;
+				pos = SafeUnsignedProduct<POV_LONG>(pos, m_Blocksize);
 			}
 			/* else fine case: the boundary of block match the boundary of pixels in file */
-			pos *= sizeof(pixel_type);
+			pos = SafeUnsignedProduct<POV_LONG>(pos, sizeof(pixel_type));
 			size_type meta[3];
 			meta[0] = sizeof(pixel_type);
 			meta[1] = m_Width;
 			meta[2] = m_Height;
 			if (lseek64(m_File, pos, SEEK_SET) != pos)
-					throw POV_EXCEPTION(kFileDataErr, "Intermediate image storage backing file write/seek failed at creation.");
+				throw POV_EXCEPTION(kFileDataErr, "Intermediate image storage backing file write/seek failed at creation.");
 			if (write(m_File, &meta[0], (int) sizeof(size_type)*3) != (sizeof(size_type)*3))
-					throw POV_EXCEPTION(kFileDataErr, "Intermediate image storage backing file write failed at creation.");
+				throw POV_EXCEPTION(kFileDataErr, "Intermediate image storage backing file write failed at creation.");
 			// m_Committed.resize(width * height / m_Blocksize);
 		}
 
@@ -2908,7 +2910,7 @@ class FileBackedPixelContainer
  				PlatformBase *pb(&POV_PLATFORM_BASE);
  				if (pb != NULL)
  					pb->DeleteTemporaryFile(m_Path);
- 			}			POV_PLATFORM_BASE.DeleteTemporaryFile(m_Path);
+ 			}
 		}
 
 		void Flush(void)
@@ -2918,7 +2920,7 @@ class FileBackedPixelContainer
 
 		void SetPixel(size_type x, size_type y, const pixel_type& pixel)
 		{
-			WritePixel(x, y, (pixel_type&)pixel);
+			WritePixel(x, y, pixel);
 			NextPixel();
 		}
 
@@ -2982,7 +2984,7 @@ class FileBackedPixelContainer
 				memcpy(&m_Buffer[i], &pixel, sizeof(pixel));
 		} */
 
-		void FillLine(size_type y, pixel_type& pixel)
+		void FillLine(size_type y, const pixel_type& pixel)
 		{
 			// bool notBlank(pixel != 0.0);
 
@@ -2991,7 +2993,7 @@ class FileBackedPixelContainer
 					WritePixel(x, y, pixel);
 		}
 
-		void Fill(pixel_type& pixel)
+		void Fill(const pixel_type& pixel)
 		{
 			for (size_type y = 0; y < m_Height; y++)
 				FillLine(y, pixel);
@@ -3042,7 +3044,7 @@ class FileBackedPixelContainer
 
 		void ReadPixel(size_type x, size_type y, pixel_type& pixel)
 		{
-			POV_LONG pos, block = (y * m_Width + x) / m_Blocksize;
+			POV_LONG pos, block = (y * (POV_LONG)(m_Width) + x) / m_Blocksize;
 
 			if (block != m_CurrentBlock) {
 				WriteCurrentBlock();
@@ -3064,12 +3066,12 @@ class FileBackedPixelContainer
 					throw POV_EXCEPTION(kFileDataErr, "Intermediate image storage backing file read failed.");
 				m_CurrentBlock = block;
 			}
-			memcpy(&pixel, m_Buffer[(y * m_Width + x) % m_Blocksize], sizeof(pixel));
+			memcpy(&pixel, m_Buffer[(y * (POV_LONG)(m_Width) + x) % m_Blocksize], sizeof(pixel));
 		}
 #if 0
 		bool BlockCommitted(size_type x, size_type y)
 		{
-			POV_LONG block = (y * m_Width + x) / m_Blocksize;
+			POV_LONG block = (y * POV_LONG(m_Width) + x) / m_Blocksize;
 
 			return(m_Committed[block]);
 		}
@@ -3089,12 +3091,12 @@ class FileBackedPixelContainer
 			}
 		}
 
-		void WritePixel(size_type x, size_type y, pixel_type& pixel)
+		void WritePixel(size_type x, size_type y, const pixel_type& pixel)
 		{
 			pixel_type dummy;
 
 			ReadPixel(x, y, dummy);
-			memcpy(m_Buffer[(y * m_Width + x) % m_Blocksize], &pixel, sizeof(pixel));
+			memcpy(m_Buffer[(y * (POV_LONG)(m_Width) + x) % m_Blocksize], &pixel, sizeof(pixel));
 			m_Dirty = true;
 		}
 
@@ -3268,8 +3270,8 @@ class FileRGBFTImage : public Image
 		{
 			// TODO - should alpha be converted to filter and transm? [trf]
 			float filter, transm;
-			Colour::AtoFT(alpha, filter, transm);
-			FillRGBFTValue(red, green, blue, filter, transm);
+			Colour::AtoFT(float(alpha) / 255.0f, filter, transm);
+			FillRGBFTValue(float(red) / 255.0f, float(green) / 255.0f, float(blue) / 255.0f, filter, transm);
 		}
 		void FillRGBFTValue(float red, float green, float blue, float filter, float transm)
 		{
@@ -3371,7 +3373,7 @@ Image *Image::Create(unsigned int w, unsigned int h, ImageDataType t, unsigned i
 				return new MemoryRGBA16Image(w, h);
 			case RGBFT_Float:
 				if (maxRAMmbHint > 0)
-					if (((POV_ULONG) w * h * sizeof(FileRGBFTImage::pixel_type)) / 1048576 > maxRAMmbHint)
+					if (SafeUnsignedProduct<POV_ULONG>(w, h, sizeof(FileRGBFTImage::pixel_type)) / 1048576 > maxRAMmbHint)
 						return new FileRGBFTImage(w, h, pixelsPerBlockHint);
 				return new MemoryRGBFTImage(w, h);
 			case RGB_Gamma8:

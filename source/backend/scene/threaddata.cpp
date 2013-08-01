@@ -20,10 +20,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/scene/threaddata.cpp $
- * $Revision: #51 $
- * $Change: 5467 $
- * $DateTime: 2011/08/14 10:39:59 $
- * $Author: jgrimbert $
+ * $Revision: #52 $
+ * $Change: 5625 $
+ * $DateTime: 2012/03/10 21:41:16 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -116,10 +116,10 @@ SceneThreadData::SceneThreadData(shared_ptr<SceneData> sd): sceneData(sd)
 	Max_Blob_Queue_Size = 1;
 	Blob_Coefficient_Count = sceneData->Max_Blob_Components * 5;
 	Blob_Interval_Count = sceneData->Max_Blob_Components * 2;
-	Blob_Queue = (void **)POV_MALLOC(sizeof(void **), "Blob Queue");
-	Blob_Coefficients = (DBL *)POV_MALLOC(sizeof(DBL) * Blob_Coefficient_Count, "Blob Coefficients");
+	Blob_Queue = reinterpret_cast<void **>(POV_MALLOC(sizeof(void **), "Blob Queue"));
+	Blob_Coefficients = reinterpret_cast<DBL *>(POV_MALLOC(sizeof(DBL) * Blob_Coefficient_Count, "Blob Coefficients"));
 	Blob_Intervals = new Blob_Interval_Struct [Blob_Interval_Count];
-	isosurfaceData = (ISO_ThreadData *)POV_MALLOC(sizeof(ISO_ThreadData), "Isosurface Data");
+	isosurfaceData = reinterpret_cast<ISO_ThreadData *>(POV_MALLOC(sizeof(ISO_ThreadData), "Isosurface Data"));
 	isosurfaceData->ctx = NULL;
 	isosurfaceData->current = NULL;
 	isosurfaceData->cache = false;
@@ -188,7 +188,7 @@ SceneThreadData::~SceneThreadData()
 	Fractal::Free_Iteration_Stack(Fractal_IStack);
 	delete surfacePhotonMap;
 	delete mediaPhotonMap;
-	delete[] (Blob_Interval_Struct *) Blob_Intervals;
+	delete[] Blob_Intervals;
 	for(vector<LightSource *>::iterator it = lightSources.begin(); it != lightSources.end(); it++)
 		Destroy_Object(*it);
 }

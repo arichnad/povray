@@ -23,9 +23,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/bounding/bcyl.cpp $
- * $Revision: #14 $
- * $Change: 5088 $
- * $DateTime: 2010/08/05 17:08:44 $
+ * $Revision: #15 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -118,9 +118,9 @@ namespace pov
 * Static functions
 ******************************************************************************/
 
-static int  intersect_thick_cylinder (BCYL *BCyl, BCYL_INT *rint, BCYL_INT *hint, BCYL_ENTRY *Entry, DBL *dist);
-static void insert_hit (BCYL_INT *Element, BCYL_INT *intervals, int *cnt);
-static void intersect_bound_elements (BCYL *BCyl, BCYL_INT *rint, BCYL_INT *hint, VECTOR P, VECTOR D);
+static int  intersect_thick_cylinder (const BCYL *BCyl, const BCYL_INT *rint, const BCYL_INT *hint, const BCYL_ENTRY *Entry, DBL *dist);
+static void insert_hit (const BCYL_INT *Element, BCYL_INT *intervals, int *cnt);
+static void intersect_bound_elements (const BCYL *BCyl, BCYL_INT *rint, BCYL_INT *hint, const VECTOR P, const VECTOR D);
 
 
 /*****************************************************************************
@@ -164,7 +164,7 @@ static void intersect_bound_elements (BCYL *BCyl, BCYL_INT *rint, BCYL_INT *hint
 *
 ******************************************************************************/
 
-static int intersect_thick_cylinder(BCYL *BCyl, BCYL_INT *rint, BCYL_INT *hint, BCYL_ENTRY *Entry, DBL *dist)
+static int intersect_thick_cylinder(const BCYL *BCyl, const BCYL_INT *rint, const BCYL_INT *hint, const BCYL_ENTRY *Entry, DBL *dist)
 {
 	int i, j, n;
 	DBL k, r, h;
@@ -294,7 +294,7 @@ static int intersect_thick_cylinder(BCYL *BCyl, BCYL_INT *rint, BCYL_INT *hint, 
 *
 ******************************************************************************/
 
-static void intersect_bound_elements(BCYL *BCyl, BCYL_INT *rint, BCYL_INT *hint, VECTOR P, VECTOR  D)
+static void intersect_bound_elements(const BCYL *BCyl, BCYL_INT *rint, BCYL_INT *hint, const VECTOR P, const VECTOR  D)
 {
 	int i;
 	DBL a, b, bb, b2, c, d, k;
@@ -398,7 +398,7 @@ static void intersect_bound_elements(BCYL *BCyl, BCYL_INT *rint, BCYL_INT *hint,
 *
 ******************************************************************************/
 
-static void insert_hit(BCYL_INT *element, BCYL_INT *intervals, int *cnt)
+static void insert_hit(const BCYL_INT *element, BCYL_INT *intervals, int *cnt)
 {
 	int k;
 
@@ -453,7 +453,7 @@ static void insert_hit(BCYL_INT *element, BCYL_INT *intervals, int *cnt)
 *
 ******************************************************************************/
 
-int Intersect_BCyl(BCYL *BCyl, BCYL_INT *intervals, BCYL_INT *rint, BCYL_INT *hint, VECTOR P, VECTOR  D)
+int Intersect_BCyl(const BCYL *BCyl, BCYL_INT *intervals, BCYL_INT *rint, BCYL_INT *hint, const VECTOR P, const VECTOR  D)
 {
 	int i, cnt;
 	DBL dist[8];
@@ -598,7 +598,7 @@ int Intersect_BCyl(BCYL *BCyl, BCYL_INT *intervals, BCYL_INT *rint, BCYL_INT *hi
 *
 ******************************************************************************/
 
-BCYL *Create_BCyl(int number, DBL *tmp_r1, DBL  *tmp_r2, DBL  *tmp_h1, DBL  *tmp_h2)
+BCYL *Create_BCyl(int number, const DBL *tmp_r1, const DBL *tmp_r2, const DBL *tmp_h1, const DBL *tmp_h2)
 {
 	int i, j, nr, nh;
 	int *tmp_r1_index;

@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/lightgrp.cpp $
- * $Revision: #20 $
- * $Change: 5095 $
- * $DateTime: 2010/08/07 07:51:37 $
+ * $Revision: #21 $
+ * $Change: 5783 $
+ * $DateTime: 2013/02/04 10:34:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -290,7 +290,7 @@ void Promote_Local_Lights_Recursive(CompoundObject *Object, vector<LightSource *
 *
 ******************************************************************************/
 
-bool Check_Photon_Light_Group(ObjectPtr Object)
+bool Check_Photon_Light_Group(ConstObjectPtr Object)
 {
 /* TODO FIXME	if(photonOptions.Light_Is_Global)
 	{

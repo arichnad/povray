@@ -23,9 +23,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/processoptions.h $
- * $Revision: #16 $
- * $Change: 5232 $
- * $DateTime: 2010/12/04 14:24:46 $
+ * $Revision: #18 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -131,7 +131,7 @@ class ProcessOptions
 
 		struct Parameter_Code_Table
 		{
-			char*       code;               // code used in INI and command line options
+			const char* code;               // code used in INI and command line options
 			int         internalId;         // e.g. kPOVList_GammaType_*
 		};
 
@@ -149,7 +149,7 @@ class ProcessOptions
 		static bool IsFalse(const char *);
 
 		static int POVMSAttr_GetUTF8String(POVMSAttributePtr, POVMSType, char *, int *);
-		static int POVMSAttr_SetUTF8String(POVMSObjectPtr, POVMSType, const char *);
+		static int POVMSAttr_SetUTF8String(POVMSAttributePtr, POVMSType, const char *);
 		static int POVMSUtil_SetUTF8String(POVMSObjectPtr, POVMSType, const char *);
 		static size_t ConvertUTF8ToUCS2(const char *, UCS2 *);
 		static size_t ConvertUCS2ToUTF8(const UCS2 *, char *);

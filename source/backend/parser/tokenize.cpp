@@ -28,9 +28,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/parser/tokenize.cpp $
- * $Revision: #63 $
- * $Change: 5488 $
- * $DateTime: 2011/09/13 15:16:37 $
+ * $Revision: #66 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -1496,7 +1496,7 @@ inline void Parser::Write_Token (TOKEN Token_Id, int col)
 *
 ******************************************************************************/
 
-char *Parser::Get_Token_String (TOKEN Token_Id)
+const char *Parser::Get_Token_String (TOKEN Token_Id)
 {
 	register int i;
 
@@ -2072,6 +2072,7 @@ void Parser::Parse_Directive(int After_Hash)
 					Token.Token_Id=HASH_TOKEN; /*insures Skip_Token takes notice*/
 					Token.is_array_elem = false;
 					UNGET
+					// FALLTHROUGH
 				case IF_TRUE_COND:
 				case ELSE_COND:
 				case CASE_TRUE_COND:
@@ -2704,7 +2705,7 @@ void Parser::Break()
 *
 ******************************************************************************/
 
-int Parser::get_hash_value(char *s)
+int Parser::get_hash_value(const char *s)
 {
 	unsigned int i = 0;
 
@@ -2797,7 +2798,7 @@ void Parser::Destroy_Table(int index)
 
 }
 
-SYM_ENTRY *Parser::Create_Entry (int Index,char *Name,TOKEN Number)
+SYM_ENTRY *Parser::Create_Entry (int Index,const char *Name,TOKEN Number)
 {
 	SYM_ENTRY *New;
 
@@ -2811,7 +2812,7 @@ SYM_ENTRY *Parser::Create_Entry (int Index,char *Name,TOKEN Number)
 	if (Index != 0)
 		New->Token_Name = POV_STRDUP(Name);
 	else
-		New->Token_Name = Name;
+		New->Token_Name = const_cast<char*>(Name);
 
 	return(New);
 }
@@ -2888,7 +2889,7 @@ void Parser::Add_Entry (int Index,SYM_ENTRY *Table_Entry)
 }
 
 
-SYM_ENTRY *Parser::Add_Symbol (int Index,char *Name,TOKEN Number)
+SYM_ENTRY *Parser::Add_Symbol (int Index,const char *Name,TOKEN Number)
 {
 	SYM_ENTRY *New;
 
@@ -2899,7 +2900,7 @@ SYM_ENTRY *Parser::Add_Symbol (int Index,char *Name,TOKEN Number)
 }
 
 
-SYM_ENTRY *Parser::Find_Symbol(int Index,char *Name)
+SYM_ENTRY *Parser::Find_Symbol(int Index,const char *Name)
 {
 	SYM_ENTRY *Entry;
 
@@ -2921,7 +2922,7 @@ SYM_ENTRY *Parser::Find_Symbol(int Index,char *Name)
 }
 
 
-void Parser::Remove_Symbol (int Index, char *Name, bool is_array_elem, void **DataPtr, int ttype)
+void Parser::Remove_Symbol (int Index, const char *Name, bool is_array_elem, void **DataPtr, int ttype)
 {
 	if(is_array_elem == true)
 	{
@@ -3526,94 +3527,104 @@ int Parser::Parse_Read_Value(DATA_FILE *User_File,int Previous,int *NumberPtr,vo
 		Error("Cannot read from file '%s' because the file is open for writing only.", UCS2toASCIIString(UCS2String(User_File->Out_File->name())).c_str());
 	User_File->In_File = NULL; // take control over pointer
 
-	EXPECT
-		CASE3 (PLUS_TOKEN,DASH_TOKEN,FLOAT_FUNCT_TOKEN)
-			UNGET
-			Val=Parse_Signed_Float();
-			*NumberPtr = FLOAT_ID_TOKEN;
-			Test_Redefine(Previous,NumberPtr,*DataPtr);
-			*DataPtr   = (void *) Create_Float();
-			*((DBL *)*DataPtr) = Val;
-			Parse_Comma(); /* data file comma between 2 data items  */
-			EXIT
-		END_CASE
+	try
+	{
+		EXPECT
+			CASE3 (PLUS_TOKEN,DASH_TOKEN,FLOAT_FUNCT_TOKEN)
+				UNGET
+				Val=Parse_Signed_Float();
+				*NumberPtr = FLOAT_ID_TOKEN;
+				Test_Redefine(Previous,NumberPtr,*DataPtr);
+				*DataPtr   = (void *) Create_Float();
+				*((DBL *)*DataPtr) = Val;
+				Parse_Comma(); /* data file comma between 2 data items  */
+				EXIT
+			END_CASE
 
-		CASE (LEFT_ANGLE_TOKEN)
-			i=1;
-			Express[X]=Parse_Signed_Float();  Parse_Comma();
-			Express[Y]=Parse_Signed_Float();  Parse_Comma();
+			CASE (LEFT_ANGLE_TOKEN)
+				i=1;
+				Express[X]=Parse_Signed_Float();  Parse_Comma();
+				Express[Y]=Parse_Signed_Float();  Parse_Comma();
 
-			EXPECT
-				CASE3 (PLUS_TOKEN,DASH_TOKEN,FLOAT_FUNCT_TOKEN)
-					UNGET
-					if (++i>4)
-					{
-						Error("Vector data too long");
-					}
-					Express[i]=Parse_Signed_Float(); Parse_Comma();
-				END_CASE
+				EXPECT
+					CASE3 (PLUS_TOKEN,DASH_TOKEN,FLOAT_FUNCT_TOKEN)
+						UNGET
+						if (++i>4)
+						{
+							Error("Vector data too long");
+						}
+						Express[i]=Parse_Signed_Float(); Parse_Comma();
+					END_CASE
 
-				CASE (RIGHT_ANGLE_TOKEN)
-					EXIT
-				END_CASE
+					CASE (RIGHT_ANGLE_TOKEN)
+						EXIT
+					END_CASE
 
-				OTHERWISE
-					Expectation_Error("vector");
-				END_CASE
-			END_EXPECT
+					OTHERWISE
+						Expectation_Error("vector");
+					END_CASE
+				END_EXPECT
 
-			switch(i)
-			{
-				case 1:
-					*NumberPtr = UV_ID_TOKEN;
-					Test_Redefine(Previous,NumberPtr,*DataPtr);
-					*DataPtr   = (void *) Create_UV_Vect();
-					Assign_UV_Vect((DBL *)*DataPtr, Express);
-					break;
+				switch(i)
+				{
+					case 1:
+						*NumberPtr = UV_ID_TOKEN;
+						Test_Redefine(Previous,NumberPtr,*DataPtr);
+						*DataPtr   = (void *) Create_UV_Vect();
+						Assign_UV_Vect((DBL *)*DataPtr, Express);
+						break;
 
-				case 2:
-					*NumberPtr = VECTOR_ID_TOKEN;
-					Test_Redefine(Previous,NumberPtr,*DataPtr);
-					*DataPtr   = (void *) Create_Vector();
-					Assign_Vector((DBL *)*DataPtr, Express);
-					break;
+					case 2:
+						*NumberPtr = VECTOR_ID_TOKEN;
+						Test_Redefine(Previous,NumberPtr,*DataPtr);
+						*DataPtr   = (void *) Create_Vector();
+						Assign_Vector((DBL *)*DataPtr, Express);
+						break;
 
-				case 3:
-					*NumberPtr = VECTOR_4D_ID_TOKEN;
-					Test_Redefine(Previous,NumberPtr,*DataPtr);
-					*DataPtr   = (void *) Create_Vector_4D();
-					Assign_Vector_4D((DBL *)*DataPtr, Express);
-					break;
+					case 3:
+						*NumberPtr = VECTOR_4D_ID_TOKEN;
+						Test_Redefine(Previous,NumberPtr,*DataPtr);
+						*DataPtr   = (void *) Create_Vector_4D();
+						Assign_Vector_4D((DBL *)*DataPtr, Express);
+						break;
 
-				case 4:
-					*NumberPtr    = COLOUR_ID_TOKEN;
-					Test_Redefine(Previous,NumberPtr,*DataPtr);
-					*DataPtr      = (void *) Create_Colour();
-					Assign_Colour_Express((COLC*)(*DataPtr), Express); /* NK fix assign_colour bug */
-					break;
-			}
+					case 4:
+						*NumberPtr    = COLOUR_ID_TOKEN;
+						Test_Redefine(Previous,NumberPtr,*DataPtr);
+						*DataPtr      = (void *) Create_Colour();
+						Assign_Colour_Express((COLC*)(*DataPtr), Express); /* NK fix assign_colour bug */
+						break;
+				}
 
-			Parse_Comma(); // data file comma between 2 data items
-			EXIT
-		END_CASE
+				Parse_Comma(); // data file comma between 2 data items
+				EXIT
+			END_CASE
 
-		CASE(STRING_LITERAL_TOKEN)
-			*NumberPtr = STRING_ID_TOKEN;
-			Test_Redefine(Previous,NumberPtr,*DataPtr);
-			*DataPtr   = String_To_UCS2(Token.Token_String, false);
-			Parse_Comma(); // data file comma between 2 data items
-			EXIT
-		END_CASE
+			CASE(STRING_LITERAL_TOKEN)
+				*NumberPtr = STRING_ID_TOKEN;
+				Test_Redefine(Previous,NumberPtr,*DataPtr);
+				*DataPtr   = String_To_UCS2(Token.Token_String, false);
+				Parse_Comma(); // data file comma between 2 data items
+				EXIT
+			END_CASE
 
-		CASE (END_OF_FILE_TOKEN)
-			EXIT
-		END_CASE
+			CASE (END_OF_FILE_TOKEN)
+				EXIT
+			END_CASE
 
-		OTHERWISE
-			Input_File->In_File = Temp;
-			Expectation_Error ("float, vector, or string literal");
-		END_CASE
-	END_EXPECT
+			OTHERWISE
+				Expectation_Error ("float, vector, or string literal");
+			END_CASE
+		END_EXPECT
+	}
+	catch (...)
+	{
+		// re-assign the file pointers so that they are properly disposed of later on
+		User_File->In_File = Input_File->In_File; 
+		Input_File->In_File = Temp;
+		Input_File->R_Flag = Temp_R_Flag;
+		throw;
+	}
 
 	if (Token.Token_Id==END_OF_FILE_TOKEN)
 		End_File = true;
@@ -3654,48 +3665,52 @@ void Parser::Parse_Write(void)
 				bool big_endian = false;
 				switch (Token.Token_Id)
 				{
-					case SINT8_TOKEN:                                            val_min =            -128; val_max =        127; num_bytes = 1; break; // -2^7  to 2^7-1
-					case UINT8_TOKEN:                                            val_min =               0; val_max =        255; num_bytes = 1; break; //  0    to 2^8-1
-					case SINT16BE_TOKEN: big_endian = true; case SINT16LE_TOKEN: val_min =          -32768; val_max =      32767; num_bytes = 2; break; // -2^15 to 2^15-1
-					case UINT16BE_TOKEN: big_endian = true; case UINT16LE_TOKEN: val_min =               0; val_max =      65535; num_bytes = 2; break; //  0    to 2^16-1
-					case SINT32BE_TOKEN: big_endian = true; case SINT32LE_TOKEN: val_min = (-2147483647-1); val_max = 2147483647; num_bytes = 4; break; // -2^31 to 2^31-1 (using unconventional notation to avoid a warning with some compiler)
+					case SINT8_TOKEN:                                        val_min =            -128; val_max =        127; num_bytes = 1; break; // -2^7  to 2^7-1
+					case UINT8_TOKEN:                                        val_min =               0; val_max =        255; num_bytes = 1; break; //  0    to 2^8-1
+					case SINT16BE_TOKEN: big_endian = true; // FALLTHROUGH
+					case SINT16LE_TOKEN:                                     val_min =          -32768; val_max =      32767; num_bytes = 2; break; // -2^15 to 2^15-1
+					case UINT16BE_TOKEN: big_endian = true; // FALLTHROUGH
+					case UINT16LE_TOKEN:                                     val_min =               0; val_max =      65535; num_bytes = 2; break; //  0    to 2^16-1
+					case SINT32BE_TOKEN: big_endian = true; // FALLTHROUGH
+					case SINT32LE_TOKEN:                                     val_min = (-2147483647-1); val_max = 2147483647; num_bytes = 4; break; // -2^31 to 2^31-1 (using unconventional notation to avoid a warning with some compiler)
 				}
 				EXPECT
-				CASE_VECTOR
-					Terms = Parse_Unknown_Vector (Express);
-					if ((Terms >= 1) && (Terms <= 5))
-					{
-						for (int i = 0; i < Terms; i ++)
+					CASE_VECTOR
+						Terms = Parse_Unknown_Vector (Express);
+						if ((Terms >= 1) && (Terms <= 5))
 						{
-							signed long val;
-							if (Express[i] <= val_min)
-								val = val_min; // TODO - maybe we should warn the user
-							else if (Express[i] >= val_max)
-								val = val_max; // TODO - maybe we should warn the user
-							else
-								val = (signed long)(floor(Express[i]+0.5));
-							for (int j = 0; j < num_bytes; j ++)
+							for (int i = 0; i < Terms; i ++)
 							{
-								int bitShift = (big_endian? (num_bytes-1)-j : j) * 8;
-								User_File->Out_File->putraw((val >> bitShift) & 0xFF);
+								signed long val;
+								if (Express[i] <= val_min)
+									val = val_min; // TODO - maybe we should warn the user
+								else if (Express[i] >= val_max)
+									val = val_max; // TODO - maybe we should warn the user
+								else
+									val = (signed long)(floor(Express[i]+0.5));
+								for (int j = 0; j < num_bytes; j ++)
+								{
+									int bitShift = (big_endian? (num_bytes-1)-j : j) * 8;
+									User_File->Out_File->putraw((val >> bitShift) & 0xFF);
+								}
 							}
 						}
-					}
-					else
-					{
+						else
+						{
+							Expectation_Error("expression");
+						}
+					END_CASE
+					CASE (RIGHT_PAREN_TOKEN)
+						UNGET
+						EXIT
+					END_CASE
+					CASE (COMMA_TOKEN)
+						UNGET
+						EXIT
+					END_CASE
+					OTHERWISE
 						Expectation_Error("expression");
-					}
-				END_CASE
-				CASE (RIGHT_PAREN_TOKEN)
-					UNGET
-					EXIT
-				END_CASE
-				CASE (COMMA_TOKEN)
-					UNGET
-					EXIT
-				END_CASE
-				OTHERWISE
-					Expectation_Error("expression");
+					END_CASE
 				END_EXPECT
 			}
 		END_CASE

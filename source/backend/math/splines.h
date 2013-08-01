@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/math/splines.h $
- * $Revision: #9 $
- * $Change: 5487 $
- * $DateTime: 2011/09/12 23:27:22 $
+ * $Revision: #10 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -106,11 +106,11 @@ namespace pov
 #define CATMULL_ROM_SPLINE    4
 
 SPLINE * Create_Spline(int Type);
-SPLINE * Copy_Spline(SPLINE * Old);
+SPLINE * Copy_Spline(const SPLINE * Old);
 void Acquire_Spline_Reference(SPLINE * Spline);
 void Release_Spline_Reference(SPLINE * Spline);
 void Destroy_Spline(SPLINE * Spline);
-void Insert_Spline_Entry(SPLINE * Spline, DBL p, EXPRESS v);
+void Insert_Spline_Entry(SPLINE * Spline, DBL p, const EXPRESS v);
 DBL Get_Spline_Val(SPLINE * sp, DBL p, EXPRESS v, int *Terms);
 
 }

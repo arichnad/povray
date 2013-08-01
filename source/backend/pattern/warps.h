@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/pattern/warps.h $
- * $Revision: #13 $
- * $Change: 5088 $
- * $DateTime: 2010/08/05 17:08:44 $
+ * $Revision: #15 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -200,9 +200,9 @@ struct Black_Hole_Warp : public Warps_Struct
 void Warp_EPoint (VECTOR TPoint, const VECTOR EPoint, const TPATTERN *TPat);
 WARP *Create_Warp (int Warp_Type);
 void Destroy_Warps (WARP *Warps);
-WARP *Copy_Warps (WARP *Old);
-void Warp_Normal (VECTOR TNorm, const VECTOR ENorm, TPATTERN *TPat, bool DontScaleBumps);
-void UnWarp_Normal (VECTOR TNorm, const VECTOR ENorm, TPATTERN *TPat, bool DontScaleBumps);
+WARP *Copy_Warps (const WARP *Old);
+void Warp_Normal (VECTOR TNorm, const VECTOR ENorm, const TPATTERN *TPat, bool DontScaleBumps);
+void UnWarp_Normal (VECTOR TNorm, const VECTOR ENorm, const TPATTERN *TPat, bool DontScaleBumps);
 
 }
 

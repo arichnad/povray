@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/interior/media.h $
- * $Revision: #18 $
- * $Change: 5401 $
- * $DateTime: 2011/02/08 21:06:55 $
+ * $Revision: #19 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -133,16 +133,16 @@ class MediaFunction : public Trace::MediaFunctor
 		PhotonGatherer *photonGatherer;
 
 		void ComputeMediaRegularSampling(MediaVector& medias, LightSourceEntryVector& lights, MediaIntervalVector& mediaintervals,
-		                                 const Ray& ray, Media *IMedia, int minsamples, bool ignore_photons, bool use_scattering,
+		                                 const Ray& ray, const Media *IMedia, int minsamples, bool ignore_photons, bool use_scattering,
 		                                 bool all_constant_and_light_ray, Trace::TraceTicket& ticket);
 		void ComputeMediaAdaptiveSampling(MediaVector& medias, LightSourceEntryVector& lights, MediaIntervalVector& mediaintervals,
-		                                  const Ray& ray, Media *IMedia, DBL aa_threshold, int minsamples, bool ignore_photons, bool use_scattering, Trace::TraceTicket& ticket);
+		                                  const Ray& ray, const Media *IMedia, DBL aa_threshold, int minsamples, bool ignore_photons, bool use_scattering, Trace::TraceTicket& ticket);
 		void ComputeMediaColour(MediaIntervalVector& mediaintervals, Colour& colour);
-		void ComputeMediaSampleInterval(LitIntervalVector& litintervals, MediaIntervalVector& mediaintervals, Media *media);
-		void ComputeMediaLightInterval(LightSourceEntryVector& lights, LitIntervalVector& litintervals, const Ray& ray, Intersection& isect);
-		void ComputeOneMediaLightInterval(LightSource *light, LightSourceEntryVector&lights, const Ray& ray, Intersection& isect);
-		bool ComputeSpotLightInterval(const Ray &ray, LightSource *Light, DBL *d1, DBL *d2);
-		bool ComputeCylinderLightInterval(const Ray &ray, LightSource *Light, DBL *d1, DBL *d2);
+		void ComputeMediaSampleInterval(LitIntervalVector& litintervals, MediaIntervalVector& mediaintervals, const Media *media);
+		void ComputeMediaLightInterval(LightSourceEntryVector& lights, LitIntervalVector& litintervals, const Ray& ray, const Intersection& isect);
+		void ComputeOneMediaLightInterval(LightSource *light, LightSourceEntryVector&lights, const Ray& ray, const Intersection& isect);
+		bool ComputeSpotLightInterval(const Ray &ray, const LightSource *Light, DBL *d1, DBL *d2);
+		bool ComputeCylinderLightInterval(const Ray &ray, const LightSource *Light, DBL *d1, DBL *d2);
 		void ComputeOneMediaSample(MediaVector& medias, LightSourceEntryVector& lights, MediaInterval& mediainterval, const Ray &ray, DBL d0, RGBColour& SampCol,
 		                           RGBColour& SampOptDepth, int sample_method, bool ignore_photons, bool use_scattering, bool photonPass, Trace::TraceTicket& ticket);
 		void ComputeOneMediaSampleRecursive(MediaVector& medias, LightSourceEntryVector& lights, MediaInterval& mediainterval, const Ray& ray,

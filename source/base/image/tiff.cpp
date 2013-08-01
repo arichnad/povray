@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/image/tiff.cpp $
- * $Revision: #26 $
- * $Change: 5303 $
- * $DateTime: 2010/12/27 14:22:56 $
+ * $Revision: #27 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -120,14 +120,14 @@ extern "C"
 	#ifndef AVOID_WIN32_FILEIO
 	#define AVOID_WIN32_FILEIO // this stops the tiff headers from pulling in windows.h on win32/64
 	#endif
-	#include "tiffio.h"
+	#include <tiffio.h>
 }
 
 /* Do any of the entries in the color map contain values larger than 255? */
-static int checkcmap(int n, uint16* r, uint16* g, uint16* b)
+static int checkcmap(int n, const uint16* r, const uint16* g, const uint16* b)
 {
 	while(n-- > 0)
-		if((*r++ >= 256) || (*g++ >= 256) || (*b++ >= 256))
+		if((*(r++) >= 256) || (*(g++) >= 256) || (*(b++) >= 256))
 			return 16;
 	return 8;
 }

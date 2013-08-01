@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/lighting/point.cpp $
- * $Revision: #25 $
- * $Change: 5512 $
- * $DateTime: 2011/11/12 14:22:14 $
+ * $Revision: #26 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -642,7 +642,7 @@ DBL cubic_spline(DBL low, DBL  high, DBL  pos)
 *
 ******************************************************************************/
 
-DBL Attenuate_Light (const LightSource *Light, Ray &ray, DBL Distance)
+DBL Attenuate_Light (const LightSource *Light, const Ray &ray, DBL Distance)
 {
 	DBL len, k, costheta;
 	DBL Attenuation = 1.0;

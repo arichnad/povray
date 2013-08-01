@@ -23,10 +23,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/vfe/vfesession.cpp $
- * $Revision: #33 $
- * $Change: 5261 $
- * $DateTime: 2010/12/14 06:50:20 $
- * $Author: chrisc $
+ * $Revision: #36 $
+ * $Change: 5726 $
+ * $DateTime: 2012/11/12 05:47:18 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -591,7 +591,6 @@ const char *vfeSession::GetBackendStateName (void) const
     case kPostShelloutPause:       return ("Paused after running shellout");
     case kFailed:                  return ("Failed") ;
     case kDone:                    return ("Done") ;
-    case -1:                       return ("") ;
     default :                      return ("Invalid State") ;
   }
 }
@@ -626,9 +625,9 @@ void vfeSession::WorkerThread()
 
   if (POVMS_Init() == false)
     m_LastError = vfePOVMSInitFailed ;
-  else if (POVMS_OpenContext ((void **) &pov::POVMS_GUI_Context) != kNoError)
+  else if (POVMS_OpenContext (const_cast<void **>(&pov::POVMS_GUI_Context)) != kNoError)
     m_LastError = vfeOpenContextFailed ;
-  else if (POVMS_GetContextAddress (pov::POVMS_GUI_Context, (void **) &pov::GUIThreadAddr) != kNoErr)
+  else if (POVMS_GetContextAddress (pov::POVMS_GUI_Context, const_cast<void **>(&pov::GUIThreadAddr)) != kNoErr)
     m_LastError = vfeConnectFailed ;
 
   if (m_LastError != vfeNoError)
@@ -637,7 +636,7 @@ void vfeSession::WorkerThread()
     return;
   }
 
-  m_BackendThread = povray_init (boost::bind(&vfeSession::BackendThreadNotify, this), (void **) &pov::RenderThreadAddr) ;
+  m_BackendThread = povray_init (boost::bind(&vfeSession::BackendThreadNotify, this), const_cast<void **>(&pov::RenderThreadAddr)) ;
   POVMS_Output_Context = pov::POVMS_GUI_Context ;
 
   m_Console = shared_ptr<vfeConsole> (new vfeConsole(this, m_ConsoleWidth)) ;
@@ -967,7 +966,7 @@ vfeStatusFlags vfeSession::GetStatus(bool Clear, int WaitTime)
   if (WaitTime > 0)
   {
     boost::xtime t;
-    boost::xtime_get (&t, boost::TIME_UTC);
+    boost::xtime_get (&t, POV_TIME_UTC);
     t.sec += WaitTime / 1000 ;
     t.nsec += (WaitTime % 1000) * 1000000 ;
     m_SessionEvent.timed_wait (lock, t);
@@ -1034,7 +1033,7 @@ bool vfeSession::Pause()
   // we can't call pause directly since it will result in a thread context
   // error. pause must be called from the context of the worker thread.
   boost::xtime t;
-  boost::xtime_get (&t, boost::TIME_UTC);
+  boost::xtime_get (&t, POV_TIME_UTC);
   t.sec += 3 ;
   m_RequestFlag = rqPauseRequest;
   if (m_RequestEvent.timed_wait(lock, t) == false)
@@ -1057,7 +1056,7 @@ bool vfeSession::Resume()
   // we can't call resume directly since it will result in a thread context
   // error. it must be called from the context of the worker thread.
   boost::xtime t;
-  boost::xtime_get (&t, boost::TIME_UTC);
+  boost::xtime_get (&t, POV_TIME_UTC);
   t.sec += 3 ;
   m_RequestFlag = rqResumeRequest;
   if (m_RequestEvent.timed_wait(lock, t) == false)
@@ -1123,7 +1122,7 @@ int vfeSession::Initialize(vfeDestInfo *Dest, vfeAuthInfo *Auth)
   m_LastError = vfeNoError;
 
   boost::xtime t;
-  boost::xtime_get (&t, boost::TIME_UTC);
+  boost::xtime_get (&t, POV_TIME_UTC);
   t.sec += 3 ;
 #ifdef _DEBUG
   t.sec += 120;

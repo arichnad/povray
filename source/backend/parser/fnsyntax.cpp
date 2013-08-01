@@ -25,10 +25,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/parser/fnsyntax.cpp $
- * $Revision: #16 $
- * $Change: 5191 $
- * $DateTime: 2010/11/21 09:54:23 $
- * $Author: jholsenback $
+ * $Revision: #17 $
+ * $Change: 5745 $
+ * $DateTime: 2013/01/21 11:29:35 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -123,7 +123,7 @@ struct ExprParserTableEntry
 struct ExprParserErrorEntry
 {
 	int stage;
-	char *expected;
+	const char *expected;
 };
 
 

@@ -441,7 +441,7 @@
   <td><div class="divh3"><a title="2.3.11.7" href="#t2_3_11_7">Ray-sphere intersection</a></div></td>
 </tr>
 <tr>
-  <td><div class="divh4"><a title="2.3.11.7.1" href="#t2_3_11_7_1">Inner workings of a #macro</a></div></td>
+  <td><div class="divh4"><a title="2.3.11.7.1" href="#t2_3_11_7_1">Inner workings of a macro</a></div></td>
 </tr>
 <tr>
   <td><div class="divh4"><a title="2.3.11.7.2" href="#t2_3_11_7_2">The ray-sphere intersection macro</a></div></td>
@@ -551,12 +551,7 @@ before proceeding with these advanced shapes.</p>
 <a name="t2_3_1_1"></a>
 <div class="content-level-h4" contains="Lathe Object" id="t2_3_1_1">
 <h4>2.3.1.1 Lathe Object</h4>
-<p>In the real world, <code><a href="r3_4.html#r3_4_1_8">lathe</a></code> refers to a process of making
-patterned rounded shapes by spinning the source material in place and carving
-pieces out as it turns. The results can be elaborate, smoothly rounded,
-elegant looking artefacts such as table legs, pottery, etc. In POV-Ray, a
-lathe object is used for creating much the same kind of items, although we
-are referring to the object itself rather than the means of production.</p>
+<p>In the real world, <code><a href="r3_4.html#r3_4_5_1_8">lathe</a></code> refers to a process of making patterned rounded shapes by spinning the source material in place and carving pieces out as it turns. The results can be elaborate, smoothly rounded, elegant looking artefacts such as table legs, pottery, etc. In POV-Ray, a lathe object is used for creating much the same kind of items, although we are referring to the object itself rather than the means of production.</p>
 <p>
 Here is some source for a really basic lathe.</p>
 <pre>
@@ -941,10 +936,8 @@ object. If such a program is available we should take advantage of it.</p>
   </tr>
 </table>
 
-<p>We will use the point configuration shown in the figure above. There are
-eight points describing the curve that will be rotated about the y-axis to
-get our cup. The curve was calculated using the method described in the
-reference section (see <a href="r3_4.html#r3_4_1_15">Surface of Revolution</a>).</p>
+<p>We will use the point configuration shown in the figure above. There are eight points describing the curve that will be rotated about the y-axis to get our cup. The curve was calculated using the method described in the
+reference section (see <a href="r3_4.html#r3_4_5_1_15">Surface of Revolution</a>).</p>
 <p>
 Now it is time to come up with a scene that uses the above SOR object. We
 create a file called <code>sordemo.pov</code> and enter the following text.</p>
@@ -1402,13 +1395,12 @@ of surfaces using only a few control points. The control points serve to determi
 of the patch. Instead of defining the vertices of triangles, we simply give the coordinates
 of the control points. A single patch has 16 control points, one at each corner, and the rest
 positioned to divide the patch into smaller sections. POV-Ray does not ray trace the patches
-directly, they are approximated using triangles as described in the
-<a href="r3_4.html#r3_4_2_1">Scene Description Language</a> section.
+directly, they are approximated using triangles as described in the <a href="r3_4.html#r3_4_5_2_1">Scene Description Language</a> section.
 </p>
 <p>
 Bicubic patches are almost always created by using a third party modeler, but for this tutorial
 we will manipulate them by hand. Modelers that support Bicubic patches and export to POV-Ray
-can be found in the <a href="http://www.povray.org/links/">links collection on our server</a><br>
+can be found in the <a href="http://www.povray.org/resources/links/">links collection on our server</a><br>
 Let's set up a basic scene and start exploring the Bicubic patch.
 </p>
 <pre>
@@ -1922,7 +1914,7 @@ in the mesh.</p>
 Now let's begin. We will create a simple box with differently colored
 sides. We create an empty file called <code>meshdemo.pov</code> and add the
 following lines. Note that a mesh is - not surprisingly - declared using the
-keyword <code><a href="r3_4.html#r3_4_2_3">mesh</a></code>.</p>
+keyword <code><a href="r3_4.html#r3_4_5_2_3">mesh</a></code>.</p>
 <pre>
   camera {
     location &lt;20, 20, -50&gt;
@@ -2371,8 +2363,7 @@ will get their texture from a general <code>texture</code> statement in the
 <a name="t2_3_2_3"></a>
 <div class="content-level-h4" contains="Polygon Object" id="t2_3_2_3">
 <h4>2.3.2.3 Polygon Object</h4>
-<p>The <code><a href="r3_4.html#r3_4_2_5">polygon</a></code> object can be used to create any planar, n-sided
-shapes like squares, rectangles, pentagons, hexagons, octagons, etc.</p>
+<p>The <code><a href="r3_4.html#r3_4_5_2_5">polygon</a></code> object can be used to create any planar, n-sided shapes like squares, rectangles, pentagons, hexagons, octagons, etc.</p>
 <p>
 A polygon is defined by a number of points that describe its shape. Since
 polygons have to be closed the first point has to be repeated at the end of
@@ -2512,8 +2503,7 @@ Finally, we get the complete word POV.</p>
 <a name="t2_3_3_1"></a>
 <div class="content-level-h4" contains="Blob Object" id="t2_3_3_1">
 <h4>2.3.3.1 Blob Object</h4>
-<p>Blobs are described as spheres and cylinders covered with <em>goo</em>
-which stretches to smoothly join them (see section <a href="r3_4.html#r3_4_1_1">Blob</a>).</p>
+<p>Blobs are described as spheres and cylinders covered with <em>goo</em> which stretches to smoothly join them (see section <a href="r3_4.html#r3_4_5_1_1">Blob</a>).</p>
 <p>
 Ideal for modeling atoms and molecules, blobs are also powerful tools for
 creating many smooth flowing <em>organic</em> shapes.</p>
@@ -2805,9 +2795,7 @@ following:</p>
   }
 </pre>
 
-<p>The <code><a href="r3_3.html#r3_3_3_4">hf_gray_16</a></code> keyword causes the output to be in a special
-16 bit grayscale that is perfect for generating height fields. The normal 8
-bit output will lead to less smooth surfaces.</p>
+<p>The <code><a href="r3_4.html#r3_4_1_4">hf_gray_16</a></code> keyword causes the output to be in a special 16 bit grayscale that is perfect for generating height fields. The normal 8 bit output will lead to less smooth surfaces.</p>
 <p>
 Now we create a camera positioned so that it points directly down the z-axis
 at the origin.</p>
@@ -2910,7 +2898,7 @@ but not necessarily required to work with isosurfaces.</p>
 <a name="t2_3_3_3_1"></a>
 <div class="content-level-h5" contains="Simple functions" id="t2_3_3_3_1">
 <h5>2.3.3.3.1 Simple functions</h5>
-<p>Let's begin with something simple. In this first series of images, let's explore the <a href="r3_2.html#r3_2_1_6">user defined function</a> shown as <code>function&nbsp;{&nbsp;x&nbsp;}</code> that we see in the code example below. It produces the first image on the left, a simple box. The container, which is a requirement for the isosurface object, is represented by the box object and the <code>contained_by</code> keyword in the isosurface definition.</p>
+<p>Let's begin with something simple. In this first series of images, let's explore the <a href="r3_3.html#r3_3_1_8">user defined function</a> shown as <code>function&nbsp;{&nbsp;x&nbsp;}</code> that we see in the code example below. It produces the first image on the left, a simple box. The container, which is a requirement for the isosurface object, is represented by the box object and the <code>contained_by</code> keyword in the isosurface definition.</p>
 
 <pre>
   isosurface {
@@ -3134,7 +3122,7 @@ function {pow(x,2) + pow(y,2) + pow(z,2)}
 }
 </pre>
 
-<p>Let's expand on that concept, and add some flexibility. Remember that user defined functions (like equations), all float expressions and operators which are legal in POV-Ray can be used, and that functions should be declared first, and then used in the isosurface. See the section <a href="r3_2.html#r3_2_1_6">User-Defined Functions</a> for more information.</p>
+<p>Let's expand on that concept, and add some flexibility. Remember that user defined functions (like equations), all float expressions and operators which are legal in POV-Ray can be used, and that functions should be declared first, and then used in the isosurface. See the section <a href="r3_3.html#r3_3_1_8">user defined function</a> for more information.</p>
 
 <p>This next example takes the above equation, and rewrites it as a user defined function. By default a function that takes three parameters (x,y,z) does not require you to explicitly specify the parameter names when declaring it,  however when <em>using</em> the identifier, the parameters <em>must</em> be specified.</p>
 
@@ -3165,7 +3153,7 @@ isosurface {
 <div class="content-level-h5" contains="Internal functions" id="t2_3_3_3_5">
 <h5>2.3.3.3.5 Internal functions</h5>
 <p>There are a lot of internal functions available in POV-Ray. For example a sphere could also be generated with <code>function&nbsp;{&nbsp;f_sphere(x,&nbsp;y,&nbsp;z,&nbsp;2)&nbsp;}</code>, for these and other functions, see the <code>functions.inc</code> include file. Most of them are more complicated and it is usually faster to use them instead of a hand coded equivalent.</p>
-<p>See the <a href="r3_7.html#r3_7_7">complete list</a> for details.</p>
+<p>See the <a href="r3_4.html#r3_4_9_1_7">complete list</a> for details.</p>
 
 <p>The following makes a torus just like POV-Ray's torus object:</p>
 
@@ -3185,7 +3173,7 @@ isosurface {
   </td>
   <td>
     <p class="tabletext">The 4th and 5th parameters are the major and minor radius, just like the corresponding values in the <code>torus{}</code> object.</p>
-    <p class="tabletext">The parameters x, y and z are required, because it is a declared function. You can also declare functions yourself like it is explained in the <a href="r3_2.html#r3_2_1_6_3">reference section</a>.</p>
+    <p class="tabletext">The parameters x, y and z are required, because it is a declared function. You can also declare functions yourself like it is explained in the <a href="r3_3.html#r3_3_1_8_3">reference section</a>.</p>
   </td>
 </tr>
 <tr>
@@ -3200,7 +3188,7 @@ isosurface {
 <a name="t2_3_3_3_6"></a>
 <div class="content-level-h5" contains="Combining isosurface functions" id="t2_3_3_3_6">
 <h5>2.3.3.3.6 Combining isosurface functions</h5>
-<p>We can also simulate some Constructive Solid Geometry with isosurface functions.  If you do not know about CSG we suggest you have a look at <a href="t2_2.html#t2_2_3_1"><em>What is CSG?</em></a> or the corresponding part of the <a href="r3_4.html#r3_4_4">reference section</a> first.</p>
+<p>We can also simulate some Constructive Solid Geometry with isosurface functions.  If you do not know about CSG we suggest you have a look at <em><a href="t2_2.html#t2_2_3_1">What is CSG?</a></em> or the corresponding part of the <a href="r3_4.html#r3_4_5_4">reference section</a> first.</p>
 
 <p>For this next group of images, consider the two functions for a cylinder and a rotated box:</p>
 
@@ -3285,16 +3273,15 @@ function{fn_A(x,y,z) + pow(Blob_Threshold,(fn_B(x,y,z) + Strength))}
 <a name="t2_3_3_3_7"></a>
 <div class="content-level-h5" contains="Noise and pigment functions" id="t2_3_3_3_7">
 <h5>2.3.3.3.7 Noise and pigment functions</h5>
-<p>Some of the <a href="r3_7.html#r3_7_7_2">internal functions</a>
-have a random or noise-like structure</p>
+<p>Some of the <a href="r3_3.html#r3_3_1_8_6">internal functions</a> have a random or noise-like structure</p>
 
-<p>Together with the pigment functions they are one of the most powerful tools for designing isosurfaces. We can add real surface displacement to the objects rather than only normal perturbation known from the <a href="r3_5.html#r3_5_2">normal</a> statement.</p>
+<p>Together with the pigment functions they are one of the most powerful tools for designing isosurfaces. We can add real surface displacement to the objects rather than only normal perturbation known from the <a href="r3_4.html#r3_4_6_2">normal</a> statement.</p>
 
 <p>The relevant internal functions are:</p>
 
 <ul>
 <li><code>f_noise3d(x,y,z)</code><br>
-uses the <a href="r3_5.html#r3_5_12_4">noise generator</a> specified in <code>global_settings</code> and generates structures like the bozo pattern.</li>
+uses the <a href="r3_4.html#r3_4_7_5_4">noise generator</a> specified in <code>global_settings</code> and generates structures like the bozo pattern.</li>
 <li><code>f_noise_generator(x, y, z, noise_generator)</code><br>
 generates noise with a specified noise generator.</li>
 <li><code>f_ridged_mf(x, y, z, H, Lacunarity, Octaves, Offset, Gain, noise_generator)</code><br>
@@ -3582,7 +3569,7 @@ function {
 
 <p>If the real maximum gradient differs too much from the specified value POV-Ray issues a warning together with the found maximum gradient. It is usually sufficient to use this number for the <code>max_gradient</code> parameter to get fast and correct results.</p>
 
-<p>POV-Ray can also dynamically change the <code>max_gradient</code> when you specify <code>evaluate</code> with 3 parameters in the isosurface definition. Concerning the details on this and other things see the <a href="r3_4.html#r3_4_1_6">evaluate</a> keyword in the reference section.</p>
+<p>POV-Ray can also dynamically change the <code>max_gradient</code> when you specify <code>evaluate</code> with 3 parameters in the isosurface definition. Concerning the details on this and other things see the <a href="r3_4.html#r3_4_5_1_6">evaluate</a> keyword in the reference section.</p>
 
 <p><strong><code>contained_by</code>:</strong></p>
 
@@ -3592,16 +3579,9 @@ function {
 <a name="t2_3_3_4"></a>
 <div class="content-level-h4" contains="Poly Object" id="t2_3_3_4">
 <h4>2.3.3.4 Poly Object</h4>
-<p>The polynomial object (and its <em>shortcut</em> versions: <code><a href="r3_4.html#r3_4_3_2">cubic</a></code>, <code><a href="r3_4.html#r3_4_3_2">quartic</a></code> and <code><a href="r3_4.html#r3_4_3_3">quadric</a></code>)
-of POV-Ray is one of the most complex and
-mathematical primitives of the program. One could think that it is seldom
-used and more or less obsolete, but we have to remember that for example
-the torus primitive is just a shortcut for the equivalent <code>quartic</code>, which
-is just a shortcut for the equivalent <code>poly</code> object. Polys are, however, seldom
-used in scenes due to the fact that they are so difficult to define and
-it is far from trivial to get the desired shape with just a polynomial
-equation. It is mostly used by the most mathematically oriented POV-Ray
-users.</p>
+<p>The polynomial object (and its <em>shortcut</em> versions: <code><a href="r3_4.html#r3_4_5_3_3">cubic</a></code>, <code><a href="r3_4.html#r3_4_5_3_4">quartic</a></code> and <code><a href="r3_4.html#r3_4_5_3_6">quadric</a></code>)
+of POV-Ray is one of the most complex and mathematical primitives of the program. One could think that it is seldom
+used and more or less obsolete, but we have to remember that for example the torus primitive is just a shortcut for the equivalent <code>quartic</code>, which is just a shortcut for the equivalent <code>poly</code> object. Polys are, however, seldom used in scenes due to the fact that they are so difficult to define and it is far from trivial to get the desired shape with just a polynomial equation. It is mostly used by the most mathematically oriented POV-Ray users.</p>
 
 <p>This tutorial explains the process of making a polynomial object
 in POV-Ray.</p>
@@ -3737,9 +3717,7 @@ certain functions. Some mathematical programs are very helpful in this matter.</
 <div class="content-level-h5" contains="Writing the polynomial vector" id="t2_3_3_4_2">
 <h5>2.3.3.4.2 Writing the polynomial vector</h5>
 <p>Now that we have the function in polynomial form, we have to write it
-in POV-Ray syntax. The syntax is specified in the in the chapters <a href="r3_4.html#r3_4_3_2">Poly, Cubic and Quartic</a> and <a href="r3_4.html#r3_4_3_3">Quadric</a> of the reference section. There is also a 
-table in this chapter which we will be using to make the polynomial vector. It is 
-easier to have this table printed on paper.</p>
+in POV-Ray syntax. The syntax is specified in the sections on <a href="r3_4.html#r3_4_5_3_5">polynomial</a> and <a href="r3_4.html#r3_4_5_3_6">quadric</a> of the reference section. There is also a table in this chapter which we will be using to make the polynomial vector. It is easier to have this table printed on paper.</p>
 
 <p class="Note"><strong>Note:</strong> It is also possible to make a little program with your favorite
 programming language which will print the poly vector from the polynomial
@@ -3748,9 +3726,8 @@ function, but making a program like this is up to you.</p>
 <p><strong>1)</strong> Let's start with the easy one, ie. the sphere.</p>
 
 <p>Since the sphere can be represented with a polynomial of 2nd degree, we
-look at the column titled <em>2nd</em> in the <a href="r3_4.html#r3_4_3_2">table</a>. We see that it has 10 items,
-ie. we need a vector of size 10. Each item of the vector will be the factor
-of the term listed in the table.</p>
+look at the column titled <em>2nd</em> in the <a href="r3_4.html#r3_4_5_3_5">table</a>. We see that it has 10 items,
+ie. we need a vector of size 10. Each item of the vector will be the factor of the term listed in the table.</p>
 
 <p>The polynomial was:</p>
 
@@ -3816,11 +3793,8 @@ poly
 </table>
 
 <p></p>
-<p class="Note"><strong>Note:</strong> There is a shortcut for 2nd degree polynomials: The 
-<code><a href="r3_4.html#r3_4_3_3">quadric</a></code>
-primitive. Using a shortcut version, whenever possible, can lead to faster
-renderings. We can write the sphere code described above in the following
-way:</p>
+<p class="Note"><strong>Note:</strong> There is a shortcut for 2nd degree polynomials: The <code><a href="r3_4.html#r3_4_5_3_6">quadric</a></code> primitive. Using a shortcut version, whenever possible, can lead to faster
+renderings. We can write the sphere code described above in the following way:</p>
 
 <pre>
 quadric
@@ -3958,9 +3932,7 @@ poly
 </table>
 
 
-<p>There is a shortcut for 4th order polynomials: The 
-<code><a href="r3_4.html#r3_4_3_2">quartic</a></code> primitive.
-We can write the torus like this:</p>
+<p>There is a shortcut for 4th order polynomials: The <code><a href="r3_4.html#r3_4_5_3_4">quartic</a></code> primitive. We can write the torus like this:</p>
 
 <pre>
 quartic
@@ -3979,7 +3951,7 @@ quartic
 <a name="t2_3_3_4_3"></a>
 <div class="content-level-h5" contains="Polynomial made easy" id="t2_3_3_4_3">
 <h5>2.3.3.4.3 Polynomial made easy</h5>
-<p>Since consulting the table in the section <a href="r3_4.html#r3_4_3_2">Poly, Cubic and Quartic</a> or writing a program to get the right poly vector can be a bit cumbersome, especially when the poly vector is not a write-once-only expression and that you want to get it back, so let's examine how those equations would be rewritten using the <em>simplified</em> syntax.</p>
+<p>Since consulting the table in the section <a href="r3_4.html#r3_4_5_3_5">Polynomial</a> or writing a program to get the right poly vector can be a bit cumbersome, especially when the poly vector is not a write-once-only expression and that you want to get it back, so let's examine how those equations would be rewritten using the <em>simplified</em> syntax.</p>
 <p>You should refer to the images in the previous section, as these examples produce <em>exactly</em> the same results.</p>
 
 <p><strong>1)</strong> The sphere example can be rewritten as:</p>
@@ -4521,13 +4493,13 @@ creating beautiful textures of our own.</p>
 <p class="Note"><strong>Note:</strong> Early versions of POV-Ray made a distinction between pigment and
 normal patterns, i. e. patterns that could be used inside a <code>
 normal</code> or <code>pigment</code> statement. Since POV-Ray 3.0 this
-restriction was removed so that all patterns listed in section <a href="r3_5.html#r3_5_11">Patterns</a> can be used as a pigment or normal pattern.</p>
+restriction was removed so that all patterns listed in section <a href="r3_4.html#r3_4_7">Pattern</a> can be used as a pigment or normal pattern.</p>
 
 </div>
 <a name="t2_3_5_1"></a>
 <div class="content-level-h4" contains="Pigments" id="t2_3_5_1">
 <h4>2.3.5.1 Pigments</h4>
-<p>Every surface must have a color. In POV-Ray this color is called a <code><a href="r3_5.html#r3_5_1">pigment</a></code>.
+<p>Every surface must have a color. In POV-Ray this color is called a <code><a href="r3_4.html#r3_4_6_1">pigment</a></code>.
 It does not have to be a single color. It can be a color pattern, a color
 list or even an image map. Pigments can also be layered one on top of the next
 so long as the uppermost layers are at least partially transparent so the ones
@@ -4565,8 +4537,8 @@ will be using the sphere for our textures.</p>
 <p>Before we begin we should note that we have already made one kind of
 pigment, the color list pigment. In the previous example we have used a
 checkered pattern on our plane. There are three other kinds of color list
-pigments, <code><a href="r3_5.html#r3_5_11_6">brick</a></code>, <code><a href="r3_5.html#r3_5_11_21">hexagon</a></code> and the
-<code><a href="r3_5.html#r3_5_11_25">object</a></code> pattern.
+pigments, <code><a href="r3_4.html#r3_4_7_1_4">brick</a></code>, <code><a href="r3_4.html#r3_4_7_2_4">hexagon</a></code> and the
+<code><a href="r3_4.html#r3_4_7_2_5">object</a></code> pattern.
 Let's quickly try each of these. First, we change the plane's
 pigment as follows:</p>
 <pre>
@@ -4604,7 +4576,7 @@ following.</p>
     }
   }
 </pre>
-<p>Rendering this we see that the <code><a href="r3_5.html#r3_5_11_19">gradient</a></code> pattern gives us an
+<p>Rendering this we see that the <code><a href="r3_4.html#r3_4_7_1_13">gradient</a></code> pattern gives us an
 interesting pattern of vertical stripes. We change the gradient direction to
 y. The stripes are horizontal now. We change the gradient direction to z. The
 stripes are now more like concentric rings. This is because the gradient
@@ -4625,10 +4597,10 @@ and add the following to the pigment block.</p>
 <p>The vertical bars are now slanted at a 45 degree angle. All patterns can
 be rotated, scaled and translated in this manner. Let's now try some
 different types of patterns. One at a time, we substitute the following
-keywords for <code>gradient x</code> and render to see the result: <code><a href="r3_5.html#r3_5_11_5">bozo</a></code>,
-<code><a href="r3_5.html#r3_5_11_24">marble</a></code>, <code><a href="r3_5.html#r3_5_11_1">agate</a></code>, <code><a href="r3_5.html#r3_5_11_20">granite</a></code>,
-<code><a href="r3_5.html#r3_5_11_23">leopard</a></code>, <code><a href="r3_5.html#r3_5_11_37">spotted</a></code> and <code><a href="r3_5.html#r3_5_11_42">wood</a></code>
-(if we like  we can test all patterns listed in section <a href="r3_5.html#r3_5_11">Patterns</a>).</p>
+keywords for <code>gradient x</code> and render to see the result: <code><a href="r3_4.html#r3_4_7_1_3">bozo</a></code>,
+<code><a href="r3_4.html#r3_4_7_1_16">marble</a></code>, <code><a href="r3_4.html#r3_4_7_1_1">agate</a></code>, <code><a href="r3_4.html#r3_4_7_1_14">granite</a></code>,
+<code><a href="r3_4.html#r3_4_7_1_15">leopard</a></code>, <code><a href="r3_4.html#r3_4_7_1_27">spotted</a></code> and <code><a href="r3_4.html#r3_4_7_1_30">wood</a></code>
+(if we like  we can test all patterns listed in section <a href="r3_4.html#r3_4_7">Pattern</a>).</p>
 <p>
 Rendering these we see that each results in a slightly different pattern.
 But to get really good results each type of pattern requires the use of some
@@ -4660,17 +4632,13 @@ the pattern type to <code>marble</code>. When we rendered this earlier, we
 saw a banded pattern similar to <code>gradient y</code> that really did not
 look much like marble at all. This is because marble really is a kind of
 gradient and it needs another pattern modifier to look like marble. This
-modifier is called <code><a href="r3_5.html#r3_5_12_5">turbulence</a></code>. We change the line <code>
+modifier is called <code><a href="r3_4.html#r3_4_7_5_5_9">turbulence</a></code>. We change the line <code>
 frequency 3</code> to <code>turbulence 1</code> and render again. That's
 better! Now let's put <code>frequency 3</code> back in right after the
 turbulence and take another look. Even more interesting!</p>
 <p>
-But wait, it gets better! Turbulence itself has some modifiers of its own.
-We can adjust the turbulence several ways. First, the float that follows the
-<code>turbulence</code> keyword can be any value with higher values giving
-us more turbulence. Second, we can use the keywords <code><a href="r3_5.html#r3_5_12_6_4_3">omega</a></code>,
-<code><a href="r3_5.html#r3_5_12_6_4_2">lambda</a></code> and <code><a href="r3_5.html#r3_5_12_6_4_1">octaves</a></code>
-to change the turbulence parameters.</p>
+But wait, it gets better! Turbulence itself has some modifiers of its own. We can adjust the turbulence several ways. First, the float that follows the <code>turbulence</code> keyword can be any value with higher values giving
+us more turbulence. Second, we can use the keywords <code><a href="r3_4.html#r3_4_7_5_5_6">omega</a></code>, <code><a href="r3_4.html#r3_4_7_5_5_5">lambda</a></code> and <code><a href="r3_4.html#r3_4_7_5_5_4">octaves</a></code> to change the turbulence parameters.</p>
 <p>
 Let's try this now:</p>
 <pre>
@@ -4699,22 +4667,18 @@ lambda, omega and octaves to see what they do.</p>
 <a name="t2_3_5_1_4"></a>
 <div class="content-level-h5" contains="Using Transparent Pigments and Layered Textures" id="t2_3_5_1_4">
 <h5>2.3.5.1.4 Using Transparent Pigments and Layered Textures</h5>
-<p>Pigments are described by numerical values that give the <a href="r3_2.html#r3_2_1_5_1">rgb</a> value of the
-color to be used (like <code>color rgb&lt;1,0,0&gt;</code> giving us a red
+<p>Pigments are described by numerical values that give the <a href="r3_3.html#r3_3_1_7_1">rgb</a> value of the color to be used (like <code>color rgb&lt;1,0,0&gt;</code> giving us a red
 color). But this syntax will give us more than just the rgb values. We can
 specify filtering transparency by changing it as follows: <code>color
 rgbf&lt;1,0,0,1&gt;</code>. The <em>f</em> stands for <code>filter</code>,
-POV-Ray's word for <a href="r3_2.html#r3_2_1_5_1">filtered transparency</a>. A value of one means that the
+POV-Ray's word for <a href="r3_3.html#r3_3_1_7_1">filtered</a> transparency. A value of one means that the
 color is completely transparent, but still filters the light according to
 what the pigment is. In this case, the color will be a transparent red, like
 red cellophane.</p>
 <p>
 There is another kind of transparency in POV-Ray. It is called <em>transmittance</em>
-or non-filtering transparency (the keyword is <code><a href="r3_2.html#r3_2_1_5">transmit</a></code>;
-see also <code><a href="r3_2.html#r3_2_1_5_1">rgbt</a></code>).
-It is different from <code>filter</code> in that it does not filter the light according
-to the pigment color. It instead allows all the light to pass through unchanged. It can
-be specified like this: <code>rgbt &lt;1,0,0,1&gt;</code>.</p>
+or non-filtering transparency (the keyword is <code><a href="r3_3.html#r3_3_1_7">transmit</a></code>;
+see also <code><a href="r3_3.html#r3_3_1_7_1">rgbt</a></code>). It is different from <code>filter</code> in that it does not filter the light according to the pigment color. It instead allows all the light to pass through unchanged. It can be specified like this: <code>rgbt &lt;1,0,0,1&gt;</code>.</p>
 <p>
 Let's use some transparent pigments to create another kind of texture,
 the layered texture. Returning to our previous example, declare the following
@@ -4892,10 +4856,10 @@ file, create a new sphere with a simple, single color texture.</p>
 pigment</code> block (note that these do not have to be included in a <code>
 texture</code> block unless they need to be transformed together or need to
 be part of a layered texture). We render this to see what it looks like. Now,
-one at a time, we substitute for the keyword <code><a href="r3_5.html#r3_5_11_7">bumps</a></code> the following
-keywords: <code><a href="r3_5.html#r3_5_11_14">dents</a></code>, <code><a href="r3_5.html#r3_5_11_43">wrinkles</a></code>,
-<code><a href="r3_5.html#r3_5_11_32">ripples</a></code> and <code><a href="r3_5.html#r3_5_11_41">waves</a></code>
-(we can also use any of the patterns listed in <a href="r3_5.html#r3_5_11">Patterns</a>).
+one at a time, we substitute for the keyword <code><a href="r3_4.html#r3_4_7_1_5">bumps</a></code> the following
+keywords: <code><a href="r3_4.html#r3_4_7_1_9">dents</a></code>, <code><a href="r3_4.html#r3_4_7_1_31">wrinkles</a></code>,
+<code><a href="r3_4.html#r3_4_7_1_23">ripples</a></code> and <code><a href="r3_4.html#r3_4_7_1_29">waves</a></code>
+(we can also use any of the patterns listed in <a href="r3_4.html#r3_4_7">Pattern</a>).
 We render each to see what they look like. We play around with the float value that follows the
 keyword. We also experiment with the scale value.</p>
 <p>
@@ -5325,19 +5289,16 @@ plane
 <a name="t2_3_5_3"></a>
 <div class="content-level-h4" contains="Finishes" id="t2_3_5_3">
 <h4>2.3.5.3 Finishes</h4>
-<p>The final part of a POV-Ray texture is the <code><a href="r3_5.html#r3_5_3">finish</a></code>. It
+<p>The final part of a POV-Ray texture is the <code><a href="r3_4.html#r3_4_6_3">finish</a></code>. It
 controls the properties of the surface of an object. It can make it shiny and
 reflective, or dull and flat. It can also specify what happens to light that
 passes through transparent pigments, what happens to light that is scattered
 by less-than-perfectly-smooth surfaces and what happens to light that is
 reflected by surfaces with thin-film interference properties. There are
 twelve different properties available in POV-Ray to specify the finish of a
-given object. These are controlled by the following keywords: <code><a href="r3_5.html#r3_5_3_1">ambient</a></code>,
-<code><a href="r3_5.html#r3_5_3_3_1">diffuse</a></code>, <code><a href="r3_5.html#r3_5_3_3_2">brilliance</a></code>,
-<code><a href="r3_5.html#r3_5_3_4_1">phong</a></code>, <code><a href="r3_5.html#r3_5_3_4_2">specular</a></code>,
-<code><a href="r3_5.html#r3_5_3_4_3">metallic</a></code>, <code><a href="r3_5.html#r3_5_3_5">reflection</a></code>,
-<code><a href="r3_5.html#r3_5_3_3_3">crand</a></code> and <code><a href="r3_5.html#r3_5_3_7">iridescence</a></code>.
-Let's design a couple of textures that make use of these parameters.</p>
+given object. These are controlled by the following keywords: <code><a href="r3_4.html#r3_4_6_3_1">ambient</a></code>,
+<code><a href="r3_4.html#r3_4_6_3_3_1">diffuse</a></code>, <code><a href="r3_4.html#r3_4_6_3_3_2">brilliance</a></code>,
+<code><a href="r3_4.html#r3_4_6_3_4_1">phong</a></code>, <code><a href="r3_4.html#r3_4_6_3_4_2">specular</a></code>, <code><a href="r3_4.html#r3_4_6_3_4_3">metallic</a></code>, <code><a href="r3_4.html#r3_4_6_3_5">reflection</a></code>, <code><a href="r3_4.html#r3_4_6_3_3_3">crand</a></code> and <code><a href="r3_4.html#r3_4_6_3_7">iridescence</a></code>. Let's design a couple of textures that make use of these parameters.</p>
 
 </div>
 <a name="t2_3_5_3_1"></a>
@@ -5345,8 +5306,8 @@ Let's design a couple of textures that make use of these parameters.</p>
 <h5>2.3.5.3.1 Using Ambient</h5>
 <p>Since objects in POV-Ray are illuminated by light sources, the portions of
 those objects that are in shadow would be completely black were it not for
-the first two finish properties, <code><a href="r3_5.html#r3_5_3_1">ambient</a></code> and
-<code><a href="r3_5.html#r3_5_3_3_1">diffuse</a></code>. Ambient is used to simulate the light that is scattered
+the first two finish properties, <code><a href="r3_4.html#r3_4_6_3_1">ambient</a></code> and
+<code>><a href="r3_4.html#r3_4_6_3_3_1">diffuse</a></code>. Ambient is used to simulate the light that is scattered
 around the scene that does not come directly from a light source. Diffuse
 determines how much of the light that is seen comes directly from a light
 source. These two keywords work together to control the simulation of ambient
@@ -5456,8 +5417,8 @@ or shaded parts. It would make a pretty good street light.</p>
 hotspots</em> on the surface. This gave the sphere a hard, shiny appearance.
 POV-Ray gives us two ways to specify surface specular highlights. The first
 is called <em>phong highlighting.</em> Usually, phong highlights are
-described using two keywords: <code><a href="r3_5.html#r3_5_3_4_1">phong</a></code> and
-<code><a href="r3_5.html#r3_5_3_4_1">phong_size</a></code>. The float that follows <code>phong</code> determines the brightness of the highlight while the float following <code>phong_size</code> determines its size. Let's try this.</p>
+described using two keywords: <code><a href="r3_4.html#r3_4_6_3_4_1">phong</a></code> and <code>
+<a href="r3_4.html#r3_4_6_3_4_1">phong_size</a></code>. The float that follows <code>phong</code> determines the brightness of the highlight while the float following <code>phong_size</code> determines its size. Let's try this.</p>
 <pre>
   sphere {
     &lt;0,0,0&gt;, 1
@@ -5478,8 +5439,8 @@ appearance of being much harder and shinier.</p>
 <p>
 There is another kind of highlight that is calculated by a different means
 called <em>specular highlighting</em>. It is specified using the keyword
-<code><a href="r3_5.html#r3_5_3_4_2">specular</a></code> and operates in conjunction with another keyword
-called <code><a href="r3_5.html#r3_5_3_4_2">roughness</a></code>. These two keywords work together in much the
+<code><a href="r3_4.html#r3_4_6_3_4_2">specular</a></code> and operates in conjunction with another keyword
+called <code><a href="r3_4.html#r3_4_6_3_4_2">roughness</a></code>. These two keywords work together in much the
 same way as <code>phong</code> and <code>phong_size</code> to create
 highlights that alter the apparent shininess of the surface. Let's try
 using specular in our sphere.</p>
@@ -5509,7 +5470,7 @@ both phong and specular may be used on a finish.</p>
 <div class="content-level-h5" contains="Using Reflection, Metallic and Metallic" id="t2_3_5_3_4">
 <h5>2.3.5.3.4 Using Reflection, Metallic and Metallic</h5>
 <p>There is another surface parameter that goes hand in hand with highlights,
-<code><a href="r3_5.html#r3_5_3_5">reflection</a></code>. Surfaces that are very shiny usually have a degree
+<code><a href="r3_4.html#r3_4_6_3_5">reflection</a></code>. Surfaces that are very shiny usually have a degree
 of reflection to them. Let's take a look at an example.</p>
 <pre>
   sphere {
@@ -5551,7 +5512,7 @@ gold ball bearing.</p>
 </pre>
 
 <p>That is close but there is something wrong, the colour of the reflection and the highlight. To
-make the surface appear more like metal the keyword <code><a href="r3_5.html#r3_5_3_4_3">metallic</a></code>
+make the surface appear more like metal the keyword <code><a href="r3_4.html#r3_4_6_3_4_3">metallic</a></code>
 is used. We add it now to see the difference.</p>
 <pre>
   sphere {
@@ -5598,9 +5559,9 @@ than the light source. This gives the surface a more metallic appearance.</p>
 <h5>2.3.5.3.5 Using Iridescence</h5>
 <p><em>Iridescence</em> is what we see on the surface of an oil slick when
 the sun shines on it. The rainbow effect is created by something called
-<em>thin-film interference</em> (read section <a href="r3_5.html#r3_5_3_7">Iridescence</a> for
+<em>thin-film interference</em> (read section <a href="r3_4.html#r3_4_6_3_7">Iridescence</a> for
 details). For now let's just try using it. Iridescence is specified by
-the <code><a href="r3_5.html#r3_5_3_7">irid</a></code> statement and three values: amount,
+the <code><a href="r3_4.html#r3_4_6_3_7">irid</a></code> statement and three values: amount,
 <code>thickness</code> and <code>turbulence</code>. The amount is the contribution
 to the overall surface color. Usually 0.1 to 0.5 is sufficient here.
 The thickness affects the <em>busyness</em> of the effect. Keep this between
@@ -5894,7 +5855,7 @@ checker pattern instead.</p>
 <p>Now things get interesting. Above, we began to see how pigments and
 normals can fade from one to the other when we used them in maps. But how
 about if we want a smooth blend of patterns all the way through? That is
-where a new feature called <code><a href="r3_5.html#r3_5_11_3">average</a></code> can come in very handy.
+where a new feature called <code><a href="r3_4.html#r3_4_7_4_1">average</a></code> can come in very handy.
 Average works with pigment, normal, and texture maps, although the syntax is
 a little bit different, and when we are not expecting it, the change can be
 confusing. Here is a simple example. We use our standard includes, camera and
@@ -6328,8 +6289,7 @@ light source, we enter the following object.</p>
 reflected do not show these textures off to their best advantage. But at
 least we can see how the process works. The textures have simply been placed
 according to the location of pixels of a particular palette index. By using
-the <code><a href="r3_5.html#r3_5_12_7_1">once</a></code> keyword (to keep it from tiling), and translating and
-scaling our map to match the camera we have been using, we get to see the
+the <code><a href="r3_4.html#r3_4_7_7_1">once</a></code> keyword (to keep it from tiling), and translating and scaling our map to match the camera we have been using, we get to see the
 whole thing laid out for us.</p>
 <p>
 Of course, that is just with palette mapped image formats, such as GIF and
@@ -6498,7 +6458,7 @@ Last but not least you can add a rainbow to your scene.</p>
 <a name="t2_3_6_1"></a>
 <div class="content-level-h4" contains="The Background" id="t2_3_6_1">
 <h4>2.3.6.1 The Background</h4>
-<p>The <code><a href="r3_3.html#r3_3_2_2">background</a></code> feature is used to assign a color to all rays
+<p>The <code><a href="r3_4.html#r3_4_3_2">background</a></code> feature is used to assign a color to all rays
 that do not hit any object. This is done in the following way.</p>
 <pre>
   camera {
@@ -6519,7 +6479,7 @@ translucency remains after all sky sphere pigment layers are processed.</p>
 <a name="t2_3_6_2"></a>
 <div class="content-level-h4" contains="The Sky Sphere" id="t2_3_6_2">
 <h4>2.3.6.2 The Sky Sphere</h4>
-<p>The <code><a href="r3_3.html#r3_3_2_4">sky_sphere</a></code> can be used to easily create a cloud covered
+<p>The <code><a href="r3_4.html#r3_4_3_4">sky_sphere</a></code> can be used to easily create a cloud covered
 sky, a nightly star sky or whatever sky you have in mind.</p>
 <p>
 In the following examples we will start with a very simple sky sphere that
@@ -6571,8 +6531,8 @@ have to use the y-gradient.</p>
 <p>
 The scale and translate transformation are used to map the points derived
 from the direction vector to the right range. Without those transformations
-the pattern would be repeated twice on the sky sphere. The <code><a href="r3_8.html#r3_8_5">scale</a></code>
-statement is used to avoid the repetition and the <code><a href="r3_8.html#r3_8_5">translate</a> -1</code>
+the pattern would be repeated twice on the sky sphere. The <code><a href="r3_3.html#r3_3_1_12_2">scale</a></code>
+statement is used to avoid the repetition and the <code><a href="r3_3.html#r3_3_1_12_1">translate</a> -1</code>
 statement moves the color at index zero to the bottom of the sky sphere
 (that is the point of the sky sphere you will see if you look straight
 down).</p>
@@ -6605,7 +6565,7 @@ surface normal pointing towards the center of the earth. An angle of 0
 degrees describes the point below us while an angle of 180 degrees represents
 the zenith.</p>
 <p>
-In POV-Ray you first have to convert the degree value to <code><a href="r3_2.html#r3_2_1_3_4">radians</a></code>
+In POV-Ray you first have to convert the degree value to <code><a href="r3_3.html#r3_3_1_5_4">radians</a></code>
 as it is shown in the following example.</p>
 <pre>
   sky_sphere {
@@ -6751,7 +6711,7 @@ texture and a light source somewhere outside the sphere.</p>
 <a name="t2_3_6_3"></a>
 <div class="content-level-h4" contains="The Fog" id="t2_3_6_3">
 <h4>2.3.6.3 The Fog</h4>
-<p>You can use the <code><a href="r3_3.html#r3_3_2_3">fog</a></code> feature to add fog of two different types
+<p>You can use the <code><a href="r3_4.html#r3_4_3_3">fog</a></code> feature to add fog of two different types
 to your scene: constant fog and ground fog. The constant fog has a constant
 density everywhere while the ground fog's density decreases as you move
 upwards.</p>
@@ -6765,11 +6725,11 @@ detail.</p>
 <h5>2.3.6.3.1 A Constant Fog</h5>
 <p>The simplest fog type is the constant fog that has a constant density in
 all locations. It is specified by a <code>distance</code> keyword which
-actually describes the fog's density and a fog <code><a href="r3_3.html#r3_3_2_3">color</a></code>.</p>
+actually describes the fog's density and a fog <code><a href="r3_4.html#r3_4_3_3">color</a></code>.</p>
 <p>
 The distance value determines the distance at which 36.8% of the background
 is still visible (for a more detailed explanation of how the fog is
-calculated read the reference section <a href="r3_3.html#r3_3_2_3">Fog</a>).</p>
+calculated read the reference section <a href="r3_4.html#r3_4_3_3">Fog</a>).</p>
 <p>
 The fog color can be used to create anything from a pure white to a red,
 blood-colored fog. You can also use a black fog to simulate the effect of a
@@ -6945,9 +6905,9 @@ turbulence value at a point along the viewing ray.</p>
 <div class="content-level-h5" contains="Using Ground Fog" id="t2_3_6_3_5">
 <h5>2.3.6.3.5 Using Ground Fog</h5>
 <p>The much more interesting and flexible fog type is the ground fog, which
-is selected with the <code><a href="r3_3.html#r3_3_2_3">fog_type</a></code> statement.
-Its appearance is described with the <code><a href="r3_3.html#r3_3_2_3">fog_offset</a></code>
-and <code><a href="r3_3.html#r3_3_2_3">fog_alt</a></code> keywords.
+is selected with the <code><a href="r3_4.html#r3_4_3_3">fog_type</a></code> statement.
+Its appearance is described with the <code><a href="r3_4.html#r3_4_3_3">fog_offset</a></code>
+and <code><a href="r3_4.html#r3_4_3_3">fog_alt</a></code> keywords.
 The <code>fog_offset</code> specifies the height, i. e. y value, below which
 the fog has a constant density of one. The <code>fog_alt</code> keyword
 determines how fast the density of the fog will approach zero as one moves
@@ -7043,17 +7003,17 @@ non-filtering fogs, fogs with a translucency threshold, etc.</p>
 <h5>2.3.6.3.7 Fog and Hollow Objects</h5>
 <p>Whenever you use the fog feature and the camera is inside a non-hollow
 object you will not get any fog effects. For a detailed explanation why this
-happens see <a href="r3_6.html#r3_6_1_2">Empty and Solid Objects</a>.</p>
+happens see <a href="r3_4.html#r3_4_8_1_2">Empty and Solid Objects</a>.</p>
 <p>
 In order to avoid this problem you have to make all those objects hollow by
-either making sure the camera is outside these objects (using the <code><a href="r3_4.html#r3_4_7_5">inverse</a></code>
-keyword) or by adding the <code><a href="r3_4.html#r3_4_7_4">hollow</a></code> to them (which is much easier).</p>
+either making sure the camera is outside these objects (using the <code><a href="r3_4.html#r3_4_5_5_5">inverse</a></code>
+keyword) or by adding the <code><a href="r3_4.html#r3_4_5_5_4">hollow</a></code> to them (which is much easier).</p>
 
 </div>
 <a name="t2_3_6_4"></a>
 <div class="content-level-h4" contains="The Rainbow" id="t2_3_6_4">
 <h4>2.3.6.4 The Rainbow</h4>
-<p>The <code><a href="r3_3.html#r3_3_2_5">rainbow</a></code> feature can be used
+<p>The <code><a href="r3_4.html#r3_4_3_5">rainbow</a></code> feature can be used
 to create rainbows and maybe other more strange effects. The rainbow is a fog
 like effect that is restricted to a cone-like volume.</p>
 
@@ -7066,8 +7026,8 @@ it is visible, the width of the color band, the direction of the incoming
 light, the fog-like distance based particle density and last but not least
 the color map to be used.</p>
 <p>
-The size and shape of the rainbow are determined by the <code><a href="r3_3.html#r3_3_2_5">angle</a></code>
-and <code><a href="r3_3.html#r3_3_2_5">width</a></code> keywords. The <code><a href="r3_3.html#r3_3_2_5">width</a></code>
+The size and shape of the rainbow are determined by the <code><a href="r3_4.html#r3_4_3_5">angle</a></code>
+and <code><a href="r3_4.html#r3_4_3_5">width</a></code> keywords. The <code><a href="r3_4.html#r3_4_3_5">width</a></code>
 keyword is used to set the direction of the incoming light, thus setting the
 rainbow's position. The rainbow is visible when the angle between the direction
 vector and the incident light direction is larger than angle-width/2 and smaller
@@ -7214,14 +7174,14 @@ make it softly blend into the background.</p>
 <h5>2.3.6.4.3 Using a Rainbow Arc</h5>
 <p>Currently our rainbow has a circular shape, even though most of it is
 hidden below the ground plane. You can easily create a rainbow arc by using
-the <code><a href="r3_3.html#r3_3_2_5">arc_angle</a></code> keyword with an angle below 360 degrees.</p>
+the <code><a href="r3_4.html#r3_4_3_5">arc_angle</a></code> keyword with an angle below 360 degrees.</p>
 <p>
 If you use <code>arc_angle 120</code> for example you will get a rainbow
 arc that abruptly vanishes at the arc's ends. This does not look good. To
-avoid this the <code><a href="r3_3.html#r3_3_2_5">falloff_angle</a></code> keyword can be used to specify a
+avoid this the <code><a href="r3_4.html#r3_4_3_5">falloff_angle</a></code> keyword can be used to specify a
 region where the arc smoothly blends into the background.</p>
 <p>
-As explained in the rainbow's reference section (see <a href="r3_3.html#r3_3_2_5">Rainbow</a>) the arc extends from -arc_angle/2 to arc_angle/2 while
+As explained in the rainbow's reference section (see <a href="r3_4.html#r3_4_3_5">Rainbow</a>) the arc extends from -arc_angle/2 to arc_angle/2 while
 the blending takes place from -arc_angle/2 to -falloff_angle/2 and
 falloff_angle/2 to arc_angle/2. This is the reason why the <code>falloff_angle</code>
 has to be smaller or equal to the <code>arc_angle</code>.</p>
@@ -7500,7 +7460,7 @@ is done to better visualize what is happening.) </p>
 <p>The <code>scattering</code> keyword takes more parameters than the other two. 
 The first number inside the curly brackets is the scattering media type. In this 
 example we used scattering media type 1. A full list of scattering media types 
-is given in the section <code><a href="r3_6.html#r3_6_2_1_3"> scattering </a></code> of the Media reference.</p> 
+is given in the section <a href="r3_4.html#r3_4_8_2_3">scattering</a> of the Media reference.</p> 
 
 <p>The second parameter is the overall color of the media, similar to the 
 parameter of the other two media types.</p> 
@@ -7766,13 +7726,13 @@ radiation between the objects of a scene.  With a raytracer like POV-Ray,
 normally only the direct influence of light sources on the objects can be
 calculated, all shadowed parts look totally flat.  Radiosity can help to
 overcome this limitation.  More details on the technical aspects can be
-found in the <a href="r3_3.html#r3_3_4">reference section</a>.</p>
+found in the <a href="r3_4.html#r3_4_4_3">reference</a> section.</p>
 
 <p>To enable radiosity, you have to add a radiosity block to the
 global_settings in your POV-Ray scene file. Radiosity is more accurate than
 simplistic ambient light but it takes much longer to compute, so it can be useful
 to switch off radiosity during scene development. You can use a declared constant
-or an <a href="r3_1.html#r3_1_2_5_1">INI-file constant</a> and an <code>#if</code> statement to do this:</p>
+or an <a href="r3_2.html#r3_2_5_1">INI-file constant</a> and an <code>#if</code> statement to do this:</p>
 <pre>
   #declare RAD = off;
 
@@ -7792,7 +7752,7 @@ or an <a href="r3_1.html#r3_1_2_5_1">INI-file constant</a> and an <code>#if</cod
 <li><code>diffuse</code>: influences the amount of diffuse reflection of incoming light.  In a radiosity scene this does not only mean the direct appearance of the surface but also how much other objects are illuminated by indirect light from this surface.</li>
 </ul>
 
-<p class="Note"><strong>Note:</strong> Previous versions of POV-Ray up to 3.6 inclusive did not provide the <code>emission</code> keyword, leading to the practice of using <code>ambient</code> instead. As of POV-Ray 3.7, this will no longer work, as <code>ambient_light</code> is effectively forced to zero when radiosity is enabled. For backward compatibility, an exception is made for scenes specifying a <code>#version</code> of 3.6 or earlier (or no version at all). In such scenes, it is strongly recommended to set the <code>ambient</code> of all materials to zero (unless you want them to emit light), or explicitly set <a href="r3_3.html#r3_3_3_2"><code>ambient_light</code></a> to zero.</p>
+<p class="Note"><strong>Note:</strong> Previous versions of POV-Ray up to 3.6 inclusive did not provide the <code>emission</code> keyword, leading to the practice of using <code>ambient</code> instead. As of POV-Ray 3.7, this will no longer work, as <code>ambient_light</code> is effectively forced to zero when radiosity is enabled. For backward compatibility, an exception is made for scenes specifying a <code>#version</code> of 3.6 or earlier (or no version at all). In such scenes, it is strongly recommended to set the <code>ambient</code> of all materials to zero (unless you want them to emit light), or explicitly set <code><a href="r3_4.html#r3_4_1_2">ambient_light</a></code> to zero.</p>
 
 </div>
 <a name="t2_3_8_2"></a>
@@ -7823,7 +7783,7 @@ or an <a href="r3_1.html#r3_1_2_5_1">INI-file constant</a> and an <code>#if</cod
 
 <p>Finally, a few more things about the scene setup. All objects except the sky have <code>diffuse 0.65</code> and <code>emission 0</code> in their finish block. The sky sphere has a bright blue pigment (what a surprise) with <code>diffuse 0</code> and <code>emission 1.0</code> as finish attributes.</p>
 
-<p class="Note"><strong>Note:</strong> If using the <code><a href="r3_3.html#r3_3_2_4">sky_sphere</a></code> object, which does not support the <code>finish</code> keyword, instead of a <code><a href="r3_4.html#r3_4_1_12">sphere</a></code> object that does, you will need define a <code><a href="r3_2.html#r3_2_2_4">#default</a></code> finish in order to affect it's finish properties.</p>
+<p class="Note"><strong>Note:</strong> If using the <code><a href="r3_4.html#r3_4_3_4">sky_sphere</a></code> object, which does not support the <code>finish</code> keyword, instead of a <code><a href="r3_4.html#r3_4_5_1_12">sphere</a></code> object that does, you will need define a <code><a href="r3_3.html#r3_3_2_4">#default</a></code> finish in order to affect it's finish properties.</p>
 
 <p>For example:</p>
 
@@ -8352,7 +8312,7 @@ or an <a href="r3_1.html#r3_1_2_5_1">INI-file constant</a> and an <code>#if</cod
 </tr>
 </table>
 
-<p>You can strongly affect things with an object's <a href="r3_5.html#r3_5_3">finish</a> attributes. In fact that is the most important thing about radiosity. Normal objects should have an <code>emission 0</code> (the default) finish. Objects with an emission setting greater than zero actually act as light sources in radiosity scenes. Remember that the default finish values used until now were <code>diffuse 0.65</code> and <code>emission 0</code>.</p>
+<p>You can strongly affect things with an object's <a href="r3_4.html#r3_4_6_3">finish</a> attributes. In fact that is the most important thing about radiosity. Normal objects should have an <code>emission 0</code> (the default) finish. Objects with an emission setting greater than zero actually act as light sources in radiosity scenes. Remember that the default finish values used until now were <code>diffuse 0.65</code> and <code>emission 0</code>.</p>
 
 <table class="matte" width="700px" cellpadding="0" cellspacing="10px">
 <tr>
@@ -8935,9 +8895,9 @@ or an <a href="r3_1.html#r3_1_2_5_1">INI-file constant</a> and an <code>#if</cod
 <a name="t2_3_8_4"></a>
 <div class="content-level-h4" contains="Normals and Radiosity" id="t2_3_8_4">
 <h4>2.3.8.4 Normals and Radiosity</h4>
-<p>When using a <a href="r3_3.html#r3_3_4_4_4">normal</a>  statement in combination with radiosity lighting, you will see that the shadowed parts of the objects are totally smooth, no matter how strong the normals are made. The reason is that POV-Ray by default does not take the normal into account when calculating radiosity. You can easily change this by adding <code>normal on</code> to the radiosity block. Be aware that this can slow things down quite a bit and will require more memory, however it usually leads to more realistic results.</p>
+<p>When using a <a href="r3_4.html#r3_4_4_3_4_4">normal</a>  statement in combination with radiosity lighting, you will see that the shadowed parts of the objects are totally smooth, no matter how strong the normals are made. The reason is that POV-Ray by default does not take the normal into account when calculating radiosity. You can easily change this by adding <code>normal on</code> to the radiosity block. Be aware that this can slow things down quite a bit and will require more memory, however it usually leads to more realistic results.</p>
 
-<p>When using normals you should also remember that they are only faked irregularities and do not generate real geometric disturbances of the surface. A more realistic approach is using an <a href="r3_4.html#r3_4_1_6">isosurface</a> with a pigment function, but this can quickly lead to increased render times.</p>
+<p>When using normals you should also remember that they are only faked irregularities and do not generate real geometric disturbances of the surface. A more realistic approach is using an <a href="r3_4.html#r3_4_5_1_6">isosurface</a> with a pigment function, but this can quickly lead to increased render times.</p>
 <p>As you can see with this next series of images, the isosurface version does not have the same smooth-like appearance to it's circumference, as compared to the first two images. Notice that it also has a more realistic shadow-line.</p>
 
 <table class="matte" width="700px" cellpadding="0" cellspacing="10px">
@@ -8973,9 +8933,9 @@ or an <a href="r3_1.html#r3_1_2_5_1">INI-file constant</a> and an <code>#if</cod
 
 <p>If average to good quality radiosity will work for your scene, then it's probably a good idea to spend the time to find the <em>sweet spot</em> that strikes the best balance between quality and speed.  Especially <code>recursion_limit</code> should be kept as low as possible. Sometimes <code>1</code> is sufficient, if not <code>2</code> or <code>3</code> should often be enough.</p>
 
-<p>With high quality settings, radiosity data can take quite a lot of memory. Apart from that the other scene data is also used much more intensively than in a conventional scene. Therefore insufficient memory and swapping can slow down things even more. Here's a few <a href="r3_1.html#r3_1_2_8_8">radiosity options</a> that might help.</p>
+<p>With high quality settings, radiosity data can take quite a lot of memory. Apart from that the other scene data is also used much more intensively than in a conventional scene. Therefore insufficient memory and swapping can slow down things even more. Here's a few <a href="r3_2.html#r3_2_8_8">radiosity options</a> that might help.</p>
 
-<p>Finally the scene geometry and textures are important too. Objects not visible in the camera usually only increase parsing time and memory use, but in a radiosity scene, also objects behind the camera can slow down the rendering process. See the section <a href="r3_3.html#r3_3_4_4">Configuring Radiosity</a> for some helpful hints.</p>
+<p>Finally the scene geometry and textures are important too. Objects not visible in the camera usually only increase parsing time and memory use, but in a radiosity scene, also objects behind the camera can slow down the rendering process. See the section <a href="r3_4.html#r3_4_4_3_4">Configuring Radiosity</a> for some helpful hints.</p>
 
 </div>
 <a name="t2_3_9"></a>
@@ -9014,7 +8974,7 @@ our code to describe the motions of objects over time.</p>
 <div class="content-level-h4" contains="The Clock Variable: Key To It All" id="t2_3_9_1">
 <h4>2.3.9.1 The Clock Variable: Key To It All</h4>
 <p>POV-Ray supports an automatically declared floating point variable
-identified as <code><a href="r3_2.html#r3_2_1_3_6">clock</a></code> (all lower case). This is the key to making
+identified as <code><a href="r3_3.html#r3_3_1_5_6">clock</a></code> (all lower case). This is the key to making
 image files that can be automated. In command line operations, the clock
 variable is set using the <code>+k</code> switch. For example, <code>
 +k3.4</code> from the command line would set the value of clock to 3.4. The
@@ -9188,7 +9148,7 @@ other motions.</p>
 <div class="content-level-h4" contains="The Phase Keyword" id="t2_3_9_3">
 <h4>2.3.9.3 The Phase Keyword</h4>
 <p>There is another keyword we should know for purposes of animations: the
-<code><a href="r3_5.html#r3_5_12">phase</a></code> keyword. The phase keyword can be used on many texture
+<code><a href="r3_4.html#r3_4_7_5_2">phase</a></code> keyword. The phase keyword can be used on many texture
 elements, especially those that can take a color, pigment, normal or texture
 map. Remember the form that these maps take. For example:</p>
 <pre>
@@ -9272,7 +9232,7 @@ under the INI file settings section, but there are also forms of
 anti-aliasing used in area lights, and the new atmospheric effects of
 POV-Ray, so now is as good a time as any.</p>
 <p>
-<a href="r3_4.html#r3_4_5_5">Jitter</a> is a very small amount of random ray perturbation designed to diffuse
+<a href="r3_4.html#r3_4_4_1_5">Jitter</a> is a very small amount of random ray perturbation designed to diffuse
 tiny aliasing errors that might not otherwise totally disappear, even with
 intense anti-aliasing. By randomizing the placement of erroneous pixels, the
 error becomes less noticeable to the human eye, because the eye and mind are
@@ -9291,7 +9251,7 @@ For this reason, we should always set jitter to <code>off</code> in area
 lights and anti-aliasing options when preparing a scene for an animation. The
 (relatively) small extra measure quality due to the use of jitter will be
 offset by the ocean of jumpies that results. This general rule also applies
-to any truly random texture elements, such as <code><a href="r3_5.html#r3_5_3_3_3">crand</a></code>.</p>
+to any truly random texture elements, such as <code><a href="r3_4.html#r3_4_6_3_3_3">crand</a></code>.</p>
 
 </div>
 <a name="t2_3_9_5"></a>
@@ -9303,8 +9263,8 @@ phase keyword. We know not to jitter or crand when we render a scene, and
 we are all set build some animations. Alright, let's have at it.</p>
 <p>
 The first concept we will need to know is the INI file settings,
-<code><a href="r3_1.html#r3_1_2_1_2">Initial_Frame</a></code> and
-<code><a href="r3_1.html#r3_1_2_1_2">Final_Frame</a></code>. These are very handy
+<code><a href="r3_2.html#r3_2_1_2">Initial_Frame</a></code> and
+<code><a href="r3_2.html#r3_2_1_2">Final_Frame</a></code>. These are very handy
 settings that will allow us to render a particular number of frames and each
 with its own unique frame number, in a completely hands free way. It is of
 course, so blindingly simple that it barely needs explanation, but here is
@@ -9331,8 +9291,8 @@ default of 0.0 to 1.0. Well, when that is the case, there are setting for
 that too. The format is also quite simple. To make the clock run, as in our
 example, from 0.0 to 2.0, we would just add to your INI file the lines</p>
 <code>
-<a href="r3_1.html#r3_1_2_1_2">Initial_Clock</a> = 0.0<br>
-<a href="r3_1.html#r3_1_2_1_2">Final_Clock</a> = 2.0<br>
+<a href="r3_2.html#r3_2_1_2">Initial_Clock</a> = 0.0<br>
+<a href="r3_2.html#r3_2_1_2">Final_Clock</a> = 2.0<br>
 </code>
 
 <p>Now, suppose we were developing a sequence of 100 frames, and we detected
@@ -9352,8 +9312,8 @@ new sequence that will be appended onto existing material.</p>
 If we wanted to look at just 51 through 75 of the original animation, we
 need two new INI settings</p>
 <code>
-<a href="r3_1.html#r3_1_2_1_3">Subset_Start_Frame</a> = 51<br>
-<a href="r3_1.html#r3_1_2_1_3">Subset_End_Frame</a> = 75<br>
+<a href="r3_2.html#r3_2_1_3">Subset_Start_Frame</a> = 51<br>
+<a href="r3_2.html#r3_2_1_3">Subset_End_Frame</a> = 75<br>
 </code>
 
 <p>Added to settings from before, the clock will still cycle through its
@@ -9489,7 +9449,7 @@ awaits!</p>
 <pre>
 a&lt;10 &amp; b&gt;=20
 </pre>
-<p>For more information about these comparison operators, see the <a href="r3_2.html#r3_2_1_3_3">Float operators</a> section of the POV-Ray documentation.</p>
+<p>For more information about these comparison operators, see the <a href="r3_3.html#r3_3_1_5_3">Operators</a> section of the POV-Ray documentation.</p>
 
 </div>
 <a name="t2_3_10_5"></a>
@@ -10303,8 +10263,8 @@ following section):</p>
 
 </div>
 <a name="t2_3_11_7_1"></a>
-<div class="content-level-h5" contains="Inner workings of a #macro" id="t2_3_11_7_1">
-<h5>2.3.11.7.1 Inner workings of a #macro</h5>
+<div class="content-level-h5" contains="Inner workings of a macro" id="t2_3_11_7_1">
+<h5>2.3.11.7.1 Inner workings of a macro</h5>
 <p>A macro works like a substitution command (similar to the #define macros
 in the C programming language). The body of the macro is in practice inserted in the place where
 the macro is called. For example you can use a macro like this:</p>

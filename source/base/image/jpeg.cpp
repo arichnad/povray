@@ -20,9 +20,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/image/jpeg.cpp $
- * $Revision: #28 $
- * $Change: 5303 $
- * $DateTime: 2010/12/27 14:22:56 $
+ * $Revision: #29 $
+ * $Change: 5625 $
+ * $DateTime: 2012/03/10 21:41:16 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -300,7 +300,7 @@ extern "C"
 
 	METHODDEF(void) read_error_exit (j_common_ptr cinfo)
 	{
-		POV_JPEG_Read_Buffer * myerr = (POV_JPEG_Read_Buffer *) cinfo->client_data ;
+		POV_JPEG_Read_Buffer * myerr = reinterpret_cast<POV_JPEG_Read_Buffer *>(cinfo->client_data);
 
 		(*cinfo->err->output_message)(cinfo);
 
@@ -310,7 +310,7 @@ extern "C"
 
 	METHODDEF(void) write_error_exit (j_common_ptr cinfo)
 	{
-		POV_JPEG_Write_Buffer * myerr = (POV_JPEG_Write_Buffer *) cinfo->client_data ;
+		POV_JPEG_Write_Buffer * myerr = reinterpret_cast<POV_JPEG_Write_Buffer *>(cinfo->client_data);
 
 		(*cinfo->err->output_message)(cinfo);
 
@@ -321,7 +321,7 @@ extern "C"
 	METHODDEF(void) read_output_message(j_common_ptr cinfo)
 	{
 		char buffer[JMSG_LENGTH_MAX];
-		POV_JPEG_Read_Buffer *bufptr = (POV_JPEG_Read_Buffer *)(cinfo->client_data);
+		POV_JPEG_Read_Buffer *bufptr = reinterpret_cast<POV_JPEG_Read_Buffer *>(cinfo->client_data);
 
 		// Create the message
 		(*cinfo->err->format_message) (cinfo, buffer);
@@ -333,7 +333,7 @@ extern "C"
 	METHODDEF(void) write_output_message(j_common_ptr cinfo)
 	{
 		char buffer[JMSG_LENGTH_MAX];
-		POV_JPEG_Write_Buffer *bufptr = (POV_JPEG_Write_Buffer *)(cinfo->client_data);
+		POV_JPEG_Write_Buffer *bufptr = reinterpret_cast<POV_JPEG_Write_Buffer *>(cinfo->client_data);
 
 		// Create the message
 		(*cinfo->err->format_message) (cinfo, buffer);
@@ -344,39 +344,39 @@ extern "C"
 
 	METHODDEF(void) write_init_dest(j_compress_ptr cinfo)
 	{
-		POV_JPEG_Write_Buffer * bufptr = (POV_JPEG_Write_Buffer *)(cinfo->client_data);
+		POV_JPEG_Write_Buffer * bufptr = reinterpret_cast<POV_JPEG_Write_Buffer *>(cinfo->client_data);
 
-		bufptr->jdest.next_output_byte = (unsigned char *)(&(bufptr->buffer[0]));
+		bufptr->jdest.next_output_byte = reinterpret_cast<unsigned char *>(&(bufptr->buffer[0]));
 		bufptr->jdest.free_in_buffer = POV_JPEG_BUFFER_SIZE;
 	}
 
 	METHODDEF(void) read_init_source(j_decompress_ptr cinfo)
 	{
-		POV_JPEG_Read_Buffer * bufptr = (POV_JPEG_Read_Buffer *)(cinfo->client_data);
+		POV_JPEG_Read_Buffer * bufptr = reinterpret_cast<POV_JPEG_Read_Buffer *>(cinfo->client_data);
 
-		bufptr->jsrc.next_input_byte = (unsigned char *)(&(bufptr->buffer[0]));
+		bufptr->jsrc.next_input_byte = reinterpret_cast<unsigned char *>(&(bufptr->buffer[0]));
 		bufptr->jsrc.bytes_in_buffer = 0;
 	}
 
 	METHODDEF(boolean) read_fill_input_buffer(j_decompress_ptr cinfo)
 	{
-		POV_JPEG_Read_Buffer * bufptr = (POV_JPEG_Read_Buffer *)(cinfo->client_data);
+		POV_JPEG_Read_Buffer * bufptr = reinterpret_cast<POV_JPEG_Read_Buffer *>(cinfo->client_data);
 		int i;
 
 		for(i = 0; i < POV_JPEG_BUFFER_SIZE; i++)
 		{
-			if (!bufptr->file->read((char *)(&(bufptr->buffer[i])), 1))
+			if (!bufptr->file->read(&(bufptr->buffer[i]), 1))
 				break;
 		}
 		bufptr->jsrc.bytes_in_buffer = i;
-		bufptr->jsrc.next_input_byte = (unsigned char *)(&(bufptr->buffer[0]));
+		bufptr->jsrc.next_input_byte = reinterpret_cast<unsigned char *>(&(bufptr->buffer[0]));
 
 		return true;
 	}
 
 	METHODDEF(void) read_skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 	{
-		POV_JPEG_Read_Buffer *bufptr = (POV_JPEG_Read_Buffer *)(cinfo->client_data);
+		POV_JPEG_Read_Buffer *bufptr = reinterpret_cast<POV_JPEG_Read_Buffer *>(cinfo->client_data);
 
 		if ( bufptr->jsrc.bytes_in_buffer < num_bytes )
 		{
@@ -398,23 +398,23 @@ extern "C"
 
 	METHODDEF(boolean) write_empty_output_buffer(j_compress_ptr cinfo)
 	{
-		POV_JPEG_Write_Buffer * bufptr = (POV_JPEG_Write_Buffer *)(cinfo->client_data);
+		POV_JPEG_Write_Buffer * bufptr = reinterpret_cast<POV_JPEG_Write_Buffer *>(cinfo->client_data);
 
 		// throw an exception on failure rather than return false; this gives more
 		// helpful error reporting
-		if (!bufptr->file->write((char *)(bufptr->buffer), POV_JPEG_BUFFER_SIZE))
+		if (!bufptr->file->write(bufptr->buffer, POV_JPEG_BUFFER_SIZE))
 			throw POV_EXCEPTION(kFileDataErr, "Failed to write JPEG data to disk");
-		bufptr->jdest.next_output_byte = (unsigned char *)(&(bufptr->buffer[0]));
+		bufptr->jdest.next_output_byte = reinterpret_cast<unsigned char *>(&(bufptr->buffer[0]));
 		bufptr->jdest.free_in_buffer = POV_JPEG_BUFFER_SIZE;
 		return true;
 	}
 
 	METHODDEF(void) write_term_destination(j_compress_ptr cinfo)
 	{
-		POV_JPEG_Write_Buffer * bufptr = (POV_JPEG_Write_Buffer *)(cinfo->client_data);
+		POV_JPEG_Write_Buffer * bufptr = reinterpret_cast<POV_JPEG_Write_Buffer *>(cinfo->client_data);
 
 		if(POV_JPEG_BUFFER_SIZE - bufptr->jdest.free_in_buffer > 0)
-			if (!bufptr->file->write((char *)(bufptr->buffer), POV_JPEG_BUFFER_SIZE - bufptr->jdest.free_in_buffer))
+			if (!bufptr->file->write(bufptr->buffer, POV_JPEG_BUFFER_SIZE - bufptr->jdest.free_in_buffer))
 				throw POV_EXCEPTION(kFileDataErr, "Failed to write final JPEG data block to disk");
 	}
 }
@@ -433,7 +433,7 @@ Image *Read (IStream *file, const Image::ReadOptions& options)
 	readbuf.cinfo.err = jpeg_std_error(&readbuf.jerr);
 	readbuf.jerr.error_exit = read_error_exit;
 	readbuf.jerr.output_message = read_output_message;
-	readbuf.cinfo.client_data = (void *)&readbuf;
+	readbuf.cinfo.client_data = reinterpret_cast<void *>(&readbuf);
 
 	if (setjmp(readbuf.setjmp_buffer))
 	{
@@ -568,7 +568,7 @@ void Write (OStream *file, const Image *image, const Image::WriteOptions& option
 	writebuf.cinfo.err = jpeg_std_error(&writebuf.jerr);
 	writebuf.jerr.error_exit = write_error_exit;
 	writebuf.jerr.output_message = write_output_message;
-	writebuf.cinfo.client_data = (void *)&writebuf;
+	writebuf.cinfo.client_data = reinterpret_cast<void *>(&writebuf);
 
 	if (setjmp(writebuf.setjmp_buffer))
 	{
@@ -640,7 +640,7 @@ void Write (OStream *file, const Image *image, const Image::WriteOptions& option
 	if (!meta.getComment4().empty())
 		comment += meta.getComment4() + "\n";
 
-	JOCTET *pcom((JOCTET*)&comment[0]); /* lack of converter, cast, old-style (bad, go mixing C & C++!) */
+	const JOCTET *pcom(reinterpret_cast<const JOCTET*>(&comment[0])); /* lack of converter, cast, old-style (bad, go mixing C & C++!) */
 	
 	// The comment marker must be here, before the image data 
 	jpeg_write_marker(&writebuf.cinfo, JPEG_COM, pcom,comment.length());

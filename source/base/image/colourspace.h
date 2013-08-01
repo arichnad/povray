@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/image/colourspace.h $
- * $Revision: #5 $
- * $Change: 5303 $
- * $DateTime: 2010/12/27 14:22:56 $
+ * $Revision: #6 $
+ * $Change: 5696 $
+ * $DateTime: 2012/07/10 09:14:07 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -109,17 +109,11 @@ class SimpleGammaCurve;
 
 /**
  *  Class holding a shared reference to a gamma curve.
- *  @note   This is a boost shared_ptr; the assignment operator (=) may not work as expected,
- *          as it is in fact implemented as a swap operation.
- *          To clone a reference, use "GammaCurvePtr myNewPtr(myOldPtr);".
  */
 typedef boost::shared_ptr<GammaCurve> GammaCurvePtr;
 
 /**
  *  Class holding a shared reference to a simple gamma curve.
- *  @note   This is a boost shared_ptr; the assignment operator (=) may not work as expected,
- *          as it is in fact implemented as a swap operation.
- *          To clone a reference, use "SimpleGammaCurvePtr myNewPtr(myOldPtr);".
  */
 typedef boost::shared_ptr<SimpleGammaCurve> SimpleGammaCurvePtr;
 

@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/math/hcmplx.h $
- * $Revision: #15 $
- * $Change: 5009 $
- * $DateTime: 2010/06/05 10:39:30 $
- * $Author: chrisc $
+ * $Revision: #16 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -112,45 +112,44 @@ namespace pov
 * Global functions
 ******************************************************************************/
 
-int F_Bound_HCompl (Ray&, const Fractal *, DBL *, DBL *);
+int F_Bound_HCompl (const Ray&, const Fractal *, DBL *, DBL *);
 void Normal_Calc_HCompl (VECTOR, int, const Fractal *, DBL **);
 int Iteration_HCompl (const VECTOR, const Fractal *, DBL **);
-int D_Iteration_HCompl (VECTOR, const Fractal *, const VECTOR &, DBL *, DBL **);
+int D_Iteration_HCompl (const VECTOR, const Fractal *, const VECTOR &, DBL *, DBL **);
 
-int F_Bound_HCompl_z3 (Ray &, const Fractal *, DBL *, DBL *);
+int F_Bound_HCompl_z3 (const Ray &, const Fractal *, DBL *, DBL *);
 void Normal_Calc_HCompl_z3 (VECTOR, int, const Fractal *, DBL **);
 int Iteration_HCompl_z3 (const VECTOR, const Fractal *, DBL **);
-int D_Iteration_HCompl_z3 (VECTOR, const Fractal *, const VECTOR &, DBL *, DBL **);
+int D_Iteration_HCompl_z3 (const VECTOR, const Fractal *, const VECTOR &, DBL *, DBL **);
 
-int F_Bound_HCompl_Reciprocal (Ray &, const Fractal *, DBL *, DBL *);
+int F_Bound_HCompl_Reciprocal (const Ray &, const Fractal *, DBL *, DBL *);
 void Normal_Calc_HCompl_Reciprocal (VECTOR, int, const Fractal *, DBL **);
 int Iteration_HCompl_Reciprocal (const VECTOR, const Fractal *, DBL **);
-int D_Iteration_HCompl_Reciprocal (VECTOR, const Fractal *, const VECTOR &, DBL *, DBL **);
+int D_Iteration_HCompl_Reciprocal (const VECTOR, const Fractal *, const VECTOR &, DBL *, DBL **);
 
-int F_Bound_HCompl_Func (Ray &, const Fractal *, DBL *, DBL *);
+int F_Bound_HCompl_Func (const Ray &, const Fractal *, DBL *, DBL *);
 void Normal_Calc_HCompl_Func (VECTOR, int, const Fractal *, DBL **);
 int Iteration_HCompl_Func (const VECTOR, const Fractal *, DBL **);
-int D_Iteration_HCompl_Func (VECTOR, const Fractal *, const VECTOR &, DBL *, DBL **);
+int D_Iteration_HCompl_Func (const VECTOR, const Fractal *, const VECTOR &, DBL *, DBL **);
 
-void Complex_Exp (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_Ln (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_Sin (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_ASin (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_Sinh (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_ASinh (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_Cos (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_ACos (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_Cosh (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_ACosh (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_Tan (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_ATan (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_Tanh (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_ATanh (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_Sqrt (CMPLX *target, CMPLX *source, const CMPLX *);
-void Complex_Pwr (CMPLX *target, CMPLX *source, const CMPLX *source2);
-void Complex_Mult (CMPLX *target, CMPLX *source1, const CMPLX *source2);
-void Complex_Div (CMPLX *target, CMPLX *source1, CMPLX *source2);
-void Complex_Power (CMPLX *target, CMPLX *source1, CMPLX *source2);
+void Complex_Exp (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_Ln (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_Sin (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_ASin (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_Sinh (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_ASinh (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_Cos (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_ACos (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_Cosh (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_ACosh (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_Tan (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_ATan (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_Tanh (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_ATanh (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_Sqrt (CMPLX *target, const CMPLX *source, const CMPLX *);
+void Complex_Pwr (CMPLX *target, const CMPLX *source1, const CMPLX *source2);
+void Complex_Mult (CMPLX *target, const CMPLX *source1, const CMPLX *source2);
+void Complex_Div (CMPLX *target, const CMPLX *source1, const CMPLX *source2);
 
 }
 

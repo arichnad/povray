@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/math/matrices.h $
- * $Revision: #10 $
- * $Change: 5009 $
- * $DateTime: 2010/06/05 10:39:30 $
- * $Author: chrisc $
+ * $Revision: #11 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -144,7 +144,7 @@ void Compute_Inversion_Transform (TRANSFORM *result);
 void Compute_Translation_Transform (TRANSFORM *transform, const VECTOR vector);
 void Compute_Rotation_Transform (TRANSFORM *transform, const VECTOR vector);
 void Compute_Look_At_Transform (TRANSFORM *transform, const VECTOR Look_At, const VECTOR Up, const VECTOR Right);
-void Compose_Transforms (TRANSFORM *Original_Transform, const TRANSFORM *New_Transform);
+void Compose_Transforms (TRANSFORM *transform, const TRANSFORM *Additional_Transform);
 void Compute_Axis_Rotation_Transform (TRANSFORM *transform, const VECTOR AxisVect, DBL angle);
 void Compute_Coordinate_Transform (TRANSFORM *trans, const VECTOR origin, VECTOR up, DBL r, DBL len);
 TRANSFORM *Create_Transform (void);

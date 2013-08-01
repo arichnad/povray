@@ -24,9 +24,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/lathe.cpp $
- * $Revision: #33 $
- * $Change: 5103 $
- * $DateTime: 2010/08/22 06:58:49 $
+ * $Revision: #34 $
+ * $Change: 5745 $
+ * $DateTime: 2013/01/21 11:29:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -1464,7 +1464,7 @@ void Lathe::UVCoord(UV_VECT Result, const Intersection *Inter, TraceThreadData *
 
 	if (len > EPSILON)
 	{
-	len = sqrt(len);
+		len = sqrt(len);
 		if (P[Z] == 0.0)
 		{
 			if (P[X] > 0)

@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/interior/interior.cpp $
- * $Revision: #21 $
- * $Change: 5408 $
- * $DateTime: 2011/02/21 15:17:08 $
+ * $Revision: #22 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -244,7 +244,7 @@ MATERIAL *Create_Material()
 	return(New);
 }
 
-MATERIAL *Copy_Material(MATERIAL *Old)
+MATERIAL *Copy_Material(const MATERIAL *Old)
 {
 	MATERIAL *New;
 

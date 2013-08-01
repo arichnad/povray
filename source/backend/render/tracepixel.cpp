@@ -25,9 +25,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/render/tracepixel.cpp $
- * $Revision: #39 $
- * $Change: 5408 $
- * $DateTime: 2011/02/21 15:17:08 $
+ * $Revision: #41 $
+ * $Change: 5740 $
+ * $DateTime: 2013/01/19 05:00:47 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -328,7 +328,7 @@ void TracePixel::operator()(DBL x, DBL y, DBL width, DBL height, Colour& colour)
 			{
 				Colour col;
 
-				Trace::TraceTicket ticket(maxTraceLevel, adcBailout, sceneData->outputAlpha && (sceneData->EffectiveLanguageVersion() < 370));
+				Trace::TraceTicket ticket(maxTraceLevel, adcBailout, sceneData->outputAlpha);
 				TraceRay(ray, col, 1.0, ticket, false, camera.Max_Ray_Distance);
 				colour += col;
 				numTraced++;
@@ -1051,7 +1051,7 @@ void TracePixel::TraceRayWithFocalBlur(Colour& colour, DBL x, DBL y, DBL width, 
 				// Increase_Counter(stats[Number_Of_Samples]);
 
 				C.clear();
-				Trace::TraceTicket ticket(maxTraceLevel, adcBailout, sceneData->outputAlpha && (sceneData->EffectiveLanguageVersion() < 370));
+				Trace::TraceTicket ticket(maxTraceLevel, adcBailout, sceneData->outputAlpha);
 				TraceRay(ray, C, 1.0, ticket, false, camera.Max_Ray_Distance);
 
 				colour += C;
@@ -1304,6 +1304,7 @@ TracePixel::FocalBlurData::FocalBlurData(const Camera& camera, TraceThreadData* 
 TracePixel::FocalBlurData::~FocalBlurData()
 {
 	delete[] Sample_Grid;
+	delete[] Sample_Threshold;
 }
 
 }

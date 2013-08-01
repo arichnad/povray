@@ -20,10 +20,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/frontend/renderfrontend.cpp $
- * $Revision: #101 $
- * $Change: 5481 $
- * $DateTime: 2011/08/25 20:19:59 $
- * $Author: clipka $
+ * $Revision: #107 $
+ * $Change: 5792 $
+ * $DateTime: 2013/02/09 04:53:10 $
+ * $Author: chrisc $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -297,7 +297,7 @@ RenderFrontendBase::SceneId RenderFrontendBase::CreateScene(SceneData& shd, POVM
 				shd.consoleoutput[RENDER_STREAM] = obj.GetBool(kPOVAttrib_RenderConsole);
 			if(obj.Exist(kPOVAttrib_StatisticsConsole))
 				shd.consoleoutput[STATISTIC_STREAM] = obj.GetBool(kPOVAttrib_StatisticsConsole);
-			if(obj.Exist(kPOVAttrib_DebugConsole))
+			if(obj.Exist(kPOVAttrib_WarningConsole))
 				shd.consoleoutput[WARNING_STREAM] = obj.GetBool(kPOVAttrib_WarningConsole);
 		}
 
@@ -310,6 +310,9 @@ RenderFrontendBase::SceneId RenderFrontendBase::CreateScene(SceneData& shd, POVM
 					shd.streamnames[gStreamNumber[i]] = ASCIItoUCS2String(gStreamDefaultFile[i]);
 			}
 		}
+
+		// append to the stream if this is a continued trace or animation.
+		bool append = obj.TryGetBool(kPOVAttrib_ContinueTrace, false) || obj.TryGetBool(kPOVAttrib_AppendConsoleFiles, false);
 
 		for(size_t i = 0; i < MAX_STREAMS; i++)
 		{
@@ -336,7 +339,14 @@ RenderFrontendBase::SceneId RenderFrontendBase::CreateScene(SceneData& shd, POVM
 					// file name is relative
 					path = Path(shd.outputpath, tmp);
 #endif
-				shd.streams[i].reset(new FileTextStreamBuffer(path().c_str(), obj.TryGetBool(kPOVAttrib_ContinueTrace, false)));
+				shd.streams[i].reset(new FileTextStreamBuffer(path().c_str(), append));
+				if (append && i != DEBUG_STREAM)
+				{
+					shd.streams[i]->puts("\n"
+					                     "==============================================================================\n"
+					                     "=                       Appending to stream output file                      =\n"
+					                     "==============================================================================\n");
+				}
 			}
 		}
 
@@ -736,7 +746,7 @@ void RenderFrontendBase::ContinueBackup(POVMS_Object& ropts, ViewData& vd, ViewI
 					{
 						POVMSInt pid = msg.GetInt(kPOVAttrib_PixelId);
 
-						if(pid > (serial + 1))
+						if(pid > serial)
 							skip.push_back(pid);
 						else
 							serial++;
@@ -1162,7 +1172,7 @@ void OutputOptions(POVMS_Object& cppmsg, TextStreamBuffer *tsb)
 					case kPOVList_DitherMethod_Diffusion1D:     t = "simple 1-D error diffusion";       break;
 					case kPOVList_DitherMethod_Diffusion2D:     t = "simple 2-D error diffusion";       break;
 					case kPOVList_DitherMethod_FloydSteinberg:  t = "Floyd-Steinberg error diffusion";  break;
-					default:                                    t = "(???)";                            break;
+					default:                                    t = "(unknown)";                        break;
 				}
 				tsb->printf("  Dithering............%s\n", t);
 			}

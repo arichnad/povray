@@ -24,9 +24,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/support/octree.cpp $
- * $Revision: #27 $
- * $Change: 5209 $
- * $DateTime: 2010/11/28 18:25:20 $
+ * $Revision: #28 $
+ * $Change: 5783 $
+ * $DateTime: 2013/02/04 10:34:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -253,7 +253,7 @@ bool ot_traverse (OT_NODE *subtree, bool (*function)(OT_BLOCK *block, void * han
 bool ot_free_subtree (OT_NODE *node);
 
 void ot_list_insert (OT_BLOCK **list_ptr, OT_BLOCK *item);
-bool ot_point_in_node (const Vector3d& point, OT_ID *node);
+bool ot_point_in_node (const Vector3d& point, const OT_ID *node);
 
 /*****************************************************************************
 *
@@ -299,7 +299,7 @@ bool ot_point_in_node (const Vector3d& point, OT_ID *node);
 *   --- 1994 : Creation.
 *
 ******************************************************************************/
-void ot_ins(OT_NODE **root_ptr, OT_BLOCK *new_block, OT_ID *new_id)
+void ot_ins(OT_NODE **root_ptr, OT_BLOCK *new_block, const OT_ID *new_id)
 {
 	int target_size, dx, dy, dz, index;
 	OT_NODE *temp_node, *this_node;
@@ -316,14 +316,14 @@ void ot_ins(OT_NODE **root_ptr, OT_BLOCK *new_block, OT_ID *new_id)
 // CLi moved C99_COMPATIBLE_RADIOSITY check from ot_newroot() to ot_ins() NULL root handling section
 // (no need to do this again and again for every new node inserted)
 #if(C99_COMPATIBLE_RADIOSITY == 0)
-	if((sizeof(int) != 4) || (sizeof(float) != 4))
-	{
-		throw POV_EXCEPTION_STRING("Radiosity is not available in this unofficial version because\n"
-		      "the person who made this unofficial version available did not\n"
-		      "properly check for compatibility on your platform.\n"
-		      "Look for C99_COMPATIBLE_RADIOSITY in the source code to find\n"
-		      "out how to correct this.");
-	}
+		if((sizeof(int) != 4) || (sizeof(float) != 4))
+		{
+			throw POV_EXCEPTION_STRING("Radiosity is not available in this unofficial version because\n"
+			                           "the person who made this unofficial version available did not\n"
+			                           "properly check for compatibility on your platform.\n"
+			                           "Look for C99_COMPATIBLE_RADIOSITY in the source code to find\n"
+			                           "out how to correct this.");
+		}
 #endif
 
 		*root_ptr = (OT_NODE *)POV_CALLOC(1, sizeof(OT_NODE), "octree node");
@@ -792,7 +792,7 @@ bool ot_traverse(OT_NODE *subtree, bool (*function)(OT_BLOCK * bl, void * handle
 *
 ******************************************************************************/
 
-bool ot_point_in_node(const Vector3d& point, OT_ID *id)
+bool ot_point_in_node(const Vector3d& point, const OT_ID *id)
 {
 	DBL sized, minx, miny, minz, lox, loy, loz, hix, hiy, hiz;
 
@@ -803,8 +803,7 @@ bool ot_point_in_node(const Vector3d& point, OT_ID *id)
 	{
 		float f; // MUST be float, NOT DBL
 		int l;
-	}
-	size;
+	} size;
 	size.l = id->Size << 23;
 	sized = (DBL) size.f;
 #else

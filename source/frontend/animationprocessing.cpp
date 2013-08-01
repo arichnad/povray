@@ -20,10 +20,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/frontend/animationprocessing.cpp $
- * $Revision: #16 $
- * $Change: 5212 $
- * $DateTime: 2010/11/29 14:07:44 $
- * $Author: chrisc $
+ * $Revision: #17 $
+ * $Change: 5786 $
+ * $DateTime: 2013/02/06 10:16:21 $
+ * $Author: thorsten $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -169,6 +169,10 @@ POVMS_Object AnimationProcessing::GetFrameRenderOptions()
 	POVMS_Object opts(renderOptions);
 
 	opts.SetFloat(kPOVAttrib_Clock, clockValue);
+
+	// append to console files if not first frame (user can set this for first frame via command line to append all data to existing files, so don't set it to false)
+	if(frameNumber > subsetStartFrame)
+		opts.SetBool(kPOVAttrib_AppendConsoleFiles, true);
 
 	POVMS_List declares;
 	if(opts.Exist(kPOVAttrib_Declare) == true)

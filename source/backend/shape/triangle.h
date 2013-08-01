@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/triangle.h $
- * $Revision: #18 $
- * $Change: 5103 $
- * $DateTime: 2010/08/22 06:58:49 $
+ * $Revision: #19 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -161,7 +161,7 @@ class SmoothTriangle : public Triangle
 
 		virtual bool Compute_Triangle();
 
-		static DBL Calculate_Smooth_T(VECTOR IPoint, VECTOR P1, VECTOR P2, VECTOR P3);
+		static DBL Calculate_Smooth_T(const VECTOR IPoint, const VECTOR P1, const VECTOR P2, const VECTOR P3);
 	protected:
 		bool Compute_Smooth_Triangle();
 };

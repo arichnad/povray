@@ -23,9 +23,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/parser/parse.h $
- * $Revision: #53 $
- * $Change: 5488 $
- * $DateTime: 2011/09/13 15:16:37 $
+ * $Revision: #56 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -353,7 +353,7 @@ class Parser : public Task
 		void Parse_Matrix (MATRIX Matrix);
 		void Destroy_Ident_Data (void *Data, int Type);
 		int Parse_RValue (int Previous, int *NumberPtr, void **DataPtr, SYM_ENTRY *sym, bool ParFlag, bool SemiFlag, bool is_local, bool allow_redefine, int old_table_index);
-		char *Get_Token_String (TOKEN Token_Id);
+		const char *Get_Token_String (TOKEN Token_Id);
 		void Test_Redefine(TOKEN Previous, TOKEN *NumberPtr, void *Data, bool allow_redefine = true);
 		void Expectation_Error(const char *);
 		void *Copy_Identifier(void *Data, int Type);
@@ -382,10 +382,10 @@ class Parser : public Task
 		void pre_init_tokenizer (void);
 		void Initialize_Tokenizer (void);
 		void Terminate_Tokenizer (void);
-		SYM_ENTRY *Add_Symbol (int Index,char *Name,TOKEN Number);
+		SYM_ENTRY *Add_Symbol (int Index,const char *Name,TOKEN Number);
 		void Destroy_Macro (POV_MACRO *PMac);
 		POV_ARRAY *Parse_Array_Declare (void);
-		SYM_ENTRY *Create_Entry (int Index,char *Name,TOKEN Number);
+		SYM_ENTRY *Create_Entry (int Index,const char *Name,TOKEN Number);
 		void Acquire_Entry_Reference (SYM_ENTRY *Entry);
 		void Release_Entry_Reference (int Index, SYM_ENTRY *Entry);
 		SYM_ENTRY *Destroy_Entry (int Index,SYM_ENTRY *Entry);
@@ -414,7 +414,7 @@ class Parser : public Task
 		void Parse_Colour (RGBColour& colour);
 		BLEND_MAP *Parse_Blend_Map (int Blend_Type, int Pat_Type);
 		BLEND_MAP *Parse_Colour_Map (void);
-		BLEND_MAP *Parse_Blend_List (int Count, BLEND_MAP *Def_Map, int Blend_Type);
+		BLEND_MAP *Parse_Blend_List (int Count, const BLEND_MAP *Def_Map, int Blend_Type);
 		BLEND_MAP *Parse_Item_Into_Blend_List (int Blend_Type);
 		SPLINE *Parse_Spline (void);
 
@@ -439,7 +439,7 @@ class Parser : public Task
 		// function.h/function.cpp
 		FUNCTION_PTR Parse_Function(void);
 		FUNCTION_PTR Parse_FunctionContent(void);
-		FUNCTION_PTR Parse_DeclareFunction(int *token_id, char *fn_name, bool is_loca);
+		FUNCTION_PTR Parse_DeclareFunction(int *token_id, const char *fn_name, bool is_loca);
 		void Destroy_Function(FUNCTION_PTR Function);
 		static void Destroy_Function(FunctionVM *, FUNCTION_PTR Function);
 		FUNCTION_PTR Copy_Function(FUNCTION_PTR Function);
@@ -449,10 +449,10 @@ class Parser : public Task
 		char *Parse_C_String(bool pathname = false);
 		UCS2 *Parse_String(bool pathname = false, bool require = true);
 
-		UCS2 *String_To_UCS2(char *str, bool pathname = false);
-		char *UCS2_To_String(UCS2 *str, bool pathname = false);
+		UCS2 *String_To_UCS2(const char *str, bool pathname = false);
+		char *UCS2_To_String(const UCS2 *str, bool pathname = false);
 
-		UCS2 *UCS2_strcat(UCS2 *s1, UCS2 *s2);
+		UCS2 *UCS2_strcat(UCS2 *s1, const UCS2 *s2);
 		int UCS2_strlen(const UCS2 *str);
 		int UCS2_strcmp(const UCS2 *s1, const UCS2 *s2);
 		void UCS2_strcpy(UCS2 *s1, const UCS2 *s2);
@@ -653,16 +653,16 @@ class Parser : public Task
 		inline void End_String_Fast (void);
 		bool Read_Float (void);
 		void Read_Symbol (void);
-		SYM_ENTRY *Find_Symbol (int Index, char *s);
+		SYM_ENTRY *Find_Symbol (int Index, const char *s);
 		void Skip_Tokens (COND_TYPE cond);
 		void Break (void);
 
-		int get_hash_value (char *s);
+		int get_hash_value (const char *s);
 		inline void Write_Token (TOKEN Token_Id, int col);
 		void Destroy_Table (int index);
 		void init_sym_tables (void);
 		void Add_Sym_Table ();
-		void Remove_Symbol (int Index, char *Name, bool is_array_elem, void **DataPtr, int ttype);
+		void Remove_Symbol (int Index, const char *Name, bool is_array_elem, void **DataPtr, int ttype);
 		POV_MACRO *Parse_Macro(void);
 		void Invoke_Macro(void);
 		void Return_From_Macro(void);
@@ -680,7 +680,7 @@ class Parser : public Task
 		void Inc_CS_Index(void);
 
 		// parstxtr.h/parstxtr.cpp
-		void Make_Pattern_Image(ImageData *image, FUNCTION_PTR fn, int *token);
+		void Make_Pattern_Image(ImageData *image, FUNCTION_PTR fn, int token);
 
 		void Parse_Image_Pattern (TPATTERN *TPattern);
 		void Parse_Bump_Map (TNORMAL *Tnormal);
@@ -704,8 +704,8 @@ class Parser : public Task
 		UCS2 *Parse_Strupr(bool pathname);
 		UCS2 *Parse_Strlwr(bool pathname);
 
-		UCS4 *Convert_UTF8_To_UCS4(unsigned char *text_array, int text_array_size, int *char_array_size);
-		UCS2 *Convert_UTF8_To_UCS2(unsigned char *text_array, int text_array_size, int *char_array_size);
+		UCS4 *Convert_UTF8_To_UCS4(const unsigned char *text_array, int text_array_size, int *char_array_size);
+		UCS2 *Convert_UTF8_To_UCS2(const unsigned char *text_array, int text_array_size, int *char_array_size);
 
 		// express.h/express.cpp
 		void Parse_Vector_Param (VECTOR Vector);
@@ -730,7 +730,7 @@ class Parser : public Task
 		void Parse_Rel_Term (EXPRESS Express, int *Terms);
 
 		/// Parses a REL_TERM comparing two strings.
-		void Parse_Rel_String_Term (UCS2* lhs, EXPRESS Express, int *Terms);
+		void Parse_Rel_String_Term (const UCS2* lhs, EXPRESS Express, int Terms);
 
 		/// Parses a LOGICAL_EXPRESSION (including FLOAT) or VECTOR.
 		void Parse_Logical (EXPRESS Express, int *Terms);

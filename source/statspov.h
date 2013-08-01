@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/statspov.h $
- * $Revision: #28 $
- * $Change: 5215 $
- * $DateTime: 2010/11/30 18:41:01 $
- * $Author: chrisc $
+ * $Revision: #29 $
+ * $Change: 5745 $
+ * $DateTime: 2013/01/21 11:29:35 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -339,7 +339,7 @@ typedef struct intersection_stats_info
 	int povms_id;
 	IntStatsIndex stat_test_id;
 	IntStatsIndex stat_suc_id;
-	char *infotext;
+	const char *infotext;
 } INTERSECTION_STATS_INFO;
 
 extern const INTERSECTION_STATS_INFO intersection_stats[];

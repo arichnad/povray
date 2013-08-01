@@ -24,10 +24,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/vm/fncode.h $
- * $Revision: #12 $
- * $Change: 5009 $
- * $DateTime: 2010/06/05 10:39:30 $
- * $Author: chrisc $
+ * $Revision: #13 $
+ * $Change: 5745 $
+ * $DateTime: 2013/01/21 11:29:35 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -152,7 +152,7 @@ void FNCode_Delete(FunctionCode *);
 class FNCode
 {
 	public:
-		FNCode(Parser *, FunctionCode *, bool, char *);
+		FNCode(Parser *, FunctionCode *, bool, const char *);
 
 		void Parameter();
 		void Compile(Parser::ExprNode *);

@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/pov_err.h $
- * $Revision: #29 $
- * $Change: 5218 $
- * $DateTime: 2010/12/01 07:10:22 $
- * $Author: chrisc $
+ * $Revision: #30 $
+ * $Change: 5672 $
+ * $DateTime: 2012/06/18 18:28:59 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -135,6 +135,7 @@ enum
 	kNativeExceptionErr       = -29,
 	kInternalLimitErr         = -30,
 	kUncategorizedError       = -31,
+	kNumericalLimitErr        = -32,
 };
 
 // non fatal errors

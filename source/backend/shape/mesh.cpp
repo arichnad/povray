@@ -24,10 +24,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/mesh.cpp $
- * $Revision: #40 $
- * $Change: 5128 $
- * $DateTime: 2010/08/30 15:57:31 $
- * $Author: chrisc $
+ * $Revision: #42 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -409,9 +409,9 @@ bool Mesh::Inside(const VECTOR IPoint, TraceThreadData *Thread) const
 void Mesh::Normal(VECTOR Result, Intersection *Inter, TraceThreadData *Thread) const
 {
 	VECTOR IPoint;
-	MESH_TRIANGLE *Triangle;
+	const MESH_TRIANGLE *Triangle;
 
-	Triangle = (MESH_TRIANGLE *)Inter->Pointer;
+	Triangle = reinterpret_cast<const MESH_TRIANGLE *>(Inter->Pointer);
 
 	if (Triangle->Smooth)
 	{
@@ -776,7 +776,7 @@ ObjectPtr Mesh::Copy()
 	/* NK 1999 copy textures */
 	if(Textures != NULL)
 	{
-		New->Textures = (TEXTURE **)POV_MALLOC(Number_Of_Textures*sizeof(TEXTURE *), "triangle mesh data");
+		New->Textures = reinterpret_cast<TEXTURE **>(POV_MALLOC(Number_Of_Textures*sizeof(TEXTURE *), "triangle mesh data"));
 		for (i = 0; i < Number_Of_Textures; i++)
 			New->Textures[i] = Copy_Textures(Textures[i]);
 	}
@@ -831,7 +831,7 @@ Mesh::~Mesh()
 
 	if (--(Data->References) == 0)
 	{
-		Destroy_BBox_Tree((BBOX_TREE *) Data->Tree);
+		Destroy_BBox_Tree(Data->Tree);
 
 		if (Data->Normals != NULL)
 		{
@@ -1501,23 +1501,23 @@ void Mesh::Build_Mesh_BBox_Tree()
 
 	/* Now allocate an array to hold references to these elements. */
 
-	Triangles = (BBOX_TREE **)POV_MALLOC(maxelements*sizeof(BBOX_TREE *), "mesh bbox tree");
+	Triangles = reinterpret_cast<BBOX_TREE **>(POV_MALLOC(maxelements*sizeof(BBOX_TREE *), "mesh bbox tree"));
 
 	/* Init list with mesh elements. */
 
 	for (i = 0; i < nElem; i++)
 	{
-		Triangles[i] = (BBOX_TREE *)POV_MALLOC(sizeof(BBOX_TREE), "mesh bbox tree");
+		Triangles[i] = reinterpret_cast<BBOX_TREE *>(POV_MALLOC(sizeof(BBOX_TREE), "mesh bbox tree"));
 
 		Triangles[i]->Infinite = false;
 		Triangles[i]->Entries  = 0;
-		Triangles[i]->Node     = (BBOX_TREE **)&Data->Triangles[i];
+		Triangles[i]->Node     = reinterpret_cast<BBOX_TREE **>(&Data->Triangles[i]);
 
 		get_triangle_bbox(&Data->Triangles[i], &Triangles[i]->BBox);
 	}
 
 	size_t maxfinitecount = 0;
-	Build_BBox_Tree((BBOX_TREE **) &Data->Tree, nElem, Triangles, 0, NULL, maxfinitecount);
+	Build_BBox_Tree(&Data->Tree, nElem, Triangles, 0, NULL, maxfinitecount);
 
 	/* Get rid of the Triangles array. */
 
@@ -1624,9 +1624,9 @@ bool Mesh::intersect_bbox_tree(const Ray &ray, const Ray &Orig_Ray, DBL len, ISt
 		{
 			/* This is a leaf so test the contained triangle. */
 
-			if (intersect_mesh_triangle(ray, (MESH_TRIANGLE *)Node->Node, &Depth))
+			if (intersect_mesh_triangle(ray, reinterpret_cast<MESH_TRIANGLE *>(Node->Node), &Depth))
 			{
-				if (test_hit((MESH_TRIANGLE *)Node->Node, Orig_Ray, Depth, len, Depth_Stack, Thread))
+				if (test_hit(reinterpret_cast<MESH_TRIANGLE *>(Node->Node), Orig_Ray, Depth, len, Depth_Stack, Thread))
 				{
 					found = true;
 
@@ -1677,7 +1677,7 @@ bool Mesh::intersect_bbox_tree(const Ray &ray, const Ray &Orig_Ray, DBL len, ISt
 *
 ******************************************************************************/
 
-int Mesh::mesh_hash(HASH_TABLE **Hash_Table, int *Number, int  *Max, SNGL_VECT **Elements, VECTOR aPoint)
+int Mesh::mesh_hash(HASH_TABLE **Hash_Table, int *Number, int  *Max, SNGL_VECT **Elements, const VECTOR aPoint)
 {
 	int hash;
 	SNGL_VECT D, P;
@@ -1717,12 +1717,12 @@ int Mesh::mesh_hash(HASH_TABLE **Hash_Table, int *Number, int  *Max, SNGL_VECT *
 
 		(*Max) *= 2;
 
-		(*Elements) = (SNGL_VECT *)POV_REALLOC((*Elements), (*Max)*sizeof(SNGL_VECT), "mesh data");
+		(*Elements) = reinterpret_cast<SNGL_VECT *>(POV_REALLOC((*Elements), (*Max)*sizeof(SNGL_VECT), "mesh data"));
 	}
 
 	Assign_Vector((*Elements)[*Number], P);
 
-	p = (HASH_TABLE *)POV_MALLOC(sizeof(HASH_TABLE), "mesh data");
+	p = reinterpret_cast<HASH_TABLE *>(POV_MALLOC(sizeof(HASH_TABLE), "mesh data"));
 
 	Assign_Vector(p->P, P);
 
@@ -1772,7 +1772,7 @@ int Mesh::mesh_hash(HASH_TABLE **Hash_Table, int *Number, int  *Max, SNGL_VECT *
 *
 ******************************************************************************/
 
-int Mesh::Mesh_Hash_Vertex(int *Number_Of_Vertices, int  *Max_Vertices, SNGL_VECT **Vertices, VECTOR Vertex)
+int Mesh::Mesh_Hash_Vertex(int *Number_Of_Vertices, int  *Max_Vertices, SNGL_VECT **Vertices, const VECTOR Vertex)
 {
 	return(mesh_hash(Vertex_Hash_Table, Number_Of_Vertices, Max_Vertices, Vertices, Vertex));
 }
@@ -1814,7 +1814,7 @@ int Mesh::Mesh_Hash_Vertex(int *Number_Of_Vertices, int  *Max_Vertices, SNGL_VEC
 *
 ******************************************************************************/
 
-int Mesh::Mesh_Hash_Normal(int *Number_Of_Normals, int  *Max_Normals, SNGL_VECT **Normals, VECTOR S_Normal)
+int Mesh::Mesh_Hash_Normal(int *Number_Of_Normals, int  *Max_Normals, SNGL_VECT **Normals, const VECTOR S_Normal)
 {
 	return(mesh_hash(Normal_Hash_Table, Number_Of_Normals, Max_Normals, Normals, S_Normal));
 }
@@ -1856,7 +1856,7 @@ int Mesh::Mesh_Hash_Normal(int *Number_Of_Normals, int  *Max_Normals, SNGL_VECT 
 *
 ******************************************************************************/
 
-int Mesh::Mesh_Hash_Texture(int *Number_Of_Textures, int  *Max_Textures, TEXTURE ***Textures, TEXTURE  *Texture)
+int Mesh::Mesh_Hash_Texture(int *Number_Of_Textures, int *Max_Textures, TEXTURE ***Textures, TEXTURE *Texture)
 {
 	int i;
 
@@ -1886,7 +1886,7 @@ int Mesh::Mesh_Hash_Texture(int *Number_Of_Textures, int  *Max_Textures, TEXTURE
 
 			(*Max_Textures) *= 2;
 
-			(*Textures) = (TEXTURE **)POV_REALLOC((*Textures), (*Max_Textures)*sizeof(TEXTURE *), "mesh data");
+			(*Textures) = reinterpret_cast<TEXTURE **>(POV_REALLOC((*Textures), (*Max_Textures)*sizeof(TEXTURE *), "mesh data"));
 		}
 
 		(*Textures)[(*Number_Of_Textures)++] = Copy_Texture_Pointer(Texture);
@@ -1929,7 +1929,7 @@ int Mesh::Mesh_Hash_Texture(int *Number_Of_Textures, int  *Max_Textures, TEXTURE
 *
 ******************************************************************************/
 
-int Mesh::Mesh_Hash_UV(int *Number, int *Max, UV_VECT **Elements, UV_VECT aPoint)
+int Mesh::Mesh_Hash_UV(int *Number, int *Max, UV_VECT **Elements, const UV_VECT aPoint)
 {
 	int hash;
 	UV_VECT D, P;
@@ -1971,12 +1971,12 @@ int Mesh::Mesh_Hash_UV(int *Number, int *Max, UV_VECT **Elements, UV_VECT aPoint
 
 		(*Max) *= 2;
 
-		(*Elements) = (UV_VECT *)POV_REALLOC((*Elements), (*Max)*sizeof(UV_VECT), "mesh data");
+		(*Elements) = reinterpret_cast<UV_VECT *>(POV_REALLOC((*Elements), (*Max)*sizeof(UV_VECT), "mesh data"));
 	}
 
 	Assign_UV_Vect((*Elements)[*Number], P);
 
-	p = (UV_HASH_TABLE *)POV_MALLOC(sizeof(UV_HASH_TABLE), "mesh data");
+	p = reinterpret_cast<UV_HASH_TABLE *>(POV_MALLOC(sizeof(UV_HASH_TABLE), "mesh data"));
 
 	Assign_UV_Vect(p->P, P);
 
@@ -2021,14 +2021,14 @@ void Mesh::Create_Mesh_Hash_Tables()
 {
 	int i;
 
-	Vertex_Hash_Table = (HASH_TABLE **)POV_MALLOC(HASH_SIZE*sizeof(HASH_TABLE *), "mesh hash table");
+	Vertex_Hash_Table = reinterpret_cast<HASH_TABLE **>(POV_MALLOC(HASH_SIZE*sizeof(HASH_TABLE *), "mesh hash table"));
 
 	for (i = 0; i < HASH_SIZE; i++)
 	{
 		Vertex_Hash_Table[i] = NULL;
 	}
 
-	Normal_Hash_Table = (HASH_TABLE **)POV_MALLOC(HASH_SIZE*sizeof(HASH_TABLE *), "mesh hash table");
+	Normal_Hash_Table = reinterpret_cast<HASH_TABLE **>(POV_MALLOC(HASH_SIZE*sizeof(HASH_TABLE *), "mesh hash table"));
 
 	for (i = 0; i < HASH_SIZE; i++)
 	{
@@ -2036,7 +2036,7 @@ void Mesh::Create_Mesh_Hash_Tables()
 	}
 
 	/* NK 1998 */
-	UV_Hash_Table = (UV_HASH_TABLE **)POV_MALLOC(HASH_SIZE*sizeof(UV_HASH_TABLE *), "mesh hash table");
+	UV_Hash_Table = reinterpret_cast<UV_HASH_TABLE **>(POV_MALLOC(HASH_SIZE*sizeof(UV_HASH_TABLE *), "mesh hash table"));
 
 	for (i = 0; i < HASH_SIZE; i++)
 	{
@@ -2274,7 +2274,7 @@ void Mesh::get_triangle_uvcoords(const MESH_TRIANGLE *Triangle, UV_VECT UV1, UV_
 *
 ******************************************************************************/
 
-bool Mesh::Degenerate(VECTOR P1, VECTOR  P2, VECTOR  P3)
+bool Mesh::Degenerate(const VECTOR P1, const VECTOR  P2, const VECTOR  P3)
 {
 	VECTOR V1, V2, Temp;
 	DBL Length;
@@ -2378,7 +2378,7 @@ void Mesh::UVCoord(VECTOR Result, const Intersection *Inter, TraceThreadData *) 
 	DBL w1, w2, w3, t1, t2;
 	VECTOR vA, vB;
 	VECTOR Side1, Side2;
-	MESH_TRIANGLE *Triangle;
+	const MESH_TRIANGLE *Triangle;
 	VECTOR P;
 
 	if (Trans != NULL)
@@ -2386,7 +2386,7 @@ void Mesh::UVCoord(VECTOR Result, const Intersection *Inter, TraceThreadData *) 
 	else
 		Assign_Vector(P, Inter->IPoint);
 
-	Triangle = (MESH_TRIANGLE *)Inter->Pointer;
+	Triangle = reinterpret_cast<const MESH_TRIANGLE *>(Inter->Pointer);
 
 	/* ---------------- this is for P1 ---------------- */
 	/* Side1 is opposite side, Side2 is an adjacent side (vector pointing away) */
@@ -2489,7 +2489,7 @@ void Mesh::UVCoord(VECTOR Result, const Intersection *Inter, TraceThreadData *) 
 *
 ******************************************************************************/
 
-bool Mesh::inside_bbox_tree(Ray &ray, TraceThreadData *Thread) const
+bool Mesh::inside_bbox_tree(const Ray &ray, TraceThreadData *Thread) const
 {
 	int i, found;
 	DBL Best, Depth;
@@ -2530,7 +2530,7 @@ bool Mesh::inside_bbox_tree(Ray &ray, TraceThreadData *Thread) const
 		{
 			/* This is a leaf so test the contained triangle. */
 
-			if (intersect_mesh_triangle(ray, (MESH_TRIANGLE *)Node->Node, &Depth))
+			if (intersect_mesh_triangle(ray, reinterpret_cast<MESH_TRIANGLE *>(Node->Node), &Depth))
 			{
 				/* actually, this should push onto a local depth stack and
 				   make sure that we don't have the same intersection point from
@@ -2546,7 +2546,7 @@ bool Mesh::inside_bbox_tree(Ray &ray, TraceThreadData *Thread) const
 
 void Mesh::Determine_Textures(Intersection *isect, bool hitinside, WeightedTextureVector& textures, TraceThreadData *Threaddata)
 {
-	MESH_TRIANGLE *tri = (MESH_TRIANGLE *)isect->Pointer;
+	const MESH_TRIANGLE *tri = reinterpret_cast<const MESH_TRIANGLE *>(isect->Pointer);
 
 	if((Interior_Texture != NULL) && (hitinside == true)) // useful feature for checking mesh orientation and other effects [trf]
 		textures.push_back(WeightedTexture(1.0, Interior_Texture));

@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/texture/texture.h $
- * $Revision: #18 $
- * $Change: 5597 $
- * $DateTime: 2011/12/24 21:06:16 $
- * $Author: chrisc $
+ * $Revision: #19 $
+ * $Change: 5625 $
+ * $DateTime: 2012/03/10 21:41:16 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -161,7 +161,7 @@ FINISH *Copy_Finish (const FINISH *Old);
 TEXTURE *Copy_Texture_Pointer (TEXTURE *Texture);
 TEXTURE *Copy_Textures (const TEXTURE *Textures);
 TEXTURE *Create_Texture (void);
-int Test_Opacity (TEXTURE *Texture);
+int Test_Opacity (const TEXTURE *Texture);
 TURB *Create_Turb (void);
 
 }

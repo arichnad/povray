@@ -23,9 +23,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/image/targa.cpp $
- * $Revision: #36 $
- * $Change: 5303 $
- * $DateTime: 2010/12/27 14:22:56 $
+ * $Revision: #38 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -169,7 +169,7 @@ Pixel *GetPix (const Image *image, int x, int y, Pixel *pixel, const GammaCurveP
 	return (pixel);
 }
 
-void PutPix (vector<unsigned char>& line, pix *pixel, bool opaque)
+void PutPix (vector<unsigned char>& line, const pix *pixel, bool opaque)
 {
 	line.push_back (pixel->b);
 	line.push_back (pixel->g);
@@ -404,7 +404,7 @@ void Write (OStream *file, const Image *image, const Image::WriteOptions& option
 	file->write(foo,sizeof(foo));
 }
 
-void ConvertColor (Pixel *pixel, unsigned pixelsize, unsigned char *bytes)
+void ConvertColor (Pixel *pixel, unsigned pixelsize, const unsigned char *bytes)
 {
 	unsigned char r;
 	unsigned char g;
@@ -453,7 +453,7 @@ void ConvertColor (Pixel *pixel, unsigned pixelsize, unsigned char *bytes)
 	pixel->a = a;
 }
 
-void ConvertColor (Image::RGBAMapEntry *pixel, unsigned pixelsize, unsigned char *bytes, const GammaCurvePtr& gamma)
+void ConvertColor (Image::RGBAMapEntry *pixel, unsigned pixelsize, const unsigned char *bytes, const GammaCurvePtr& gamma)
 {
 	unsigned char r;
 	unsigned char g;
@@ -569,7 +569,7 @@ Image *Read (IStream *file, const Image::ReadOptions& options)
 	if (options.premultiplyOverride)
 		premul = options.premultiply;
 
-	if (!file->read ((char *) tgaheader, 18))
+	if (!file->read (tgaheader, 18))
 		throw POV_EXCEPTION(kFileDataErr, "Cannot read targa file header");
 
 	/* Decipher the header information */

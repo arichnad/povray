@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/bounding/bcyl.h $
- * $Revision: #10 $
- * $Change: 5088 $
- * $DateTime: 2010/08/05 17:08:44 $
+ * $Revision: #11 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -148,10 +148,10 @@ struct BCyl_Struct
 * Global functions
 ******************************************************************************/
 
-BCYL *Create_BCyl (int, DBL *, DBL *, DBL *, DBL *);
+BCYL *Create_BCyl (int, const DBL *, const DBL *, const DBL *, const DBL *);
 void Destroy_BCyl (BCYL *);
 
-int Intersect_BCyl (BCYL *BCyl, BCYL_INT *Intervals, BCYL_INT *rint, BCYL_INT *hint, VECTOR P, VECTOR D);
+int Intersect_BCyl (const BCYL *BCyl, BCYL_INT *Intervals, BCYL_INT *rint, BCYL_INT *hint, const VECTOR P, const VECTOR D);
 
 }
 

@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/frontend/renderfrontend.h $
- * $Revision: #66 $
- * $Change: 5385 $
- * $DateTime: 2011/01/17 07:14:45 $
- * $Author: chrisc $
+ * $Revision: #68 $
+ * $Change: 5730 $
+ * $DateTime: 2012/12/15 12:46:22 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -257,8 +257,15 @@ class RenderFrontendBase : public POVMS_MessageReceiver
 			public:
 				Id() : address(POVMSInvalidAddress), identifier(0) { }
 				Id(POVMSAddress a, POVMSInt i) : address(a), identifier(i) { }
-				bool operator<(const Id& o) const { return ((address < o.address) && (identifier < o.identifier)); }
+				/* operator< needed by map<> and set<>
+				 * total order is required
+				 * [JG] evaluation's order of expression is (ab)used:
+				 *   first rank order is address, if equals, second rank is id
+				 */
+				bool operator<(const Id& o) const { return ((address <= o.address) && (identifier < o.identifier)); }
+				// operator== needed by explicit compare
 				bool operator==(const Id& o) const { return ((address == o.address) && (identifier == o.identifier)); }
+				// no need of != so far
 				bool operator!=(const Id& o) const { return ((address != o.address) || (identifier != o.identifier)); }
 				POVMSAddress GetAddress() const { return address; }
 				POVMSInt GetIdentifier() const { return identifier; }

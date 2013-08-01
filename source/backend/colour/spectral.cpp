@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/colour/spectral.cpp $
- * $Revision: #4 $
- * $Change: 5108 $
- * $DateTime: 2010/08/28 05:33:28 $
+ * $Revision: #5 $
+ * $Change: 5745 $
+ * $DateTime: 2013/01/21 11:29:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -108,7 +108,7 @@ namespace pov
 // Variant 1:
 // Values based on the CIE XYZ tristimulus table, transformed to (linear) sRGB color space;
 // color values gamut-adjusted by clipping
-#define SPECTRAL_HUE_TABLE_SIZE 75
+#define SPECTRAL_HUE_TABLE_SIZE 74
 #define SPECTRAL_HUE_TABLE_BASE 375.0
 #define SPECTRAL_HUE_TABLE_STEP 5.0
 static RGB SpectralHueIntegral[SPECTRAL_HUE_TABLE_SIZE] = {
@@ -192,7 +192,7 @@ static RGB SpectralHueIntegral[SPECTRAL_HUE_TABLE_SIZE] = {
 // Variant 2:
 // Values based on the CIE XYZ tristimulus table, transformed to (linear) sRGB color space;
 // color values gamut-adjusted by adding white
-#define SPECTRAL_HUE_TABLE_SIZE 74
+#define SPECTRAL_HUE_TABLE_SIZE 73
 #define SPECTRAL_HUE_TABLE_BASE 375.0
 #define SPECTRAL_HUE_TABLE_STEP 5.0
 static RGB SpectralHueIntegral[SPECTRAL_HUE_TABLE_SIZE] = {
@@ -346,7 +346,7 @@ static RGB SpectralHueIntegral[SPECTRAL_HUE_TABLE_SIZE] = {
 //		r = 0.0;
 //	hue.red() = r;                                                          // NB: rest of code was changed; nowadays this would be   hue.red() = 3.0*r;
 //}
-#define SPECTRAL_HUE_TABLE_SIZE 75
+#define SPECTRAL_HUE_TABLE_SIZE 74
 #define SPECTRAL_HUE_TABLE_BASE 375.0
 #define SPECTRAL_HUE_TABLE_STEP 5.0
 static RGB SpectralHueIntegral[SPECTRAL_HUE_TABLE_SIZE] = {

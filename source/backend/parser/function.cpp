@@ -25,9 +25,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/parser/function.cpp $
- * $Revision: #16 $
- * $Change: 5179 $
- * $DateTime: 2010/11/01 13:56:10 $
+ * $Revision: #17 $
+ * $Change: 5745 $
+ * $DateTime: 2013/01/21 11:29:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -321,7 +321,7 @@ FUNCTION_PTR Parser::Parse_FunctionContent(void)
 *
 ******************************************************************************/
 
-FUNCTION_PTR Parser::Parse_DeclareFunction(int *token_id, char *fn_name, bool is_local)
+FUNCTION_PTR Parser::Parse_DeclareFunction(int *token_id, const char *fn_name, bool is_local)
 {
 	FUNCTION_PTR ptr = (FUNCTION_PTR)POV_MALLOC(sizeof(FUNCTION), "Function ID");
 	ExprNode *expression = NULL;

@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/truetype.h $
- * $Revision: #20 $
- * $Change: 5009 $
- * $DateTime: 2010/06/05 10:39:30 $
- * $Author: chrisc $
+ * $Revision: #22 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -137,7 +137,7 @@ class TrueType : public ObjectBase
 		virtual void Invert();
 		virtual void Compute_BBox();
 
-		static void ProcessNewTTF(CSG *Object, const char *filename, UCS2 *text_string, DBL depth, VECTOR offset, Parser *parser, shared_ptr<SceneData>& sceneData);
+		static void ProcessNewTTF(CSG *Object, const char *filename, const int font_id, const UCS2 *text_string, DBL depth, const VECTOR offset, Parser *parser, shared_ptr<SceneData>& sceneData);
 	protected:
 		bool Inside_Glyph(double x, double y, const GlyphStruct* glyph) const;
 		int solve_quad(double *x, double *y, double mindist, DBL maxdist) const;

@@ -43,10 +43,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/support/simplevector.h $
- * $Revision: #14 $
- * $Change: 5360 $
- * $DateTime: 2011/01/06 15:22:14 $
- * $Author: chrisc $
+ * $Revision: #15 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -475,12 +475,12 @@ public:
 
 	iterator begin()
 	{
-		return (pointer (m_Data));
+		return (reinterpret_cast<pointer>(&(m_Data[0])));
 	}
 
 	const_iterator begin() const
 	{
-		return (pointer (m_Data));
+		return (reinterpret_cast<const_pointer>(&(m_Data[0])));
 	}
 
 	iterator end()
@@ -515,7 +515,7 @@ public:
 
 	size_type size() const
 	{
-		return (m_Last - pointer (m_Data));
+		return (m_Last - const_pointer (m_Data));
 	}
 
 	size_type max_size() const
@@ -525,7 +525,7 @@ public:
 
 	bool empty() const
 	{
-		return (pointer (m_Data) == m_Last);
+		return (const_pointer (m_Data) == m_Last);
 	}
 
 	const_reference at(size_type Index) const

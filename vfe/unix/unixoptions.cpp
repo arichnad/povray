@@ -25,10 +25,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/vfe/unix/unixoptions.cpp $
- * $Revision: #18 $
- * $Change: 5458 $
- * $DateTime: 2011/07/09 05:21:55 $
- * $Author: jholsenback $
+ * $Revision: #19 $
+ * $Change: 5661 $
+ * $DateTime: 2012/06/11 06:36:10 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -811,21 +811,21 @@ namespace vfePlatform
 
 		while(std::getline(Stream, line))
 		{
-    	// check for failbit and badbit and eofbit
-    	if(!Stream.good())
-    	{
-    		// Only in case of the badbit we can assume that some lower
-    		// level system API function has set errno and perror() can be
-    		// used safely.
-    		if(Stream.bad())
-    		{
-    			fprintf(stderr, "%s: error while reading/opening configuration file ", PACKAGE);
-    			perror(conf_name.c_str());
-    		}
-    		break;
-    	}
-    	// preprocess line
-    	line = pre_process_conf_line(line);
+			// check for failbit and badbit and eofbit
+			if(!Stream.good())
+			{
+				// Only in case of the badbit we can assume that some lower
+				// level system API function has set errno and perror() can be
+				// used safely.
+				if(Stream.bad())
+				{
+					fprintf(stderr, "%s: error while reading/opening configuration file ", PACKAGE);
+					perror(conf_name.c_str());
+				}
+				break;
+			}
+			// preprocess line
+			line = pre_process_conf_line(line);
 			++line_number;
 
 			// skip empty line

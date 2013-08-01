@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/image/encoding.h $
- * $Revision: #2 $
- * $Change: 5233 $
- * $DateTime: 2010/12/04 15:37:56 $
+ * $Revision: #3 $
+ * $Change: 5662 $
+ * $DateTime: 2012/06/11 09:25:01 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -107,33 +107,33 @@ class Image;
 /// Abstract class representing dithering rules and respective state information.
 class DitherHandler
 {
-    public:
-        struct OffsetInfo
-        {
-            union { float red, gray; };  float green, blue, alpha;
+	public:
+		struct OffsetInfo
+		{
+			union { float red, gray; };  float green, blue, alpha;
 			OffsetInfo() : red(0.0f), green(0.0f), blue(0.0f), alpha(0.0f) { }
 			OffsetInfo(float r, float g, float b, float a) : red(r), green(g), blue(b), alpha(a) { }
-            void clear() { red = 0.0f; green = 0.0f; blue = 0.0f; alpha = 0.0f; }
-            void setAll(float v) { red = v; green = v; blue = v; alpha = v; }
-            OffsetInfo operator*(float b) const { return OffsetInfo(red*b, green*b, blue*b, alpha*b); }
-            OffsetInfo operator+(const OffsetInfo& b) const { return OffsetInfo(red+b.red, green+b.green, blue+b.blue, alpha+b.alpha); }
-            void operator+=(const OffsetInfo& b) { red+=b.red; green+=b.green; blue+=b.blue; alpha+=b.alpha; }
-        };
+			void clear() { red = 0.0f; green = 0.0f; blue = 0.0f; alpha = 0.0f; }
+			void setAll(float v) { red = v; green = v; blue = v; alpha = v; }
+			OffsetInfo operator*(float b) const { return OffsetInfo(red*b, green*b, blue*b, alpha*b); }
+			OffsetInfo operator+(const OffsetInfo& b) const { return OffsetInfo(red+b.red, green+b.green, blue+b.blue, alpha+b.alpha); }
+			void operator+=(const OffsetInfo& b) { red+=b.red; green+=b.green; blue+=b.blue; alpha+=b.alpha; }
+		};
 
-        virtual ~DitherHandler() {}
+		virtual ~DitherHandler() {}
 
-        /// Computes an offset to be added to the pixel value.
-        /// @param[in]  x       X coordinate of the pixel (may or may not be relevant to the handler).
-        /// @param[in]  y       Y coordinate of the pixel (may or may not be relevant to the handler).
-        /// @param[out] offLin  Linear offset to add before any encoding steps
-        /// @param[out] offQnt  Offset to add right before quantization (even after scaling)
-        virtual void getOffset(unsigned int x, unsigned int y, OffsetInfo& offLin, OffsetInfo& offQnt) = 0;
+		/// Computes an offset to be added to the pixel value.
+		/// @param[in]  x       X coordinate of the pixel (may or may not be relevant to the handler).
+		/// @param[in]  y       Y coordinate of the pixel (may or may not be relevant to the handler).
+		/// @param[out] offLin  Linear offset to add before any encoding steps
+		/// @param[out] offQnt  Offset to add right before quantization (even after scaling)
+		virtual void getOffset(unsigned int x, unsigned int y, OffsetInfo& offLin, OffsetInfo& offQnt) = 0;
 
-        /// Informs the handler about the actual quantization error observed for one particular pixel.
-        /// @param[in]  x       X coordinate of the pixel (may or may not be relevant to the handler).
-        /// @param[in]  y       Y coordinate of the pixel (may or may not be relevant to the handler).
-        /// @param[in]  err     Linear quantization error.
-        virtual void setError(unsigned int x, unsigned int y, const OffsetInfo& err) {}
+		/// Informs the handler about the actual quantization error observed for one particular pixel.
+		/// @param[in]  x       X coordinate of the pixel (may or may not be relevant to the handler).
+		/// @param[in]  y       Y coordinate of the pixel (may or may not be relevant to the handler).
+		/// @param[in]  err     Linear quantization error.
+		virtual void setError(unsigned int x, unsigned int y, const OffsetInfo& err) {}
 };
 
 typedef boost::shared_ptr<DitherHandler> DitherHandlerPtr;
@@ -187,7 +187,7 @@ inline unsigned int IntEncode(float x, unsigned int max) { return (unsigned int)
  */
 inline unsigned int IntEncode(float x, unsigned int max, float qOff)
 {
-    return IntEncode(x+qOff/float(max),max);
+	return IntEncode(x+qOff/float(max),max);
 }
 
 /**
@@ -201,9 +201,9 @@ inline unsigned int IntEncode(float x, unsigned int max, float qOff)
  */
 inline unsigned int IntEncode(float x, unsigned int max, float qOff, float& err)
 {
-    unsigned int v = IntEncode(x,max,qOff);
-    err = clip(x,0.0f,1.0f) - IntDecode(v,max);
-    return v;
+	unsigned int v = IntEncode(x,max,qOff);
+	err = clip(x,0.0f,1.0f) - IntDecode(v,max);
+	return v;
 }
 
 /**
@@ -229,7 +229,7 @@ inline unsigned int IntEncode(const GammaCurvePtr& g, float x, unsigned int max)
  */
 inline unsigned int IntEncode(const GammaCurvePtr& g, float x, unsigned int max, float qOff)
 {
-    return IntEncode(GammaCurve::Encode(g,x)+qOff/float(max),max);
+	return IntEncode(GammaCurve::Encode(g,x)+qOff/float(max),max);
 }
 
 /**
@@ -245,9 +245,9 @@ inline unsigned int IntEncode(const GammaCurvePtr& g, float x, unsigned int max,
  */
 inline unsigned int IntEncode(const GammaCurvePtr& g, float x, unsigned int max, float qOff, float& err)
 {
-    unsigned int v = IntEncode(g,x,max,qOff);
-    err = clip(x,0.0f,1.0f) - IntDecode(g,v,max);
-    return v;
+	unsigned int v = IntEncode(g,x,max,qOff);
+	err = clip(x,0.0f,1.0f) - IntDecode(g,v,max);
+	return v;
 }
 
 /*******************************************************************************/

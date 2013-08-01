@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/lightgrp.h $
- * $Revision: #11 $
- * $Change: 5009 $
- * $DateTime: 2010/06/05 10:39:30 $
- * $Author: chrisc $
+ * $Revision: #12 $
+ * $Change: 5783 $
+ * $DateTime: 2013/02/04 10:34:35 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -99,7 +99,7 @@ namespace pov
 {
 
 void Promote_Local_Lights(CSG *Object);
-bool Check_Photon_Light_Group(ObjectPtr Object);
+bool Check_Photon_Light_Group(ConstObjectPtr Object);
 
 }
 

@@ -24,9 +24,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/configbase.h $
- * $Revision: #14 $
- * $Change: 5303 $
- * $DateTime: 2010/12/27 14:22:56 $
+ * $Revision: #16 $
+ * $Change: 5726 $
+ * $DateTime: 2012/11/12 05:47:18 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -95,6 +95,7 @@
 #ifndef CONFIGBASE_H
 #define CONFIGBASE_H
 
+#include <boost/version.hpp>
 #include "syspovconfigbase.h"
 
 #ifndef DBL
@@ -191,6 +192,20 @@
 #define DEFAULT_WORKING_GAMMA       1.0
 #define DEFAULT_WORKING_GAMMA_TEXT  "1.0"
 
+// boost 1.50 changed TIME_UTC to TIME_UTC_ to avoid a clash with C11, which has
+// TIME_UTC as a define (in boost it's an enum). To allow compilation with earlier
+// versions of boost we now use POV_TIME_UTC in the code and define that here.
+// unfortunately we do have to hard-code the value.
+#if BOOST_VERSION >= 105000
+	#define POV_TIME_UTC boost::TIME_UTC_
+#else
+	#ifdef TIME_UTC
+		// clash between C11 and boost detected, need to hard-code
+		#define POV_TIME_UTC 1
+	#else
+		#define POV_TIME_UTC boost::TIME_UTC
+	#endif
+#endif
 
 #include "base/povms.h"
 #include "base/povmscpp.h"

@@ -25,9 +25,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/bezier.cpp $
- * $Revision: #26 $
- * $Change: 5103 $
- * $DateTime: 2010/08/22 06:58:49 $
+ * $Revision: #28 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -147,7 +147,7 @@ const DBL BEZIER_TOLERANCE = 1.0e-5;
 
 BEZIER_NODE *BicubicPatch::create_new_bezier_node()
 {
-	BEZIER_NODE *Node = (BEZIER_NODE *)POV_MALLOC(sizeof(BEZIER_NODE), "bezier node");
+	BEZIER_NODE *Node = reinterpret_cast<BEZIER_NODE *>(POV_MALLOC(sizeof(BEZIER_NODE), "bezier node"));
 
 	Node->Data_Ptr = NULL;
 
@@ -186,7 +186,7 @@ BEZIER_VERTICES *BicubicPatch::create_bezier_vertex_block()
 {
 	BEZIER_VERTICES *Vertices;
 
-	Vertices = (BEZIER_VERTICES *)POV_MALLOC(sizeof(BEZIER_VERTICES), "bezier vertices");
+	Vertices = reinterpret_cast<BEZIER_VERTICES *>(POV_MALLOC(sizeof(BEZIER_VERTICES), "bezier vertices"));
 
 	return (Vertices);
 }
@@ -223,7 +223,7 @@ BEZIER_CHILDREN *BicubicPatch::create_bezier_child_block()
 {
 	BEZIER_CHILDREN *Children;
 
-	Children = (BEZIER_CHILDREN *)POV_MALLOC(sizeof(BEZIER_CHILDREN), "bezier children");
+	Children = reinterpret_cast<BEZIER_CHILDREN *>(POV_MALLOC(sizeof(BEZIER_CHILDREN), "bezier children"));
 
 	return (Children);
 }
@@ -296,7 +296,7 @@ BEZIER_NODE *BicubicPatch::bezier_tree_builder(const VECTOR (*Patch)[4][4], DBL 
 		Vertices->uvbnds[2] = v0;
 		Vertices->uvbnds[3] = v1;
 
-		Node->Data_Ptr = (void *)Vertices;
+		Node->Data_Ptr = reinterpret_cast<void *>(Vertices);
 	}
 	else
 	{
@@ -320,61 +320,61 @@ BEZIER_NODE *BicubicPatch::bezier_tree_builder(const VECTOR (*Patch)[4][4], DBL 
 				Vertices->uvbnds[2] = v0;
 				Vertices->uvbnds[3] = v1;
 
-				Node->Data_Ptr = (void *)Vertices;
+				Node->Data_Ptr = reinterpret_cast<void *>(Vertices);
 			}
 			else
 			{
-				bezier_split_up_down(Patch, (VECTOR(*)[4][4])Lower_Left, (VECTOR(*)[4][4])Upper_Left);
+				bezier_split_up_down(Patch, &Lower_Left, &Upper_Left);
 
 				Node->Node_Type = BEZIER_INTERIOR_NODE;
 
 				Children = create_bezier_child_block();
 
-				Children->Children[0] = bezier_tree_builder((VECTOR(*)[4][4])Lower_Left, u0, u1, v0, (v0 + v1) / 2.0, depth + 1, max_depth_reached);
-				Children->Children[1] = bezier_tree_builder((VECTOR(*)[4][4])Upper_Left, u0, u1, (v0 + v1) / 2.0, v1, depth + 1, max_depth_reached);
+				Children->Children[0] = bezier_tree_builder(&Lower_Left, u0, u1, v0, (v0 + v1) / 2.0, depth + 1, max_depth_reached);
+				Children->Children[1] = bezier_tree_builder(&Upper_Left, u0, u1, (v0 + v1) / 2.0, v1, depth + 1, max_depth_reached);
 
 				Node->Count = 2;
 
-				Node->Data_Ptr = (void *)Children;
+				Node->Data_Ptr = reinterpret_cast<void *>(Children);
 			}
 		}
 		else
 		{
 			if (depth >= V_Steps)
 			{
-				bezier_split_left_right(Patch, (VECTOR(*)[4][4])Lower_Left, (VECTOR(*)[4][4])Lower_Right);
+				bezier_split_left_right(Patch, &Lower_Left, &Lower_Right);
 
 				Node->Node_Type = BEZIER_INTERIOR_NODE;
 
 				Children = create_bezier_child_block();
 
-				Children->Children[0] = bezier_tree_builder((VECTOR(*)[4][4])Lower_Left, u0, (u0 + u1) / 2.0, v0, v1, depth + 1, max_depth_reached);
-				Children->Children[1] = bezier_tree_builder((VECTOR(*)[4][4])Lower_Right, (u0 + u1) / 2.0, u1, v0, v1, depth + 1, max_depth_reached);
+				Children->Children[0] = bezier_tree_builder(&Lower_Left, u0, (u0 + u1) / 2.0, v0, v1, depth + 1, max_depth_reached);
+				Children->Children[1] = bezier_tree_builder(&Lower_Right, (u0 + u1) / 2.0, u1, v0, v1, depth + 1, max_depth_reached);
 
 				Node->Count = 2;
 
-				Node->Data_Ptr = (void *)Children;
+				Node->Data_Ptr = reinterpret_cast<void *>(Children);
 			}
 			else
 			{
-				bezier_split_left_right(Patch, (VECTOR(*)[4][4])Lower_Left, (VECTOR(*)[4][4])Lower_Right);
+				bezier_split_left_right(Patch, &Lower_Left, &Lower_Right);
 
-				bezier_split_up_down((VECTOR(*)[4][4])Lower_Left, (VECTOR(*)[4][4])Lower_Left, (VECTOR(*)[4][4])Upper_Left);
+				bezier_split_up_down(&Lower_Left, &Lower_Left, &Upper_Left);
 
-				bezier_split_up_down((VECTOR(*)[4][4])Lower_Right, (VECTOR(*)[4][4])Lower_Right, (VECTOR(*)[4][4])Upper_Right);
+				bezier_split_up_down(&Lower_Right, &Lower_Right, &Upper_Right);
 
 				Node->Node_Type = BEZIER_INTERIOR_NODE;
 
 				Children = create_bezier_child_block();
 
-				Children->Children[0] = bezier_tree_builder((VECTOR(*)[4][4])Lower_Left, u0, (u0 + u1) / 2.0, v0, (v0 + v1) / 2.0, depth + 1, max_depth_reached);
-				Children->Children[1] = bezier_tree_builder((VECTOR(*)[4][4])Upper_Left, u0, (u0 + u1) / 2.0, (v0 + v1) / 2.0, v1, depth + 1, max_depth_reached);
-				Children->Children[2] = bezier_tree_builder((VECTOR(*)[4][4])Lower_Right, (u0 + u1) / 2.0, u1, v0, (v0 + v1) / 2.0, depth + 1, max_depth_reached);
-				Children->Children[3] = bezier_tree_builder((VECTOR(*)[4][4])Upper_Right, (u0 + u1) / 2.0, u1, (v0 + v1) / 2.0, v1, depth + 1, max_depth_reached);
+				Children->Children[0] = bezier_tree_builder(&Lower_Left, u0, (u0 + u1) / 2.0, v0, (v0 + v1) / 2.0, depth + 1, max_depth_reached);
+				Children->Children[1] = bezier_tree_builder(&Upper_Left, u0, (u0 + u1) / 2.0, (v0 + v1) / 2.0, v1, depth + 1, max_depth_reached);
+				Children->Children[2] = bezier_tree_builder(&Lower_Right, (u0 + u1) / 2.0, u1, v0, (v0 + v1) / 2.0, depth + 1, max_depth_reached);
+				Children->Children[3] = bezier_tree_builder(&Upper_Right, (u0 + u1) / 2.0, u1, (v0 + v1) / 2.0, v1, depth + 1, max_depth_reached);
 
 				Node->Count = 4;
 
-				Node->Data_Ptr = (void *)Children;
+				Node->Data_Ptr = reinterpret_cast<void *>(Children);
 			}
 		}
 	}
@@ -644,9 +644,9 @@ bool BicubicPatch::intersect_subpatch(const Ray &ray, const VECTOR V1[3], const 
 
 	Make_Vector(N, 0.0, 0.0, 0.0);
 
-	bezier_value((VECTOR(*)[4][4])&Control_Points, uu[0], vv[0], T1, NN[0]);
-	bezier_value((VECTOR(*)[4][4])&Control_Points, uu[1], vv[1], T1, NN[1]);
-	bezier_value((VECTOR(*)[4][4])&Control_Points, uu[2], vv[2], T1, NN[2]);
+	bezier_value(&Control_Points, uu[0], vv[0], T1, NN[0]);
+	bezier_value(&Control_Points, uu[1], vv[1], T1, NN[1]);
+	bezier_value(&Control_Points, uu[2], vv[2], T1, NN[2]);
 
 	VScale(T1, NN[0], r); VAddEq(N, T1);
 	VScale(T1, NN[1], a); VAddEq(N, T1);
@@ -902,7 +902,7 @@ void BicubicPatch::Precompute_Patch_Values()
 {
 	int i, j;
 	VECTOR cp[16];
-	VECTOR(*Patch_Ptr)[4][4] = (VECTOR(*)[4][4]) Control_Points;
+	VECTOR(*Patch_Ptr)[4][4] = &Control_Points;
 	int max_depth_reached = 0;
 
 	/* Calculate the bounding sphere for the entire patch. */
@@ -1004,7 +1004,7 @@ DBL BicubicPatch::point_plane_distance(const VECTOR p, const VECTOR n, DBL d)
 *
 ******************************************************************************/
 
-int BicubicPatch::bezier_subpatch_intersect(const Ray &ray, const VECTOR (*Patch)[4][4], DBL u0, DBL  u1, DBL  v0, DBL  v1, IStack& Depth_Stack, TraceThreadData *Thread)
+int BicubicPatch::bezier_subpatch_intersect(const Ray &ray, const VECTOR (*Patch)[4][4], DBL u0, DBL  u1, DBL  v0, DBL  v1, IStack& Depth_Stack)
 {
 	int cnt = 0;
 	VECTOR V1[3];
@@ -1416,7 +1416,7 @@ bool BicubicPatch::flat_enough(const VECTOR (*Patch)[4][4]) const
 *
 ******************************************************************************/
 
-int BicubicPatch::bezier_subdivider(const Ray &ray, const VECTOR (*Patch)[4][4], DBL u0, DBL  u1, DBL  v0, DBL  v1, int recursion_depth, IStack& Depth_Stack, TraceThreadData *Thread)
+int BicubicPatch::bezier_subdivider(const Ray &ray, const VECTOR (*Patch)[4][4], DBL u0, DBL  u1, DBL  v0, DBL  v1, int recursion_depth, IStack& Depth_Stack)
 {
 	int cnt = 0;
 	DBL ut, vt, radius;
@@ -1442,48 +1442,48 @@ int BicubicPatch::bezier_subdivider(const Ray &ray, const VECTOR (*Patch)[4][4],
 	 */
 
 	if (flat_enough(Patch))
-		return bezier_subpatch_intersect(ray, Patch, u0, u1, v0, v1, Depth_Stack, Thread);
+		return bezier_subpatch_intersect(ray, Patch, u0, u1, v0, v1, Depth_Stack);
 
 	if (recursion_depth >= U_Steps)
 	{
 		if (recursion_depth >= V_Steps)
 		{
-			return bezier_subpatch_intersect(ray, Patch, u0, u1, v0, v1, Depth_Stack, Thread);
+			return bezier_subpatch_intersect(ray, Patch, u0, u1, v0, v1, Depth_Stack);
 		}
 		else
 		{
-			bezier_split_up_down(Patch, (VECTOR(*)[4][4])Lower_Left, (VECTOR(*)[4][4])Upper_Left);
+			bezier_split_up_down(Patch, &Lower_Left, &Upper_Left);
 
 			vt = (v1 + v0) / 2.0;
 
-			cnt += bezier_subdivider(ray, (VECTOR(*)[4][4])Lower_Left, u0, u1, v0, vt, recursion_depth + 1, Depth_Stack, Thread);
-			cnt += bezier_subdivider(ray, (VECTOR(*)[4][4])Upper_Left, u0, u1, vt, v1, recursion_depth + 1, Depth_Stack, Thread);
+			cnt += bezier_subdivider(ray, &Lower_Left, u0, u1, v0, vt, recursion_depth + 1, Depth_Stack);
+			cnt += bezier_subdivider(ray, &Upper_Left, u0, u1, vt, v1, recursion_depth + 1, Depth_Stack);
 		}
 	}
 	else
 	{
 		if (recursion_depth >= V_Steps)
 		{
-			bezier_split_left_right(Patch, (VECTOR(*)[4][4])Lower_Left, (VECTOR(*)[4][4])Lower_Right);
+			bezier_split_left_right(Patch, &Lower_Left, &Lower_Right);
 
 			ut = (u1 + u0) / 2.0;
 
-			cnt += bezier_subdivider(ray, (VECTOR(*)[4][4])Lower_Left, u0, ut, v0, v1, recursion_depth + 1, Depth_Stack, Thread);
-			cnt += bezier_subdivider(ray, (VECTOR(*)[4][4])Lower_Right, ut, u1, v0, v1, recursion_depth + 1, Depth_Stack, Thread);
+			cnt += bezier_subdivider(ray, &Lower_Left, u0, ut, v0, v1, recursion_depth + 1, Depth_Stack);
+			cnt += bezier_subdivider(ray, &Lower_Right, ut, u1, v0, v1, recursion_depth + 1, Depth_Stack);
 		}
 		else
 		{
 			ut = (u1 + u0) / 2.0;
 			vt = (v1 + v0) / 2.0;
 
-			bezier_split_left_right(Patch, (VECTOR(*)[4][4])Lower_Left, (VECTOR(*)[4][4])Lower_Right);
-			bezier_split_up_down((VECTOR(*)[4][4])Lower_Left, (VECTOR(*)[4][4])Lower_Left, (VECTOR(*)[4][4])Upper_Left) ;
-			bezier_split_up_down((VECTOR(*)[4][4])Lower_Right, (VECTOR(*)[4][4])Lower_Right, (VECTOR(*)[4][4])Upper_Right);
+			bezier_split_left_right(Patch, &Lower_Left, &Lower_Right);
+			bezier_split_up_down(&Lower_Left, &Lower_Left, &Upper_Left) ;
+			bezier_split_up_down(&Lower_Right, &Lower_Right, &Upper_Right);
 
-			cnt += bezier_subdivider(ray, (VECTOR(*)[4][4])Lower_Left, u0, ut, v0, vt, recursion_depth + 1, Depth_Stack, Thread);
-			cnt += bezier_subdivider(ray, (VECTOR(*)[4][4])Upper_Left, u0, ut, vt, v1, recursion_depth + 1, Depth_Stack, Thread);
-			cnt += bezier_subdivider(ray, (VECTOR(*)[4][4])Lower_Right, ut, u1, v0, vt, recursion_depth + 1, Depth_Stack, Thread);
-			cnt += bezier_subdivider(ray, (VECTOR(*)[4][4])Upper_Right, ut, u1, vt, v1, recursion_depth + 1, Depth_Stack, Thread);
+			cnt += bezier_subdivider(ray, &Lower_Left, u0, ut, v0, vt, recursion_depth + 1, Depth_Stack);
+			cnt += bezier_subdivider(ray, &Upper_Left, u0, ut, vt, v1, recursion_depth + 1, Depth_Stack);
+			cnt += bezier_subdivider(ray, &Lower_Right, ut, u1, v0, vt, recursion_depth + 1, Depth_Stack);
+			cnt += bezier_subdivider(ray, &Upper_Right, ut, u1, vt, v1, recursion_depth + 1, Depth_Stack);
 		}
 	}
 
@@ -1527,7 +1527,7 @@ void BicubicPatch::bezier_tree_deleter(BEZIER_NODE *Node)
 
 	if (Node->Node_Type == BEZIER_INTERIOR_NODE)
 	{
-		Children = (BEZIER_CHILDREN *)Node->Data_Ptr;
+		Children = reinterpret_cast<BEZIER_CHILDREN *>(Node->Data_Ptr);
 
 		for (i = 0; i < Node->Count; i++)
 		{
@@ -1579,7 +1579,7 @@ void BicubicPatch::bezier_tree_deleter(BEZIER_NODE *Node)
 *
 ******************************************************************************/
 
-int BicubicPatch::bezier_tree_walker(const Ray &ray, const BEZIER_NODE *Node, IStack& Depth_Stack, TraceThreadData *Thread)
+int BicubicPatch::bezier_tree_walker(const Ray &ray, const BEZIER_NODE *Node, IStack& Depth_Stack)
 {
 	int i, cnt = 0;
 	DBL Depth, u, v;
@@ -1608,16 +1608,16 @@ int BicubicPatch::bezier_tree_walker(const Ray &ray, const BEZIER_NODE *Node, IS
 
 	if (Node->Node_Type == BEZIER_INTERIOR_NODE)
 	{
-		Children = (const BEZIER_CHILDREN *)Node->Data_Ptr;
+		Children = reinterpret_cast<const BEZIER_CHILDREN *>(Node->Data_Ptr);
 
 		for (i = 0; i < Node->Count; i++)
 		{
-			cnt += bezier_tree_walker(ray, Children->Children[i], Depth_Stack, Thread);
+			cnt += bezier_tree_walker(ray, Children->Children[i], Depth_Stack);
 		}
 	}
 	else if (Node->Node_Type == BEZIER_LEAF_NODE)
 	{
-		Vertices = (const BEZIER_VERTICES *)Node->Data_Ptr;
+		Vertices = reinterpret_cast<const BEZIER_VERTICES *>(Node->Data_Ptr);
 
 		Assign_Vector(V1[0], Vertices->Vertices[0]);
 		Assign_Vector(V1[1], Vertices->Vertices[1]);
@@ -1705,11 +1705,11 @@ int BicubicPatch::bezier_tree_walker(const Ray &ray, const BEZIER_NODE *Node, IS
 *
 ******************************************************************************/
 
-int BicubicPatch::intersect_bicubic_patch0(const Ray &ray, IStack& Depth_Stack, TraceThreadData *Thread)
+int BicubicPatch::intersect_bicubic_patch0(const Ray &ray, IStack& Depth_Stack)
 {
 	const VECTOR(*Patch)[4][4] = &Control_Points;
 
-	return (bezier_subdivider(ray, Patch, 0.0, 1.0, 0.0, 1.0, 0, Depth_Stack, Thread));
+	return (bezier_subdivider(ray, Patch, 0.0, 1.0, 0.0, 1.0, 0, Depth_Stack));
 }
 
 
@@ -1752,13 +1752,13 @@ bool BicubicPatch::All_Intersections(const Ray& ray, IStack& Depth_Stack, TraceT
 	{
 		case 0:
 
-			cnt = intersect_bicubic_patch0(ray, Depth_Stack, Thread);
+			cnt = intersect_bicubic_patch0(ray, Depth_Stack);
 
 			break;
 
 		case 1:
 
-			cnt = bezier_tree_walker(ray, Node_Tree, Depth_Stack, Thread);
+			cnt = bezier_tree_walker(ray, Node_Tree, Depth_Stack);
 
 			break;
 
@@ -2147,7 +2147,7 @@ ObjectPtr BicubicPatch::Copy()
 
 	if ( Weights != NULL )
 	{
-		New->Weights = (WEIGHTS *)POV_MALLOC( sizeof(WEIGHTS),"bicubic patch" );
+		New->Weights = reinterpret_cast<WEIGHTS *>(POV_MALLOC( sizeof(WEIGHTS),"bicubic patch" ));
 		POV_MEMCPY( New->Weights, Weights, sizeof(WEIGHTS) );
 	}
 

@@ -122,6 +122,7 @@ Update_Camera()
       Object
       no_shadow     // shouldn't cast shadows in the scene
       no_reflection // shouldn't be reflected in scene elements
+      no_radiosity  // also make the object invisible to radiosity rays
       translate Pos
       scale Scaling
       transform {Camera_Transform}

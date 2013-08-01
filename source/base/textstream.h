@@ -23,9 +23,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/textstream.h $
- * $Revision: #13 $
- * $Change: 5094 $
- * $DateTime: 2010/08/07 06:03:14 $
+ * $Revision: #15 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -130,16 +130,16 @@ class ITextStream
 		int getchar();
 		void ungetchar(int);
 
-		bool eof();
+		bool eof() const;
 		bool seekg(FilePos);
-		FilePos tellg();
+		FilePos tellg() const;
 
-		POV_LONG line() { return lineno; };
+		POV_LONG line() const { return lineno; };
 
-		const UCS2 *name() { return filename.c_str(); };
+		const UCS2 *name() const { return filename.c_str(); };
 	private:
 		IStream *stream;
-		char buffer[ITEXTSTREAM_BUFFER_SIZE];
+		unsigned char buffer[ITEXTSTREAM_BUFFER_SIZE];
 		POV_ULONG bufferoffset;
 		POV_ULONG maxbufferoffset;
 		POV_ULONG filelength;
@@ -163,7 +163,7 @@ class OTextStream
 		void printf(const char *, ...);
 	void flush();
 
-		const UCS2 *name() { return filename.c_str(); };
+		const UCS2 *name() const { return filename.c_str(); };
 	private:
 		OStream *stream;
 		UCS2String filename;

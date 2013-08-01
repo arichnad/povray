@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/pattern/pattern.h $
- * $Revision: #26 $
- * $Change: 5215 $
- * $DateTime: 2010/11/30 18:41:01 $
- * $Author: chrisc $
+ * $Revision: #27 $
+ * $Change: 5625 $
+ * $DateTime: 2012/03/10 21:41:16 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -281,7 +281,7 @@ void Scale_Tpattern (TPATTERN *Tpattern, const VECTOR Vector);
 void Transform_Tpattern (TPATTERN *Tpattern, const TRANSFORM *Trans);
 DBL quilt_cubic (DBL t,DBL p1,DBL p2);
 void Search_Blend_Map (DBL value, const BLEND_MAP *Blend_Map,
-                       BLEND_MAP_ENTRY **Prev, BLEND_MAP_ENTRY **Cur);
+                       const BLEND_MAP_ENTRY **Prev, const BLEND_MAP_ENTRY **Cur);
 int GetNoiseGen (const TPATTERN *TPat, const TraceThreadData *Thread);
 
 DENSITY_FILE *Create_Density_File ();

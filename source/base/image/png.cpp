@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/image/png.cpp $
- * $Revision: #47 $
- * $Change: 5303 $
- * $DateTime: 2010/12/27 14:22:56 $
+ * $Revision: #48 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -124,7 +124,7 @@
 
 #ifndef LIBPNG_MISSING
 
-#include "png.h"
+#include <png.h>
 #include "metadata.h"
 
 // this must be the last file included
@@ -863,8 +863,8 @@ void Write (OStream *file, const Image *image, const Image::WriteOptions& option
 		comment += meta.getComment4() + "\n";
 	string soft (meta.getSoftware());
 	png_text p_text[2] = {
-		{ PNG_TEXT_COMPRESSION_NONE, "Software", const_cast<char *>(soft.c_str()),    soft.length() },
-		{ PNG_TEXT_COMPRESSION_NONE, "Comment",  const_cast<char *>(comment.c_str()), comment.length() },
+		{ PNG_TEXT_COMPRESSION_NONE, const_cast<char *>("Software"), const_cast<char *>(soft.c_str()),    soft.length() },
+		{ PNG_TEXT_COMPRESSION_NONE, const_cast<char *>("Comment"),  const_cast<char *>(comment.c_str()), comment.length() },
 	};
 	png_set_text(png_ptr, info_ptr, p_text, 2);
 #endif // PNG_WRITE_TEXT_SUPPORTED

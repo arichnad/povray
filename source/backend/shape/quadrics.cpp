@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/quadrics.cpp $
- * $Revision: #32 $
- * $Change: 5103 $
- * $DateTime: 2010/08/22 06:58:49 $
+ * $Revision: #33 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -1476,7 +1476,7 @@ void Quadric::Compute_BBox(VECTOR ClipMin, VECTOR ClipMax)
 *
 ******************************************************************************/
 
-void Quadric::Compute_Plane_Min_Max(Plane *plane, VECTOR Min, VECTOR  Max)
+void Quadric::Compute_Plane_Min_Max(const Plane *plane, VECTOR Min, VECTOR  Max)
 {
 	DBL d;
 	VECTOR P, N;

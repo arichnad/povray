@@ -25,9 +25,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/support/octree.h $
- * $Revision: #20 $
- * $Change: 5209 $
- * $DateTime: 2010/11/28 18:25:20 $
+ * $Revision: #21 $
+ * $Change: 5783 $
+ * $DateTime: 2013/02/04 10:34:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -184,7 +184,7 @@ struct ot_read_info_struct
 * Global functions
 ******************************************************************************/
 
-void ot_ins (OT_NODE **root, OT_BLOCK *new_block, OT_ID *new_id);
+void ot_ins (OT_NODE **root, OT_BLOCK *new_block, const OT_ID *new_id);
 bool ot_dist_traverse (OT_NODE *subtree, const Vector3d& point, int bounce_depth, bool (*func)(OT_BLOCK *block, void *handle1), void *handle2);
 void ot_index_sphere (const Vector3d& point, DBL radius, OT_ID *id);
 void ot_index_box (const Vector3d& min_point, const Vector3d& max_point, OT_ID *id);

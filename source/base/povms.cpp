@@ -22,10 +22,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/povms.cpp $
- * $Revision: #43 $
- * $Change: 5260 $
- * $DateTime: 2010/12/14 06:48:11 $
- * $Author: chrisc $
+ * $Revision: #44 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -321,8 +321,8 @@ void POVMSStream_BuildOrderTable                      (POVMSStream *srcdata, POV
 void POVMSStream_ReadDataOrdered                      (POVMSStream *stream, POVMSStream *data, int *order, int datasize);
 void POVMSStream_ReadDataUnordered                    (POVMSStream *stream, POVMSStream *data, int datasize);
 
-void POVMSStream_WriteDataOrdered                     (POVMSStream *data, POVMSStream *stream, int *order, int datasize);
-void POVMSStream_WriteDataUnordered                   (POVMSStream *data, POVMSStream *stream, int datasize);
+void POVMSStream_WriteDataOrdered                     (const POVMSStream *data, POVMSStream *stream, int *order, int datasize);
+void POVMSStream_WriteDataUnordered                   (const POVMSStream *data, POVMSStream *stream, int datasize);
 
 POVMSNode *POVMSObject_Find    (POVMSObjectPtr msg, POVMSType key);
 
@@ -1552,7 +1552,7 @@ POVMS_EXPORT int POVMS_CDECL POVMSStream_Read(struct POVMSData *data, POVMSStrea
 *
 ******************************************************************************/
 
-void POVMSStream_WriteDataOrdered(POVMSStream *data, POVMSStream *stream, int *order, int datasize)
+void POVMSStream_WriteDataOrdered(const POVMSStream *data, POVMSStream *stream, int *order, int datasize)
 {
 	int byteindex;
 
@@ -1574,7 +1574,7 @@ void POVMSStream_WriteDataOrdered(POVMSStream *data, POVMSStream *stream, int *o
 *
 ******************************************************************************/
 
-void POVMSStream_WriteDataUnordered(POVMSStream *data, POVMSStream *stream, int datasize)
+void POVMSStream_WriteDataUnordered(const POVMSStream *data, POVMSStream *stream, int datasize)
 {
 	int byteindex;
 
@@ -1608,7 +1608,7 @@ POVMS_EXPORT int POVMS_CDECL POVMSStream_WriteString(const char *data, POVMSStre
 	if(*maxstreamsize < len)
 		return 0;
 
-	POVMSStream_WriteDataUnordered((POVMSStream *)data, stream , len);
+	POVMSStream_WriteDataUnordered(reinterpret_cast<const POVMSStream *>(data), stream , len);
 
 	*maxstreamsize -= len;
 
@@ -1643,7 +1643,7 @@ POVMS_EXPORT int POVMS_CDECL POVMSStream_WriteUCS2String(const POVMSUCS2 *data, 
 		return 0;
 
 	for(i = 0; i < len; i++)
-		POVMSStream_WriteDataOrdered((POVMSStream *)(&data[i]), &stream[i * 2], POVMSStreamOrderTables.ucs2_write, 2);
+		POVMSStream_WriteDataOrdered(reinterpret_cast<const POVMSStream *>(&data[i]), &stream[i * 2], POVMSStreamOrderTables.ucs2_write, 2);
 
 	*maxstreamsize -= (len * 2);
 
@@ -3816,7 +3816,7 @@ POVMS_EXPORT int POVMS_CDECL POVMSUtil_SetString(POVMSObjectPtr object, POVMSTyp
 
 	ret = POVMSAttr_New(&attr);
 	if(ret == kNoErr)
-		ret = POVMSAttr_Set(&attr, kPOVMSType_CString, (void *)str, (int)POVMS_Sys_Strlen(str) + 1);
+		ret = POVMSAttr_Set(&attr, kPOVMSType_CString, reinterpret_cast<const void *>(str), (int)POVMS_Sys_Strlen(str) + 1);
 	if(ret == kNoErr)
 		ret = POVMSObject_Set(object, &attr, key);
 
@@ -3851,7 +3851,7 @@ POVMS_EXPORT int POVMS_CDECL POVMSUtil_SetUCS2String(POVMSObjectPtr object, POVM
 
 	ret = POVMSAttr_New(&attr);
 	if(ret == kNoErr)
-		ret = POVMSAttr_Set(&attr, kPOVMSType_UCS2String, (void *)str, (int)(POVMS_Sys_UCS2Strlen((const POVMSUCS2 *)str) + 1)*sizeof(POVMSUCS2));
+		ret = POVMSAttr_Set(&attr, kPOVMSType_UCS2String, reinterpret_cast<const void *>(str), (int)(POVMS_Sys_UCS2Strlen(reinterpret_cast<const POVMSUCS2 *>(str)) + 1)*sizeof(POVMSUCS2));
 	if(ret == kNoErr)
 		ret = POVMSObject_Set(object, &attr, key);
 

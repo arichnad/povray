@@ -24,10 +24,10 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/lighting/photonshootingtask.cpp $
- * $Revision: #16 $
- * $Change: 5316 $
- * $DateTime: 2011/01/01 04:54:21 $
- * $Author: chrisc $
+ * $Revision: #17 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
+ * $Author: clipka $
  *******************************************************************************/
 
 /*********************************************************************************
@@ -456,7 +456,7 @@ void PhotonShootingTask::ShootPhotonsAtObject(LightTargetCombo& combo)
 	} /* end of rays loop */
 }
 
-DBL PhotonShootingTask::computeAttenuation(LightSource* Light, Ray& ray, DBL dist_of_initial_from_center)
+DBL PhotonShootingTask::computeAttenuation(const LightSource* Light, const Ray& ray, DBL dist_of_initial_from_center)
 {
 	DBL costheta_spot;
 	DBL Attenuation = 1.0;

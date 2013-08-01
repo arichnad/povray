@@ -24,9 +24,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/vm/fnpovfpu.h $
- * $Revision: #13 $
- * $Change: 5434 $
- * $DateTime: 2011/04/12 17:57:09 $
+ * $Revision: #14 $
+ * $Change: 5745 $
+ * $DateTime: 2013/01/21 11:29:35 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -129,7 +129,7 @@ enum
 
 struct Opcode
 {
-	char *name;
+	const char *name;
 	unsigned int code;
 	int type;
 };

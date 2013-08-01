@@ -20,9 +20,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/image/metadata.h $
- * $Revision: #5 $
- * $Change: 5251 $
- * $DateTime: 2010/12/09 08:48:36 $
+ * $Revision: #6 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -188,20 +188,20 @@ class Metadata
 		}
 
 		/// Get date string in ISO 8601 format.
-		string getDateTime() { return to_iso_extended_string(date) + " " + to_simple_string(time) + "Z"; }
+		string getDateTime() const { return to_iso_extended_string(date) + " " + to_simple_string(time) + "Z"; }
 
 		/// Get year (including full century)
-		int getYear() { return date.year(); }
+		int getYear() const { return date.year(); }
 		/// Get month (1..12)
-		int getMonth() { return date.month(); }
+		int getMonth() const { return date.month(); }
 		/// Get day of month (1..31)
-		int getDay() { return date.day(); }
+		int getDay() const { return date.day(); }
 		/// Get hour of day (0..23)
-		int getHour() { return time.hours(); }
+		int getHour() const { return time.hours(); }
 		/// Get minute of hour (0..59)
-		int getMin() { return time.minutes(); }
+		int getMin() const { return time.minutes(); }
 		/// Get second of minute (0..59)
-		int getSec() { return time.seconds(); }
+		int getSec() const { return time.seconds(); }
 
 	protected:
 		boost::gregorian::date              date;

@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/bounding/bsphere.cpp $
- * $Revision: #14 $
- * $Change: 5228 $
- * $DateTime: 2010/12/03 09:40:41 $
+ * $Revision: #16 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -114,7 +114,7 @@ const int BRANCHING_FACTOR = 4;
 * Static functions
 ******************************************************************************/
 
-static void merge_spheres (VECTOR C, DBL *r, VECTOR C1, DBL r1, VECTOR C2, DBL r2);
+static void merge_spheres (VECTOR C, DBL *r, const VECTOR C1, DBL r1, const VECTOR C2, DBL r2);
 static void recompute_bound (BSPHERE_TREE *Node);
 static int sort_and_split(BSPHERE_TREE **Root, BSPHERE_TREE ***Elements, int *nElem, int first, int last, int& maxelements);
 
@@ -151,7 +151,7 @@ static int sort_and_split(BSPHERE_TREE **Root, BSPHERE_TREE ***Elements, int *nE
 *
 ******************************************************************************/
 
-static void merge_spheres(VECTOR C, DBL *r, VECTOR  C1, DBL  r1, VECTOR  C2, DBL  r2)
+static void merge_spheres(VECTOR C, DBL *r, const VECTOR C1, DBL r1, const VECTOR C2, DBL r2)
 {
 	DBL l, r1r, r2r, k1, k2;
 	VECTOR D;
@@ -285,9 +285,10 @@ template<int Axis>
 int CDECL comp_elements(const void *in_a, const void *in_b)
 {
 	DBL am, bm;
+	typedef const BSPHERE_TREE *CONST_BSPHERE_TREE_PTR;
 
-	am = (*(BSPHERE_TREE **)in_a)->C[Axis];
-	bm = (*(BSPHERE_TREE **)in_b)->C[Axis];
+	am = (*reinterpret_cast<const CONST_BSPHERE_TREE_PTR *>(in_a))->C[Axis];
+	bm = (*reinterpret_cast<const CONST_BSPHERE_TREE_PTR *>(in_b))->C[Axis];
 
 	if (am < bm - EPSILON)
 		return (-1);
@@ -484,13 +485,13 @@ static int sort_and_split(BSPHERE_TREE **Root, BSPHERE_TREE ***Elements, int *nE
 	switch(Axis)
 	{
 		case X:
-			QSORT((void *)(*Elements + first), size, sizeof(BSPHERE_TREE *), comp_elements<X>);
+			QSORT(reinterpret_cast<void *>(*Elements + first), size, sizeof(BSPHERE_TREE *), comp_elements<X>);
 			break;
 		case Y:
-			QSORT((void *)(*Elements + first), size, sizeof(BSPHERE_TREE *), comp_elements<Y>);
+			QSORT(reinterpret_cast<void *>(*Elements + first), size, sizeof(BSPHERE_TREE *), comp_elements<Y>);
 			break;
 		case Z:
-			QSORT((void *)(*Elements + first), size, sizeof(BSPHERE_TREE *), comp_elements<Z>);
+			QSORT(reinterpret_cast<void *>(*Elements + first), size, sizeof(BSPHERE_TREE *), comp_elements<Z>);
 			break;
 	}
 
@@ -502,8 +503,8 @@ static int sort_and_split(BSPHERE_TREE **Root, BSPHERE_TREE ***Elements, int *nE
 	 * i through size-1.
 	 */
 
-	area_left  = (DBL *)POV_MALLOC(size * sizeof(DBL), "blob bounding hierarchy");
-	area_right = (DBL *)POV_MALLOC(size * sizeof(DBL), "blob bounding hierarchy");
+	area_left  = reinterpret_cast<DBL *>(POV_MALLOC(size * sizeof(DBL), "blob bounding hierarchy"));
+	area_right = reinterpret_cast<DBL *>(POV_MALLOC(size * sizeof(DBL), "blob bounding hierarchy"));
 
 	/* Precalculate the areas for speed. */
 
@@ -542,11 +543,11 @@ static int sort_and_split(BSPHERE_TREE **Root, BSPHERE_TREE ***Elements, int *nE
 
 	if ((size <= BRANCHING_FACTOR) || (best_loc < 0))
 	{
-		cd = (BSPHERE_TREE *)POV_MALLOC(sizeof(BSPHERE_TREE), "blob bounding hierarchy");
+		cd = reinterpret_cast<BSPHERE_TREE *>(POV_MALLOC(sizeof(BSPHERE_TREE), "blob bounding hierarchy"));
 
 		cd->Entries = (short)size;
 
-		cd->Node = (BSPHERE_TREE **)POV_MALLOC(size*sizeof(BSPHERE_TREE *), "blob bounding hierarchy");
+		cd->Node = reinterpret_cast<BSPHERE_TREE **>(POV_MALLOC(size*sizeof(BSPHERE_TREE *), "blob bounding hierarchy"));
 
 		for (i = 0; i < size; i++)
 		{
@@ -567,7 +568,7 @@ static int sort_and_split(BSPHERE_TREE **Root, BSPHERE_TREE ***Elements, int *nE
 
 // TODO FIXME			Debug_Info("Reallocing elements to %d\n", maxelements);
 
-			*Elements = (BSPHERE_TREE **)POV_REALLOC(*Elements, maxelements * sizeof(BSPHERE_TREE *), "bounding slabs");
+			*Elements = reinterpret_cast<BSPHERE_TREE **>(POV_REALLOC(*Elements, maxelements * sizeof(BSPHERE_TREE *), "bounding slabs"));
 		}
 
 		(*Elements)[*nElem] = cd;

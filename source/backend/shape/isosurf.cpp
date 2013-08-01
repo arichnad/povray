@@ -25,9 +25,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/backend/shape/isosurf.cpp $
- * $Revision: #47 $
- * $Change: 5103 $
- * $DateTime: 2010/08/22 06:58:49 $
+ * $Revision: #48 $
+ * $Change: 5770 $
+ * $DateTime: 2013/01/30 13:07:27 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -1013,7 +1013,7 @@ bool IsoSurface::Function_Find_Root(ISO_ThreadData& itd, const VECTOR PP, const 
 
 	itd.cache = false;
 	EP1.t = *Depth1;
-	EP1.f = Float_Function(itd, Depth1);
+	EP1.f = Float_Function(itd, *Depth1);
 	itd.fmax = EP1.f;
 	if((closed == false) && (EP1.f < 0.0))
 	{
@@ -1022,7 +1022,7 @@ bool IsoSurface::Function_Find_Root(ISO_ThreadData& itd, const VECTOR PP, const 
 	}
 
 	EP2.t = *Depth2;
-	EP2.f = Float_Function(itd, Depth2);
+	EP2.f = Float_Function(itd, *Depth2);
 	itd.fmax = min(EP2.f, itd.fmax);
 
 	oldmg = maxg;
@@ -1120,7 +1120,7 @@ bool IsoSurface::Function_Find_Root_R(ISO_ThreadData& itd, const ISO_Pair* EP1, 
 		t21 *= 0.5;
 		dt *= 0.5;
 		EPa.t = EP1->t + t21;
-		EPa.f = Float_Function(itd, &EPa.t);
+		EPa.f = Float_Function(itd, EPa.t);
 
 		itd.fmax = min(EPa.f, itd.fmax);
 		if(!Function_Find_Root_R(itd, EP1, &EPa, dt, t21, len * 2.0, maxg))
@@ -1191,11 +1191,11 @@ DBL IsoSurface::Vector_Function(FPUContext *ctx, const VECTOR VPos) const
 *
 ******************************************************************************/
 
-DBL IsoSurface::Float_Function(ISO_ThreadData& itd, DBL* t) const
+DBL IsoSurface::Float_Function(ISO_ThreadData& itd, DBL t) const
 {
 	VECTOR VTmp;
 
-	VEvaluateRay(VTmp, itd.Pglobal, *t, itd.Dglobal);
+	VEvaluateRay(VTmp, itd.Pglobal, t, itd.Dglobal);
 
 	return ((DBL)itd.Inv3 * (Evaluate_Function(itd.ctx, *Function, VTmp) - threshold));
 }

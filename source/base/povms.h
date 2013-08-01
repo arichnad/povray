@@ -22,9 +22,9 @@
  * DKBTrace Ver 2.0-2.12 were written by David K. Buck & Aaron A. Collins.
  * ---------------------------------------------------------------------------
  * $File: //depot/povray/smp/source/base/povms.h $
- * $Revision: #18 $
- * $Change: 5094 $
- * $DateTime: 2010/08/07 06:03:14 $
+ * $Revision: #19 $
+ * $Change: 5743 $
+ * $DateTime: 2013/01/20 06:41:04 $
  * $Author: clipka $
  *******************************************************************************/
 
@@ -232,9 +232,14 @@ enum
 
 typedef void * POVMSContext;
 
-typedef struct POVMSData POVMSObject, *POVMSObjectPtr;
-typedef struct POVMSData POVMSAttribute, *POVMSAttributePtr;
-typedef struct POVMSData POVMSAttributeList, *POVMSAttributeListPtr;
+typedef struct POVMSData POVMSObject;
+typedef struct POVMSData POVMSAttribute;
+typedef struct POVMSData POVMSAttributeList;
+
+typedef POVMSObject        *POVMSObjectPtr;
+typedef POVMSAttribute     *POVMSAttributePtr;
+typedef POVMSAttributeList *POVMSAttributeListPtr;
+
 typedef struct POVMSNode POVMSNode;
 
 struct POVMSData

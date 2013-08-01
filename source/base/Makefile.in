@@ -99,10 +99,12 @@ am_libbase_a_OBJECTS = povms.$(OBJEXT) colourspace.$(OBJEXT) \
 	encoding.$(OBJEXT) tiff.$(OBJEXT) targa.$(OBJEXT) \
 	png.$(OBJEXT) ppm.$(OBJEXT) gifdecod.$(OBJEXT) image.$(OBJEXT) \
 	gif.$(OBJEXT) bmp.$(OBJEXT) iff.$(OBJEXT) hdr.$(OBJEXT) \
-	fileinputoutput.$(OBJEXT) textstreambuffer.$(OBJEXT) \
-	animation.$(OBJEXT) moov.$(OBJEXT) path.$(OBJEXT) \
-	timer.$(OBJEXT) textstream.$(OBJEXT) processoptions.$(OBJEXT) \
-	stringutilities.$(OBJEXT) pov_err.$(OBJEXT) povmscpp.$(OBJEXT)
+	povlogo.$(OBJEXT) timrom.$(OBJEXT) crystal.$(OBJEXT) \
+	cyrvetic.$(OBJEXT) fileinputoutput.$(OBJEXT) \
+	textstreambuffer.$(OBJEXT) animation.$(OBJEXT) moov.$(OBJEXT) \
+	path.$(OBJEXT) timer.$(OBJEXT) textstream.$(OBJEXT) \
+	processoptions.$(OBJEXT) stringutilities.$(OBJEXT) \
+	pov_err.$(OBJEXT) povmscpp.$(OBJEXT)
 libbase_a_OBJECTS = $(am_libbase_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/unix/config/depcomp
@@ -251,7 +253,7 @@ noinst_LIBRARIES = libbase.a
 
 # Source files.
 libbase_a_SOURCES = \
-textstreambuffer.h textstream.h povms.h povms.cpp platformbase.h image/ppm.h image/colourspace.cpp image/pgm.h image/pgm.cpp image/openexr.cpp image/jpeg.cpp image/jpeg_pov.h image/image.h image/colourspace.h image/bmp.h image/iff.h image/encoding.cpp image/encoding.h image/targa.h image/tiff.cpp image/targa.cpp image/png_pov.h image/hdr.h image/png.cpp image/ppm.cpp image/gifdecod.cpp image/openexr.h image/image.cpp image/gif.cpp image/bmp.cpp image/iff.cpp image/hdr.cpp image/metadata.h image/tiff_pov.h image/gif.h timer.h fileinputoutput.h configbase.h types.h pointer.h path.h fileinputoutput.cpp textstreambuffer.cpp animation/animation.h animation/animation.cpp animation/moov.cpp animation/moov.h path.cpp timer.cpp povmscpp.h povmsgid.h povdebug.h processoptions.h textstream.cpp processoptions.cpp stringutilities.cpp stringutilities.h pov_err.h pov_err.cpp povmscpp.cpp
+textstreambuffer.h textstream.h povms.h povms.cpp platformbase.h image/ppm.h image/colourspace.cpp image/pgm.h image/pgm.cpp image/openexr.cpp image/jpeg.cpp image/jpeg_pov.h image/image.h image/colourspace.h image/bmp.h image/iff.h image/encoding.cpp image/encoding.h image/targa.h image/tiff.cpp image/targa.cpp image/png_pov.h image/hdr.h image/png.cpp image/ppm.cpp image/gifdecod.cpp image/openexr.h image/image.cpp image/gif.cpp image/bmp.cpp image/iff.cpp image/hdr.cpp image/metadata.h image/tiff_pov.h image/gif.h timer.h fileinputoutput.h configbase.h types.h pointer.h path.h font/povlogo.cpp font/crystal.h font/timrom.cpp font/cyrvetic.h font/crystal.cpp font/povlogo.h font/cyrvetic.cpp font/timrom.h safemath.h fileinputoutput.cpp textstreambuffer.cpp animation/animation.h animation/animation.cpp animation/moov.cpp animation/moov.h path.cpp timer.cpp povmscpp.h povmsgid.h povdebug.h processoptions.h textstream.cpp processoptions.cpp stringutilities.cpp stringutilities.h pov_err.h pov_err.cpp povmscpp.cpp
 
 
 # Include paths for headers.
@@ -314,6 +316,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/animation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bmp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/colourspace.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crystal.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cyrvetic.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/encoding.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fileinputoutput.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gif.Po@am__quote@
@@ -328,6 +332,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pgm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/png.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pov_err.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/povlogo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/povms.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/povmscpp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ppm.Po@am__quote@
@@ -338,6 +343,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/textstreambuffer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tiff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/timer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/timrom.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -562,6 +568,62 @@ hdr.obj: image/hdr.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='image/hdr.cpp' object='hdr.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o hdr.obj `if test -f 'image/hdr.cpp'; then $(CYGPATH_W) 'image/hdr.cpp'; else $(CYGPATH_W) '$(srcdir)/image/hdr.cpp'; fi`
+
+povlogo.o: font/povlogo.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT povlogo.o -MD -MP -MF $(DEPDIR)/povlogo.Tpo -c -o povlogo.o `test -f 'font/povlogo.cpp' || echo '$(srcdir)/'`font/povlogo.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/povlogo.Tpo $(DEPDIR)/povlogo.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='font/povlogo.cpp' object='povlogo.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o povlogo.o `test -f 'font/povlogo.cpp' || echo '$(srcdir)/'`font/povlogo.cpp
+
+povlogo.obj: font/povlogo.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT povlogo.obj -MD -MP -MF $(DEPDIR)/povlogo.Tpo -c -o povlogo.obj `if test -f 'font/povlogo.cpp'; then $(CYGPATH_W) 'font/povlogo.cpp'; else $(CYGPATH_W) '$(srcdir)/font/povlogo.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/povlogo.Tpo $(DEPDIR)/povlogo.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='font/povlogo.cpp' object='povlogo.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o povlogo.obj `if test -f 'font/povlogo.cpp'; then $(CYGPATH_W) 'font/povlogo.cpp'; else $(CYGPATH_W) '$(srcdir)/font/povlogo.cpp'; fi`
+
+timrom.o: font/timrom.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT timrom.o -MD -MP -MF $(DEPDIR)/timrom.Tpo -c -o timrom.o `test -f 'font/timrom.cpp' || echo '$(srcdir)/'`font/timrom.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/timrom.Tpo $(DEPDIR)/timrom.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='font/timrom.cpp' object='timrom.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o timrom.o `test -f 'font/timrom.cpp' || echo '$(srcdir)/'`font/timrom.cpp
+
+timrom.obj: font/timrom.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT timrom.obj -MD -MP -MF $(DEPDIR)/timrom.Tpo -c -o timrom.obj `if test -f 'font/timrom.cpp'; then $(CYGPATH_W) 'font/timrom.cpp'; else $(CYGPATH_W) '$(srcdir)/font/timrom.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/timrom.Tpo $(DEPDIR)/timrom.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='font/timrom.cpp' object='timrom.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o timrom.obj `if test -f 'font/timrom.cpp'; then $(CYGPATH_W) 'font/timrom.cpp'; else $(CYGPATH_W) '$(srcdir)/font/timrom.cpp'; fi`
+
+crystal.o: font/crystal.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT crystal.o -MD -MP -MF $(DEPDIR)/crystal.Tpo -c -o crystal.o `test -f 'font/crystal.cpp' || echo '$(srcdir)/'`font/crystal.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/crystal.Tpo $(DEPDIR)/crystal.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='font/crystal.cpp' object='crystal.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o crystal.o `test -f 'font/crystal.cpp' || echo '$(srcdir)/'`font/crystal.cpp
+
+crystal.obj: font/crystal.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT crystal.obj -MD -MP -MF $(DEPDIR)/crystal.Tpo -c -o crystal.obj `if test -f 'font/crystal.cpp'; then $(CYGPATH_W) 'font/crystal.cpp'; else $(CYGPATH_W) '$(srcdir)/font/crystal.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/crystal.Tpo $(DEPDIR)/crystal.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='font/crystal.cpp' object='crystal.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o crystal.obj `if test -f 'font/crystal.cpp'; then $(CYGPATH_W) 'font/crystal.cpp'; else $(CYGPATH_W) '$(srcdir)/font/crystal.cpp'; fi`
+
+cyrvetic.o: font/cyrvetic.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT cyrvetic.o -MD -MP -MF $(DEPDIR)/cyrvetic.Tpo -c -o cyrvetic.o `test -f 'font/cyrvetic.cpp' || echo '$(srcdir)/'`font/cyrvetic.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/cyrvetic.Tpo $(DEPDIR)/cyrvetic.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='font/cyrvetic.cpp' object='cyrvetic.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cyrvetic.o `test -f 'font/cyrvetic.cpp' || echo '$(srcdir)/'`font/cyrvetic.cpp
+
+cyrvetic.obj: font/cyrvetic.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT cyrvetic.obj -MD -MP -MF $(DEPDIR)/cyrvetic.Tpo -c -o cyrvetic.obj `if test -f 'font/cyrvetic.cpp'; then $(CYGPATH_W) 'font/cyrvetic.cpp'; else $(CYGPATH_W) '$(srcdir)/font/cyrvetic.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/cyrvetic.Tpo $(DEPDIR)/cyrvetic.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='font/cyrvetic.cpp' object='cyrvetic.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cyrvetic.obj `if test -f 'font/cyrvetic.cpp'; then $(CYGPATH_W) 'font/cyrvetic.cpp'; else $(CYGPATH_W) '$(srcdir)/font/cyrvetic.cpp'; fi`
 
 animation.o: animation/animation.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT animation.o -MD -MP -MF $(DEPDIR)/animation.Tpo -c -o animation.o `test -f 'animation/animation.cpp' || echo '$(srcdir)/'`animation/animation.cpp
