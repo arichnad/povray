@@ -1,0 +1,12 @@
+*.[oa]
+.deps/
+Makefile
+
+/config.h
+/config.log
+/config.status
+/stamp-h1
+/source/jversion.h
+/povray.ini
+
+/unix/povray
